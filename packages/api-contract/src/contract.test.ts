@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { otpVerifySchema, patchMeRequestSchema, phoneSchema } from "./index.ts";
+import {
+  otpVerifySchema,
+  patchMeRequestSchema,
+  phoneSchema,
+  programSlugParamsSchema,
+  sessionDrillSchema,
+  sessionIdParamsSchema,
+} from "./index.ts";
 
 describe("phone numbers", () => {
   it.each([
@@ -28,5 +35,43 @@ describe("PATCH /me", () => {
     expect(patchMeRequestSchema.safeParse({ timezone: "Mars/Olympus" }).success).toBe(false);
     expect(patchMeRequestSchema.safeParse({ dob: "2999-01-01" }).success).toBe(false);
     expect(patchMeRequestSchema.safeParse({ reminderTime: "25:00" }).success).toBe(false);
+  });
+});
+
+describe("content reads (rule 5)", () => {
+  const drill = {
+    id: "00000000-0000-4000-8000-000000000001",
+    order: 1,
+    title: "Near–Far Focus Shifts",
+    videoProvider: "youtube",
+    thumbnailUrl: null,
+    instructions: ["Hold the near card at arm's length."],
+    targetType: "seconds",
+    targetValue: 30,
+    targetLabel: "3 × 30 s",
+    restSeconds: 15,
+    durationMinutes: 4,
+    scoreType: "number",
+    scoreDirection: "higher",
+    scoreUnit: "shifts",
+    xp: 10,
+    measurement: { slug: "dynamic-visual-acuity", name: "Dynamic Visual Acuity", group: "vision" },
+    access: "included",
+    coinPrice: 30,
+    ppvProductId: null,
+    locked: false,
+  };
+  it("accepts a session drill", () => {
+    expect(sessionDrillSchema.safeParse(drill).success).toBe(true);
+  });
+  it.each(["videoRef", "video_ref", "ref"])("refuses a drill carrying %s", (key) => {
+    expect(sessionDrillSchema.safeParse({ ...drill, [key]: "dQw4w9WgXcQ" }).success).toBe(false);
+  });
+  it("takes a slug or a uuid as route params, nothing else", () => {
+    expect(programSlugParamsSchema.safeParse({ slug: "cricket-vision-foundations" }).success).toBe(
+      true,
+    );
+    expect(programSlugParamsSchema.safeParse({ slug: "../etc" }).success).toBe(false);
+    expect(sessionIdParamsSchema.safeParse({ id: "1" }).success).toBe(false);
   });
 });

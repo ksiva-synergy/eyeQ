@@ -24,27 +24,42 @@ export interface Deps {
   report?: (e: unknown, ctx: Record<string, unknown>) => void;
 }
 
-export interface RouteContext<B> {
+export interface RouteContext<B, P = Record<string, never>> {
   tx: Tx;
   session: Session;
   body: B;
+  /** Dynamic route segments, validated by the spec's params schema. */
+  params: P;
   req: Request;
   requestId: string;
 }
 
-export interface RouteSpec<S extends z.ZodType | undefined, R> {
+export interface RouteSpec<
+  S extends z.ZodType | undefined,
+  R,
+  P extends z.ZodType | undefined = undefined,
+> {
   /** "PATCH /me": names the route in logs and scopes idempotency keys. */
   name: string;
   body?: S;
+  /** Dynamic segments ("/programs/[slug]"); a mismatch is a 400 validation_failed. */
+  params?: P;
   /** Mutations: require an Idempotency-Key and replay the first result (rule 6). */
   idempotent?: boolean;
   /** Defaults to the per-athlete API limit. */
   rateLimits?: RateRule[];
   status?: number;
-  handler: (ctx: RouteContext<S extends z.ZodType ? z.output<S> : undefined>) => Promise<R>;
+  handler: (
+    ctx: RouteContext<
+      S extends z.ZodType ? z.output<S> : undefined,
+      P extends z.ZodType ? z.output<P> : Record<string, never>
+    >,
+  ) => Promise<R>;
 }
 
-export type Handler = (req: Request) => Promise<Response>;
+/** Next.js passes dynamic segments as a promise (route handler `context.params`). */
+export type RouteHandlerContext = { params?: Promise<Record<string, string | string[]>> };
+export type Handler = (req: Request, ctx?: RouteHandlerContext) => Promise<Response>;
 
 const NO_STORE = { "cache-control": "no-store" };
 
@@ -57,11 +72,22 @@ async function readBody<S extends z.ZodType>(req: Request, schema: S): Promise<z
     throw new ApiError(400, "invalid_json", "The request body is not valid JSON.");
   }
   const parsed = schema.safeParse(raw);
-  if (!parsed.success) {
-    throw new ApiError(400, "validation_failed", "The request is not valid.", {
-      issues: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
-    });
-  }
+  if (!parsed.success) throw invalid(parsed.error.issues);
+  return parsed.data;
+}
+
+function invalid(issues: z.core.$ZodIssue[]): ApiError {
+  return new ApiError(400, "validation_failed", "The request is not valid.", {
+    issues: issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+  });
+}
+
+async function readParams<P extends z.ZodType>(
+  ctx: RouteHandlerContext | undefined,
+  schema: P,
+): Promise<z.output<P>> {
+  const parsed = schema.safeParse((await ctx?.params) ?? {});
+  if (!parsed.success) throw invalid(parsed.error.issues);
   return parsed.data;
 }
 
@@ -76,11 +102,12 @@ async function enforce(db: PrismaClient, rule: RateRule, subject: string): Promi
   }
 }
 
-export function apiRoute<S extends z.ZodType | undefined, R>(
-  spec: RouteSpec<S, R>,
-  deps: () => Deps,
-): Handler {
-  return async (req) => {
+export function apiRoute<
+  S extends z.ZodType | undefined,
+  R,
+  P extends z.ZodType | undefined = undefined,
+>(spec: RouteSpec<S, R, P>, deps: () => Deps): Handler {
+  return async (req, ctx) => {
     const started = performance.now();
     const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
     let userId: string | undefined;
@@ -95,6 +122,9 @@ export function apiRoute<S extends z.ZodType | undefined, R>(
       const body = (spec.body ? await readBody(req, spec.body) : undefined) as S extends z.ZodType
         ? z.output<S>
         : undefined;
+      const params = (spec.params ? await readParams(ctx, spec.params) : {}) as P extends z.ZodType
+        ? z.output<P>
+        : Record<string, never>;
       const key = spec.idempotent ? idempotencyKey(req) : null;
 
       const result = await asAthlete(d.db, session.userId, async (tx) => {
@@ -109,7 +139,7 @@ export function apiRoute<S extends z.ZodType | undefined, R>(
           );
           if (stored) return { ...stored, replayed: true };
         }
-        const data = await spec.handler({ tx, session, body, req, requestId });
+        const data = await spec.handler({ tx, session, body, params, req, requestId });
         const out = { status: spec.status ?? 200, body: data as unknown };
         if (key) await complete(tx, session.userId, key, out);
         return { ...out, replayed: false };
