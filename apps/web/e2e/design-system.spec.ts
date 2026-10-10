@@ -418,14 +418,20 @@ test.describe("athlete shell", () => {
 });
 
 test.describe("admin and public shells", () => {
-  test("admin layout is board 17: light theme, side navigation", async ({ page }) => {
+  test("/admin is for coaches: signed out goes to sign-in and comes back", async ({ page }) => {
+    await page.goto("/admin/products");
+    await expect(page).toHaveURL(/\/sign-in\?next=%2Fadmin$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sign in");
+  });
+
+  test("admin shell is board 17: light theme, side navigation", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto("/admin");
-    await expect(page).toHaveURL(/\/admin\/programs$/);
+    await page.goto("/dev/admin-shell");
     const side = page.getByTestId("admin-side-nav");
     await expect(side.getByRole("link")).toHaveText([
       "Program builder",
       "Athletes",
+      "Products",
       "Game settings",
     ]);
     const bg = await page
@@ -439,11 +445,11 @@ test.describe("admin and public shells", () => {
 
   test("admin navigation still works on a phone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/admin/athletes");
+    await page.goto("/dev/admin-shell");
     await expect(page.getByTestId("admin-side-nav")).toBeHidden();
     await expect(
       page.getByRole("navigation", { name: "Coach admin" }).getByRole("link", { name: "Athletes" }),
-    ).toHaveAttribute("aria-current", "page");
+    ).toBeVisible();
     expect(await textProblems(page, "body")).toEqual([]);
   });
 
