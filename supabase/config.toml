@@ -74,6 +74,15 @@ enabled = true
 uri = "http://host.docker.internal:3000/api/auth/sms-hook"
 secrets = "env(SEND_SMS_HOOK_SECRET)"
 
+# The CLI enables phone sign-in only when an SMS provider is configured. This one never
+# sends: with the Send SMS hook enabled, Supabase Auth hands every code to the hook.
+# Placeholder values, local only.
+[auth.sms.twilio]
+enabled = true
+account_sid = "local-placeholder"
+message_service_sid = "local-placeholder"
+auth_token = "local-placeholder"
+
 [auth.external.google]
 enabled = false
 
