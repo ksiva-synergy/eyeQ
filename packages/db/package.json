@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Kysely client, generated types, typed wrappers for SQL functions, and the migration runner",
+  "description": "Prisma client (introspected from db/migrations), typed helpers, and the SQL migration runner",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -14,13 +14,16 @@
     "migrate": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts up",
     "reset": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts reset",
     "test:pg": "node --env-file-if-exists=../../.env --import tsx src/pgtest.ts",
-    "codegen": "kysely-codegen --dialect postgres --env-file ../../.env --out-file src/generated/schema.ts",
+    "codegen": "node --env-file-if-exists=../../.env node_modules/prisma/build/index.js db pull && prisma format && prisma generate",
     "migrate:status": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts status",
     "seed": "node --env-file-if-exists=../../.env --import tsx src/seed.ts",
-    "test:integration": "node --env-file-if-exists=../../.env --import tsx node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts"
+    "test:integration": "node --env-file-if-exists=../../.env --import tsx node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts",
+    "generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "kysely": "^0.28.5",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "pg": "^8.16.3"
   },
   "devDependencies": {
@@ -28,7 +31,7 @@
     "@types/node": "^22.17.2",
     "@types/pg": "^8.15.5",
     "eslint": "^9.33.0",
-    "kysely-codegen": "^0.19.0",
+    "prisma": "7.10.0",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

@@ -29,3 +29,10 @@ blob-report
 
 # the 7.7 MB prototype bundle stays out of the repo (docs/design/README.md)
 docs/design/*.bundle.html
+
+# prisma generate output (packages/db postinstall)
+packages/db/src/generated/prisma
+
+# supabase CLI local state
+supabase/.branches
+supabase/.temp

@@ -15,6 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { seedConfig } from "./seed.js";
+import { targetFor } from "./target.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const TESTS_DIR = path.resolve(here, "../../../db/tests");
@@ -34,8 +35,7 @@ async function loadVectors(client: pg.Client) {
 }
 
 async function main() {
-  const url = process.env["DATABASE_URL"];
-  if (!url) throw new Error("DATABASE_URL is not set");
+  const url = targetFor("test");
   const only = process.argv[2];
   const all = (await readdir(TESTS_DIR)).filter((f) => f.endsWith(".sql")).sort();
   const preludes = all.filter((f) => f.startsWith("_"));

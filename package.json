@@ -16,6 +16,8 @@
     "test:e2e": "pnpm --filter web test:e2e",
     "db:up": "docker compose -f docker/compose.yaml up -d --wait",
     "db:down": "docker compose -f docker/compose.yaml down",
+    "db:supabase:up": "supabase db start",
+    "db:supabase:down": "supabase stop --no-backup",
     "db:migrate": "pnpm --filter @eyeq/db migrate",
     "db:reset": "pnpm --filter @eyeq/db reset",
     "db:test": "pnpm --filter @eyeq/db test:pg",
@@ -26,6 +28,7 @@
   "devDependencies": {
     "prettier": "^3.6.2",
     "turbo": "^2.5.6",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "supabase": "2.120.0"
   }
 }

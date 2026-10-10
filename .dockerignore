@@ -12,3 +12,4 @@ infra
 .env
 .env.*
 !.env.example
+packages/db/src/generated/prisma

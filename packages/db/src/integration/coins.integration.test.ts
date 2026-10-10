@@ -4,8 +4,11 @@
  */
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { targetFor } from "../target.js";
 
-const url = process.env["DATABASE_URL"];
+// Writes test rows, so local databases only (./target.ts refuses anything else).
+const url =
+  process.env["DIRECT_URL"] || process.env["DATABASE_URL"] ? targetFor("test") : undefined;
 const describeDb = url ? describe : describe.skip;
 
 describeDb("concurrent coin spends", () => {

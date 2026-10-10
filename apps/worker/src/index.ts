@@ -4,7 +4,6 @@
  * retries. Phase 0 only proves the job boots, reaches the database and exits 0.
  */
 import { createDb } from "@eyeq/db";
-import { sql } from "kysely";
 
 async function main(): Promise<void> {
   const url = process.env["DATABASE_URL"];
@@ -14,12 +13,12 @@ async function main(): Promise<void> {
   }
   const db = createDb({ connectionString: url, max: 2 });
   try {
-    const r = await sql<{ now: Date }>`select now() as now`.execute(db);
+    const rows = await db.$queryRaw<{ now: Date }[]>`select now() as now`;
     console.log(
-      JSON.stringify({ level: "info", msg: "worker run complete", dbTime: r.rows[0]?.now }),
+      JSON.stringify({ level: "info", msg: "worker run complete", dbTime: rows[0]?.now }),
     );
   } finally {
-    await db.destroy();
+    await db.$disconnect();
   }
 }
 

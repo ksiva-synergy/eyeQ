@@ -46,6 +46,11 @@ jobs:
           pnpm db:test:integration
           pnpm db:seed
 
+      - name: Prisma schema matches the migrations
+        run: |
+          pnpm db:types
+          git diff --exit-code packages/db/prisma/schema.prisma
+
       - name: Build web
         run: pnpm --filter web build
 
@@ -65,6 +70,27 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report
           retention-days: 7
+
+  supabase:
+    name: Migrations and database tests on the Supabase Postgres image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55322/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:supabase:up
+      - run: |
+          pnpm db:migrate
+          pnpm db:test
+          pnpm db:test:integration
+          pnpm db:seed
 
   docker:
     name: Docker image builds and serves

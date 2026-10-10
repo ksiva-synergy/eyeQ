@@ -6,3 +6,6 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - sharp
   - esbuild
+  - supabase
+  - prisma
+  - "@prisma/engines"

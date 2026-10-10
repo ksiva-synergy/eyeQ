@@ -8,3 +8,4 @@ docs/design/tokens.prototype.json
 coverage
 playwright-report
 test-results
+packages/db/src/generated

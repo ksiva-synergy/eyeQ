@@ -6,7 +6,8 @@
  *   tsx src/migrate.ts status  list applied and pending
  *   tsx src/migrate.ts reset   drop and recreate the public schema, then apply all
  *
- * Reads DATABASE_URL (admin role: eyeq_owner in Azure, postgres locally).
+ * Reads DIRECT_URL or DATABASE_URL (the admin role, postgres) through ./target.ts, which
+ * refuses `reset` off a local database and any run through the transaction pooler.
  * Ground rule 7: never edit an applied migration; a change is a new file.
  */
 import { createHash } from "node:crypto";
@@ -14,6 +15,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+import { targetFor, type AdminAction } from "./target.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const MIGRATIONS_DIR = path.resolve(here, "../../../db/migrations");
@@ -122,8 +124,7 @@ export async function reset(client: pg.Client, log: (s: string) => void = consol
 
 async function main() {
   const cmd = process.argv[2] ?? "up";
-  const url = process.env["DATABASE_URL"];
-  if (!url) throw new Error("DATABASE_URL is not set");
+  const url = targetFor((cmd === "up" ? "migrate" : cmd) as AdminAction);
   const client = new pg.Client({ connectionString: url });
   await client.connect();
   try {

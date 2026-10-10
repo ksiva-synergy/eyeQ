@@ -9,6 +9,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+import { targetFor } from "./target.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SEED_DIR = path.resolve(here, "../../../db/seed");
@@ -36,8 +37,7 @@ export async function seedConfig(client: pg.Client): Promise<number> {
 async function main() {
   if (process.env["NODE_ENV"] === "production")
     throw new Error("seed refuses to run with NODE_ENV=production");
-  const url = process.env["DATABASE_URL"];
-  if (!url) throw new Error("DATABASE_URL is not set");
+  const url = targetFor("seed");
   const only = process.argv[2];
   const client = new pg.Client({ connectionString: url });
   await client.connect();
