@@ -189,7 +189,11 @@ begin
   return v_after;
 end $$;
 
-grant execute on function ensure_my_profile(text), rate_limit_hit(text, text, timestamptz) to eyeq_api;
+-- GET /me reads the athlete's own admin flag and whether they are a minor, under RLS.
+grant select on admins to eyeq_api;
+create policy api_own on admins for select to eyeq_api using (user_id = app_user_id());
+
+grant execute on function ensure_my_profile(text), rate_limit_hit(text, text, timestamptz), is_minor(date, date) to eyeq_api;
 grant execute on function ensure_profile_for(uuid, text), rate_limit_hit(text, text, timestamptz),
   grant_admin_for(uuid, text, text, uuid) to eyeq_service;
 
