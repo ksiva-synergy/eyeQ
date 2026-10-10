@@ -1,18 +1,6 @@
 @import "tailwindcss";
+@import "@eyeq/ui/theme.css";
+@import "@eyeq/ui/styles.css";
 
-/* Phase 3 replaces this with the theme generated from @eyeq/ui tokens. */
-:root {
-  --background: #0b0b10;
-  --foreground: #f3f2f8;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, sans-serif;
-}
+/* Tailwind does not scan node_modules; the workspace UI package lives outside the app. */
+@source "../../../../packages/ui/src";

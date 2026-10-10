@@ -1,19 +1,28 @@
 import type React from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { BRAND_NAME } from "@eyeq/config";
+import { t } from "@eyeq/i18n";
+import { body, display } from "./fonts";
 import "./globals.css";
-
-// Fonts (Barlow Condensed, Manrope) are self-hosted in phase 3 (plan section 8).
 
 export const metadata: Metadata = {
   title: BRAND_NAME,
-  description: "Daily vision training for athletes.",
+  description: t("app.description"),
 };
 
+// No maximum-scale: pinch zoom stays on (accessibility floor, rule 13).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+// No data-theme here: athlete pages follow the OS until the athlete picks a theme
+// (COMPONENTS 1). The public layout pins dark and the admin layout pins light.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
