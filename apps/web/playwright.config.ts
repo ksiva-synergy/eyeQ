@@ -22,7 +22,8 @@ export default defineConfig({
     // locally the dev server is reused if already running.
     command: process.env.CI ? "pnpm start:standalone" : `pnpm dev -p ${port}`,
     url: `http://localhost:${port}/api/health`,
-    reuseExistingServer: !process.env.CI,
+    // PW_REUSE_SERVER=1: CI's Supabase job starts the server itself, with Auth's env.
+    reuseExistingServer: !process.env.CI || process.env.PW_REUSE_SERVER === "1",
     timeout: 120_000,
     env: { PORT: String(port) },
   },

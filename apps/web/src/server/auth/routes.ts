@@ -1,9 +1,11 @@
 import "server-only";
+import { after } from "next/server";
 import { otpRequestSchema, otpVerifySchema } from "@eyeq/api-contract";
 import type { z } from "zod";
 import { ApiError, toApiError } from "../api/errors";
 import { serviceDb } from "../db";
 import { log } from "../observability/log";
+import { capture } from "../observability/posthog";
 import { report } from "../observability/sentry";
 import { nextJar } from "./next-cookies";
 import { clientIp, ensureProfile, requestOtp, verifyOtp } from "./otp";
@@ -71,6 +73,7 @@ export async function postVerify(req: Request): Promise<Response> {
   return run("POST /api/auth/verify", req, otpVerifySchema, async ({ phone, token }) => {
     const supabase = supabaseFor(await nextJar());
     const { userId } = await verifyOtp(phone, token, { supabase, db: serviceDb() });
+    after(() => capture(userId, "signed_in", { method: "phone" }));
     return { ok: true, userId };
   });
 }

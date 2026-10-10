@@ -1,10 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { after, NextResponse, type NextRequest } from "next/server";
 import { ensureProfile } from "@/server/auth/routes";
 import { nextJar } from "@/server/auth/next-cookies";
 import { supabaseFor } from "@/server/auth/supabase";
 import { serviceDb } from "@/server/db";
 import { env } from "@/server/env";
 import { log } from "@/server/observability/log";
+import { capture } from "@/server/observability/posthog";
 
 /** Google returns here: exchange the code for the cookie session, create the profile. */
 export async function GET(req: NextRequest): Promise<Response> {
@@ -25,5 +26,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         ? meta["name"]
         : null;
   await ensureProfile(serviceDb(), data.user.id, name);
+  const userId = data.user.id;
+  after(() => capture(userId, "signed_in", { method: "google" }));
   return NextResponse.redirect(new URL("/app", origin));
 }

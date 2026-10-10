@@ -24,9 +24,10 @@
     "db:types": "pnpm --filter @eyeq/db codegen",
     "db:seed": "pnpm --filter @eyeq/db seed",
     "db:test:integration": "pnpm --filter @eyeq/db test:integration && pnpm --filter web test:integration",
-    "supabase:up": "node scripts/supabase-env.mjs && supabase start --exclude studio,realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit",
+    "supabase:up": "node scripts/supabase-env.mjs && supabase start --exclude postgres-meta,imgproxy",
     "supabase:down": "supabase stop --no-backup",
-    "supabase:status": "supabase status -o env"
+    "supabase:status": "supabase status -o env",
+    "admin:grant": "pnpm --filter @eyeq/db admin:grant"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

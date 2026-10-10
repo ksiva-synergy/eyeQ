@@ -72,11 +72,21 @@ jobs:
           retention-days: 7
 
   supabase:
-    name: Migrations and database tests on the Supabase Postgres image
+    name: Supabase stack (Postgres, Auth, Data API), sign-in end to end, anon-key lockout
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55322/postgres
+      APP_ENV: test
+      APP_URL: http://localhost:3000
+      SMS_PROVIDER: console
+      # Test numbers from supabase/config.toml (no SMS; the code is always 123456).
+      OTP_TEST_PHONE: "+919000000001"
+      OTP_TEST_CODE: "123456"
+      OTP_RATE_TEST_PHONE: "+919000000002"
+      OTP_HOOK_TEST_PHONE: "+919000000777"
+      E2E_AUTH: "1"
+      E2E_AUTH_PHONE: "9000000003"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -85,12 +95,50 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm db:supabase:up
-      - run: |
+
+      - name: A throwaway Send SMS hook secret for this run
+        run: echo "SEND_SMS_HOOK_SECRET=v1,whsec_$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: Start Supabase locally (Postgres, Auth, Data API gateway)
+        run: pnpm supabase:up
+
+      - name: Export the local API URL and anon key
+        run: |
+          pnpm exec supabase status -o env > "$RUNNER_TEMP/sb.env"
+          set -a; . "$RUNNER_TEMP/sb.env"; set +a
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_PUBLISHABLE_KEY=${ANON_KEY:-$PUBLISHABLE_KEY}" >> "$GITHUB_ENV"
+
+      - name: Migrate, run pgTAP, integration tests, then seed
+        run: |
           pnpm db:migrate
           pnpm db:test
           pnpm db:test:integration
           pnpm db:seed
+
+      - name: Build and start web against local Supabase
+        run: |
+          pnpm --filter web build
+          (cd apps/web && nohup node scripts/start-standalone.mjs > "$RUNNER_TEMP/web.log" 2>&1 &)
+          for i in $(seq 1 60); do curl -fsS http://localhost:3000/api/health && break; sleep 1; done
+
+      - name: Sign-in end to end (phone OTP, cookie and bearer sessions, OTP limits, SMS hook)
+        run: pnpm --filter web auth:e2e
+
+      - name: The anon key and a signed-in user reach nothing through the Data API
+        run: pnpm --filter web check:data-api
+
+      - name: Playwright sign-in in a browser
+        run: |
+          pnpm --filter web exec playwright install --with-deps chromium
+          pnpm --filter web exec playwright test e2e/auth.spec.ts
+        env:
+          CI: "true"
+          PW_REUSE_SERVER: "1"
+
+      - name: Web server log
+        if: always()
+        run: cat "$RUNNER_TEMP/web.log" || true
 
   docker:
     name: Docker image builds and serves

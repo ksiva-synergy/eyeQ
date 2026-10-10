@@ -1,15 +1,15 @@
 /**
- * Which database an admin script (migrate, reset, test, seed) may touch.
+ * Which database an admin script (migrate, reset, test, seed, admin:grant) may touch.
  *
  * The admin URL is DIRECT_URL when set (Prisma's convention for the CLI connection),
  * otherwise DATABASE_URL. Destructive or test-only actions are refused on anything
  * that is not a local database, so a .env pointed at hosted Supabase cannot wipe it:
  *   reset, test   local only, always
  *   seed          local, or remote with ALLOW_REMOTE_SEED=1 for that one run
- *   migrate       anywhere except a transaction pooler (port 6543), which cannot hold
- *                 the session advisory lock the runner takes
+ *   migrate, admin  anywhere except a transaction pooler (port 6543), which cannot hold
+ *                   the session advisory lock the runner takes
  */
-export type AdminAction = "migrate" | "status" | "reset" | "test" | "seed";
+export type AdminAction = "migrate" | "status" | "reset" | "test" | "seed" | "admin";
 
 const LOCAL_HOSTS = new Set([
   "localhost",

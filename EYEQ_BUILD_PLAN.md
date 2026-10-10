@@ -520,12 +520,12 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 - [ ] `main` is the default branch and Vercel's production branch; `pr.yml` runs on pull requests, including the Supabase-image job.
 - [ ] Supabase projects for staging and production in `ap-south-1`; the Data API reaches nothing (`public` not exposed, or no grants to `anon` / `authenticated`), proved by a test with the anon key; login passwords set for `eyeq_api` and `eyeq_service`. Vercel project with root `apps/web`, env vars per environment (2.0).
-- [ ] `migrate.yml`: on merge to `main`, run `pnpm db:migrate` from GitHub Actions, then smoke-test `/api/health` and `/api/health/db` once Vercel has deployed. Never from a laptop.
-- [ ] Supabase Auth (D28): phone OTP through the Send SMS hook behind an SMS sender interface (MSG91 later, a fixed test number on staging, console output locally), Google sign-in, cookie sessions on web; bearer tokens for the Expo client later. Supabase Auth's OTP rate limit set to 5 per phone per hour. Add the foreign key from `profiles.id` to `auth.users(id)`. Create the `profiles` and `user_stats` rows on first sign-in.
-- [ ] Request pipeline: session to user, transaction with `app.user_id`, zod validation, error shape, idempotency, rate limits backed by `rate_limits`.
-- [ ] `GET /me`, `PATCH /me`, `/api/health`.
-- [ ] A script, `pnpm admin:grant <phone> <role>`, that creates an `admins` row; it is the only way the first coach or owner is made, and it writes `audit_log`.
-- [ ] Sentry on web and server; structured request logs (JSON to stdout, read in Vercel's logs); PostHog server client and feature flags (used later for paywall variants and new game rules). Each skips cleanly when its key is missing.
+- [x] `migrate.yml`: on merge to `main`, run `pnpm db:migrate` from GitHub Actions, then smoke-test `/api/health` and `/api/health/db` once Vercel has deployed. Never from a laptop.
+- [x] Supabase Auth (D28): phone OTP through the Send SMS hook behind an SMS sender interface (MSG91 later, a fixed test number on staging, console output locally), Google sign-in, cookie sessions on web; bearer tokens for the Expo client later. Supabase Auth's OTP rate limit set to 5 per phone per hour. Add the foreign key from `profiles.id` to `auth.users(id)`. Create the `profiles` and `user_stats` rows on first sign-in.
+- [x] Request pipeline: session to user, transaction with `app.user_id`, zod validation, error shape, idempotency, rate limits backed by `rate_limits`.
+- [x] `GET /me`, `PATCH /me`, `/api/health`.
+- [x] A script, `pnpm admin:grant <phone> <role>`, that creates an `admins` row; it is the only way the first coach or owner is made, and it writes `audit_log`.
+- [x] Sentry on web and server; structured request logs (JSON to stdout, read in Vercel's logs); PostHog server client and feature flags (used later for paywall variants and new game rules). Each skips cleanly when its key is missing.
 
 **Acceptance.** The staging URL serves over HTTPS on the Vercel domain. A person can sign in by phone OTP and by Google on staging, and `GET /me` returns their profile. The sixth OTP request in the window is refused. An integration test shows a request for user A cannot return user B's data even when the service code is deliberately wrong (RLS catches it). Migrations ran through the job, not from a laptop.
 

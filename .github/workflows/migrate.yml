@@ -1,0 +1,67 @@
+name: Migrate
+
+# Ground rule 7 and plan phase 2: migrations run from here on merge to main, never from
+# a laptop. Vercel deploys main in parallel; migrations are additive, so the old
+# deployment keeps working while they apply, and the smoke test below waits for the new
+# deployment of this commit before checking it.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: migrate-staging
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: Apply migrations to staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    env:
+      # Supabase session pooler or direct host (port 5432) as postgres. Never 6543.
+      DIRECT_URL: ${{ secrets.STAGING_DIRECT_URL }}
+    steps:
+      - name: The database secret is set
+        run: |
+          if [ -z "$DIRECT_URL" ]; then
+            echo "::error::Set the STAGING_DIRECT_URL secret on the staging environment (Settings > Environments > staging)."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm --filter @eyeq/db migrate:status
+
+  smoke:
+    name: Smoke-test the staging deployment
+    needs: migrate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      STAGING_URL: ${{ vars.STAGING_URL }}
+      BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - name: Wait for the deployment of this commit, then check health
+        run: |
+          if [ -z "$STAGING_URL" ]; then
+            echo "::error::Set the STAGING_URL variable on the staging environment (e.g. https://eyeq-nu.vercel.app)."
+            exit 1
+          fi
+          h=()
+          if [ -n "$BYPASS" ]; then h=(-H "x-vercel-protection-bypass: $BYPASS"); fi
+          for i in $(seq 1 60); do
+            commit=$(curl -fsS "${h[@]}" "$STAGING_URL/api/health" | jq -r '.commit // empty' || true)
+            if [ "$commit" = "$GITHUB_SHA" ]; then echo "deployment of $GITHUB_SHA is live"; break; fi
+            echo "waiting for $GITHUB_SHA (live: ${commit:-unknown})"; sleep 15
+          done
+          test "$commit" = "$GITHUB_SHA"
+          curl -fsS "${h[@]}" "$STAGING_URL/api/health"; echo
+          curl -fsS "${h[@]}" "$STAGING_URL/api/health/db"; echo
