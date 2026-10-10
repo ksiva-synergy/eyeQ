@@ -1,0 +1,333 @@
+/*
+ * Base styles and motion for @eyeq/ui web components. Imported after
+ * theme.css. Motion rules (COMPONENTS 1, DS · Motion moments):
+ *   - animate transform and opacity only;
+ *   - spring for things that gain, settle for things that move;
+ *   - every moment under duration.max (1.2 s);
+ *   - prefers-reduced-motion: every animation becomes a duration.instant
+ *     cross-fade to its end state (bottom of this file).
+ */
+
+:root {
+  --eyeq-pressed: rgb(255 255 255 / 0.08);
+}
+[data-theme="light"] {
+  --eyeq-pressed: rgb(0 0 0 / 0.08);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --eyeq-pressed: rgb(0 0 0 / 0.08);
+  }
+}
+
+/*
+ * `color` inherits as a computed value, so a subtree that switches theme must
+ * set it again or it keeps the outer theme's text colour.
+ */
+[data-theme] {
+  color: var(--eyeq-text-primary);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--eyeq-ground);
+  color: var(--eyeq-text-primary);
+  font-family: var(--font-body);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Every number can change, so every number is tabular. */
+.tabular-nums,
+[class*="type-display"],
+.type-hero {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keyboard focus: 2px focus-ring, offset 2 (COMPONENTS 3.1). */
+:focus-visible {
+  outline: 2px solid var(--eyeq-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Pressed: overlay at opacity.pressed-overlay plus scale 0.98 over duration.fast. */
+.eyeq-press {
+  transition: transform var(--eyeq-duration-fast) var(--eyeq-ease-standard);
+}
+.eyeq-press:not(:disabled):not([aria-disabled="true"]):active {
+  transform: scale(0.98);
+  box-shadow: inset 0 0 0 100vmax var(--eyeq-pressed);
+}
+
+@keyframes eyeq-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.eyeq-spin {
+  animation: eyeq-spin 0.9s linear infinite;
+}
+
+/* Skeleton shimmer, 1.4 s; a lighter band sweeps across (transform only). */
+.eyeq-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+.eyeq-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--eyeq-border), transparent);
+  transform: translateX(-100%);
+  animation: eyeq-shimmer 1.4s infinite;
+}
+@keyframes eyeq-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* At-risk flame: opacity 1 → 0.55, 2 s loop. */
+@keyframes eyeq-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+.eyeq-pulse {
+  animation: eyeq-pulse 2s ease-in-out infinite;
+}
+
+@keyframes eyeq-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.eyeq-fade-in {
+  animation: eyeq-fade-in var(--eyeq-duration-fast) var(--eyeq-ease-standard);
+}
+
+/* XP bar gaining: old → new over duration.bar with settle. */
+@keyframes eyeq-bar-gain {
+  from {
+    transform: scaleX(var(--from));
+  }
+  to {
+    transform: scaleX(var(--to));
+  }
+}
+.eyeq-bar-gain {
+  animation: eyeq-bar-gain var(--eyeq-duration-bar) var(--eyeq-ease-settle) both;
+}
+
+/* Sheets slide up on phones, fade on desktop. */
+@keyframes eyeq-sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+dialog.eyeq-sheet[open] {
+  animation: eyeq-sheet-up var(--eyeq-duration-base) var(--eyeq-ease-settle);
+}
+dialog.eyeq-sheet::backdrop {
+  background: var(--eyeq-scrim);
+}
+
+/* ---- Moments ---------------------------------------------------------- */
+
+.eyeq-moment-takeover {
+  animation: eyeq-fade-in var(--eyeq-duration-fast) var(--eyeq-ease-standard);
+}
+
+/* 01 · XP count-up: the number lands with a small spring. */
+@keyframes eyeq-xp-land {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+.eyeq-moment-xp {
+  animation: eyeq-xp-land var(--eyeq-duration-count) var(--eyeq-ease-out-quart) both;
+}
+
+/* 02 · Streak flame: 60 % → 115 % → 100 %, glow to glow-rest, count slides up +250 ms. */
+@keyframes eyeq-flame {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes eyeq-glow {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: var(--eyeq-opacity-glow-rest);
+    transform: scale(1);
+  }
+}
+@keyframes eyeq-slide-up {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+.eyeq-moment-flame {
+  animation: eyeq-flame var(--eyeq-duration-flame) var(--eyeq-ease-spring) both;
+}
+.eyeq-moment-glow {
+  opacity: var(--eyeq-opacity-glow-rest);
+  animation: eyeq-glow var(--eyeq-duration-flame) ease-out both;
+}
+.eyeq-moment-count {
+  animation: eyeq-slide-up 550ms var(--eyeq-ease-settle) 250ms both;
+}
+
+/* 03 · Level-up: badge from 30 % with a −12° twist, rays burst and fade, lines slide up 120 ms apart. */
+@keyframes eyeq-badge-in {
+  from {
+    transform: scale(0.3) rotate(-12deg);
+    opacity: 0;
+  }
+}
+@keyframes eyeq-rays {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+.eyeq-moment-badge {
+  animation: eyeq-badge-in 700ms var(--eyeq-ease-spring) both;
+}
+.eyeq-moment-rays {
+  opacity: 0;
+  animation: eyeq-rays 950ms ease-out 150ms both;
+}
+.eyeq-moment-line {
+  animation: eyeq-slide-up 500ms var(--eyeq-ease-settle) 400ms both;
+}
+@keyframes eyeq-hold {
+  from {
+    transform: scaleX(0);
+  }
+}
+.eyeq-moment-hold {
+  animation-name: eyeq-hold;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+/* 04 · Badge unlock: flip in on Y from 90° with 4 % overshoot, one sheen at 500 ms. */
+@keyframes eyeq-flip {
+  0% {
+    transform: perspective(600px) rotateY(90deg);
+  }
+  70% {
+    transform: perspective(600px) rotateY(-4deg) scale(1.04);
+  }
+  100% {
+    transform: perspective(600px) rotateY(0) scale(1);
+  }
+}
+@keyframes eyeq-sheen {
+  from {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  to {
+    transform: translateX(220%) skewX(-20deg);
+  }
+}
+.eyeq-moment-flip {
+  animation: eyeq-flip var(--eyeq-duration-badge) var(--eyeq-ease-spring) both;
+}
+.eyeq-moment-sheen {
+  background: linear-gradient(90deg, transparent, rgb(255 210 63 / 0.35), transparent);
+  width: 45%;
+  transform: translateX(-120%) skewX(-20deg);
+  animation: eyeq-sheen 500ms ease-out 500ms both;
+}
+
+/* 05 · Rank change: rows trade places, 48 px with a 4 px overshoot. */
+@keyframes eyeq-rank-up {
+  0% {
+    transform: translateY(48px);
+  }
+  80% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes eyeq-rank-down {
+  0% {
+    transform: translateY(-48px);
+  }
+  80% {
+    transform: translateY(4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.eyeq-moment-rank-up {
+  position: relative;
+  z-index: 1;
+  animation: eyeq-rank-up var(--eyeq-duration-rank) var(--eyeq-ease-settle) both;
+}
+.eyeq-moment-rank-down {
+  animation: eyeq-rank-down var(--eyeq-duration-rank) var(--eyeq-ease-settle) both;
+}
+
+/* ---- Reduced motion: every animation is a 10 ms cross-fade to the end state. */
+@keyframes eyeq-xfade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: var(--eyeq-duration-instant) !important;
+    scroll-behavior: auto !important;
+  }
+  [class*="eyeq-moment-"],
+  .eyeq-fade-in,
+  .eyeq-bar-gain,
+  dialog.eyeq-sheet[open] {
+    animation: eyeq-xfade var(--eyeq-duration-instant) linear both !important;
+  }
+  /* Decorative loops stop; rays and sheen are not shown at all. */
+  .eyeq-pulse,
+  .eyeq-skeleton::after,
+  .eyeq-spin {
+    animation: none !important;
+  }
+  .eyeq-moment-rays,
+  .eyeq-moment-sheen,
+  .eyeq-moment-hold {
+    display: none;
+  }
+  .eyeq-press:not(:disabled):active {
+    transform: none;
+  }
+}
