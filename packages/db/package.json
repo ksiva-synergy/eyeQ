@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Prisma client (introspected from db/migrations), typed helpers, and the SQL migration runner",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./seed": "./src/seed.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
