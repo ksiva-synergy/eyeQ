@@ -358,12 +358,12 @@ test.describe("athlete shell", () => {
 
   test("390 × 844: bottom tab bar with the five destinations", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/app");
+    await page.goto("/app/programs");
     const tabs = page.getByTestId("tab-bar").getByRole("navigation", { name: "Main" });
     await expect(tabs).toBeVisible();
     await expect(page.getByTestId("side-nav")).toBeHidden();
     await expect(tabs.getByRole("link")).toHaveText(destinations);
-    await expect(tabs.getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
+    await expect(tabs.getByRole("link", { name: "Train" })).toHaveAttribute("aria-current", "page");
     const box = (await tabs.boundingBox())!;
     expect(Math.round(box.y + box.height)).toBe(844);
     expect(Math.round(box.height)).toBe(84);
@@ -399,7 +399,7 @@ test.describe("athlete shell", () => {
   for (const width of [390, 1440]) {
     test(`shell survives 200 % text at ${width} px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
-      await page.goto("/app");
+      await page.goto("/app/compete");
       await scaleText(page);
       expect(await textProblems(page, "body")).toEqual([]);
     });
@@ -408,7 +408,7 @@ test.describe("athlete shell", () => {
   test("passes automated accessibility checks", async ({ page }) => {
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 844 });
-      await page.goto("/app");
+      await page.goto("/app/progress");
       const result = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
         .analyze();

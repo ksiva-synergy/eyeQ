@@ -45,7 +45,8 @@ export const en = {
   "home.xp": "XP",
   "home.streak": "Day streak",
   "home.coins": "Coins",
-  "home.placeholder": "Today's session, streak and challenges arrive with the daily loop (phase 5).",
+  "home.placeholder":
+    "Today's session, streak and challenges arrive with the daily loop (phase 5).",
 
   "nav.main": "Main",
   "nav.admin": "Coach admin",

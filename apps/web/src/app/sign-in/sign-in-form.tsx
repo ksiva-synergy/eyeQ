@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { t, type MessageKey } from "@eyeq/i18n";
+import { Icon } from "@eyeq/ui/web";
 
 type Step = { kind: "phone" } | { kind: "code"; phone: string };
 
@@ -35,11 +36,11 @@ async function post(path: string, body: unknown): Promise<{ ok: boolean; code?: 
 }
 
 const field =
-  "min-h-11 w-full rounded-lg border border-neutral-400 bg-transparent px-3 text-base outline-none focus-visible:ring-2 focus-visible:ring-violet-500";
+  "min-h-11 w-full rounded-m border border-border bg-surface-2 px-3 text-base font-bold text-text-primary outline-none focus:border-primary";
 const primary =
-  "min-h-11 w-full rounded-lg bg-red-700 px-4 font-semibold text-white disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-offset-2";
+  "eyeq-press min-h-[3.25rem] w-full rounded-m bg-cta px-4 font-extrabold text-on-cta disabled:opacity-60";
 const secondary =
-  "flex min-h-11 w-full items-center justify-center rounded-lg border border-neutral-400 px-4 font-semibold focus-visible:ring-2";
+  "eyeq-press flex min-h-11 w-full items-center justify-center rounded-m border border-border bg-surface-2 px-4 font-extrabold text-text-primary";
 
 export function SignInForm() {
   const router = useRouter();
@@ -76,8 +77,8 @@ export function SignInForm() {
   return (
     <div className="flex flex-col gap-5">
       {error && (
-        <p role="alert" className="rounded-lg border border-red-700 px-3 py-2 text-sm">
-          <span aria-hidden="true">⚠ </span>
+        <p role="alert" className="flex items-center gap-2 rounded-m border border-cta-text px-3 py-2 text-sm">
+          <Icon name="alert" size={16} className="text-cta-text" />
           {t(error)}
         </p>
       )}
@@ -97,7 +98,7 @@ export function SignInForm() {
             aria-describedby="phone-hint"
             className={field}
           />
-          <p id="phone-hint" className="text-sm text-neutral-500">
+          <p id="phone-hint" className="text-sm text-text-secondary">
             {t("auth.phone.hint")}
           </p>
           <button type="submit" disabled={busy} className={primary}>
@@ -131,7 +132,7 @@ export function SignInForm() {
         </form>
       )}
 
-      <p className="text-center text-sm text-neutral-500">{t("auth.or")}</p>
+      <p className="text-center text-sm text-text-secondary">{t("auth.or")}</p>
       <a href="/auth/google" className={secondary}>
         {t("auth.google")}
       </a>

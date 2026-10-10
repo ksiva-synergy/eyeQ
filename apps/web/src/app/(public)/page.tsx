@@ -1,7 +1,7 @@
 import { t } from "@eyeq/i18n";
 import { BrandMark, Button } from "@eyeq/ui/web";
 
-// Board 1a Welcome. Sign-in arrives with phase 2, so both actions open the app shell for now.
+// Board 1a Welcome. Both actions go to sign-in, as on the board.
 export default function Welcome() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 pt-16 pb-10">
@@ -71,10 +71,10 @@ export default function Welcome() {
         <p className="type-body text-text-secondary">{t("shell.public.welcomeBody")}</p>
       </div>
       <div className="flex flex-col gap-3">
-        <Button variant="cta" href="/app" fullWidth>
+        <Button variant="cta" href="/sign-in" fullWidth>
           {t("shell.public.getStarted")}
         </Button>
-        <Button variant="ghost" href="/app" fullWidth>
+        <Button variant="ghost" href="/sign-in" fullWidth>
           {t("shell.public.haveAccount")}
         </Button>
         <p className="text-center text-[0.6875rem] leading-normal text-text-muted">
