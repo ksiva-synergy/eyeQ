@@ -13,6 +13,11 @@ test.describe("sign-in", () => {
   test.use({ viewport: { width: 390, height: 844 } });
   // One phone, so one at a time: Supabase Auth enforces a minimum gap between codes.
   test.describe.configure({ mode: "serial" });
+  // That gap is max_frequency in supabase/config.toml (1 s). A fast first test can end
+  // inside it, so each test waits it out before asking for a code.
+  test.beforeEach(async ({ page }) => {
+    await page.waitForTimeout(1_100);
+  });
 
   test("phone OTP signs in, shows the profile, and signs out", async ({ page }) => {
     await page.goto("/app");

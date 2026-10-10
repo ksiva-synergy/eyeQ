@@ -3,18 +3,35 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Design tokens, icons and components for web and native (phase 3)",
+  "description": "Design tokens, icons and web components (native components arrive in phase 8)",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./web": "./src/web/index.ts",
+    "./theme.css": "./src/theme.css",
+    "./styles.css": "./src/web/styles.css"
   },
   "scripts": {
+    "tokens": "node scripts/gen-tokens.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "eslint src",
-    "test": "vitest run --passWithNoTests"
+    "lint": "eslint src scripts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@eyeq/i18n": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19"
   },
   "devDependencies": {
     "@eyeq/config": "workspace:*",
+    "@types/node": "^22.17.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "eslint": "^9.33.0",
+    "eslint-plugin-react": "^7.37.5",
+    "prettier": "^3.6.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

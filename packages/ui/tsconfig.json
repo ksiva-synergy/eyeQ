@@ -1,4 +1,10 @@
 {
   "extends": "@eyeq/config/tsconfig/library.json",
-  "include": ["src"]
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "exactOptionalPropertyTypes": false,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": ["src", "scripts"]
 }

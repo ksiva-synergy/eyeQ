@@ -4,7 +4,7 @@ EyeQ is a mobile-first, gamified vision-training app for athletes by Forge Your 
 
 Order of authority when sources disagree: the PRD decides rules, numbers and scope; the prototype decides look, layout, copy tone and motion; the plan decides infrastructure, build order and the default for each known conflict (plan section 13).
 
-Hosting is **Supabase (Postgres) + Vercel (`apps/web`)** with **Prisma** as the data-access layer; plan section 2.0 overrides the Azure text elsewhere in the plan, which is superseded until further notice. Sign-in is **Supabase Auth** (D28).
+Hosting is **Supabase (Postgres) + Vercel (`apps/web`)**, permanently (plan D31), with **Prisma** as the data-access layer (`DECISIONS.md`; the plan's Kysely lines are stale). Sign-in is **Supabase Auth** (D28). Our own `/api/v1`; Supabase's Data API stays closed (D32).
 
 ## Ground rules (plan section 4)
 
