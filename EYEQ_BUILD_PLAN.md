@@ -542,7 +542,7 @@ Build:
 - [ ] Cover and badge image upload to Supabase Storage with fixed-width variants, written by the server. Drill thumbnails come from YouTube; Drive drills take an uploaded one.
 - [ ] Athletes: list with search and plan filter, streak, last active, plan and program, masked phone, CSV export; athlete page with activity timeline, purchases, entitlements, and manual grant or revoke written with `source = admin`.
 - [ ] Products, minimal: internal product id, kind, price, what it grants, and the Play, App Store and Razorpay ids.
-- [ ] Read endpoints the admin's result is checked through: `GET /programs`, `GET /programs/:slug`, `GET /sessions/:id` (never returning `video_ref`).
+- [x] Read endpoints the admin's result is checked through: `GET /programs`, `GET /programs/:slug`, `GET /sessions/:id` (never returning `video_ref`).
 
 **Acceptance.** A Playwright run signs in as the coach, builds a program with two modules, three sessions and five drills from pasted links, reorders them, publishes, and sees it in `GET /programs`. An unpublishable program (broken link) is refused with the reason shown. A manual grant unlocks content for a test athlete and appears in the audit log.
 
