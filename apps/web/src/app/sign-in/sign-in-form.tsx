@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { t, type MessageKey } from "@eyeq/i18n";
 import { Icon } from "@eyeq/ui/web";
+import { safeNext } from "@/lib/safe-next";
 
 type Step = { kind: "phone" } | { kind: "code"; phone: string };
 
@@ -70,7 +71,7 @@ export function SignInForm() {
     setError(null);
     const r = await post("/api/auth/verify", { phone: step.phone, token });
     setBusy(false);
-    if (r.ok) router.replace("/app");
+    if (r.ok) router.replace(safeNext(params.get("next")));
     else setError(errorKey(r.code));
   }
 

@@ -63,7 +63,7 @@ export type Handler = (req: Request, ctx?: RouteHandlerContext) => Promise<Respo
 
 const NO_STORE = { "cache-control": "no-store" };
 
-async function readBody<S extends z.ZodType>(req: Request, schema: S): Promise<z.output<S>> {
+export async function readBody<S extends z.ZodType>(req: Request, schema: S): Promise<z.output<S>> {
   let raw: unknown;
   try {
     const text = await req.text();
@@ -82,7 +82,7 @@ function invalid(issues: z.core.$ZodIssue[]): ApiError {
   });
 }
 
-async function readParams<P extends z.ZodType>(
+export async function readParams<P extends z.ZodType>(
   ctx: RouteHandlerContext | undefined,
   schema: P,
 ): Promise<z.output<P>> {
@@ -91,7 +91,7 @@ async function readParams<P extends z.ZodType>(
   return parsed.data;
 }
 
-async function enforce(db: PrismaClient, rule: RateRule, subject: string): Promise<void> {
+export async function enforce(db: PrismaClient, rule: RateRule, subject: string): Promise<void> {
   const rows = await db.$queryRaw<{ r: { allowed: boolean; retry_after: number } }[]>`
     select rate_limit_hit(${rule}, ${subject}) as r`;
   const r = rows[0]?.r;

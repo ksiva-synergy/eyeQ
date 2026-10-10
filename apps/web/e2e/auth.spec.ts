@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import pg from "pg";
 
 /**
  * Phone OTP sign-in in a browser, against a real Supabase Auth with a test number.
@@ -7,6 +8,15 @@ import { expect, test } from "@playwright/test";
  */
 const phone = process.env["E2E_AUTH_PHONE"] ?? "9000000003";
 const code = process.env["E2E_AUTH_CODE"] ?? "123456";
+
+async function signIn(page: Page, path: string) {
+  await page.goto(path);
+  await page.waitForURL(/\/sign-in/);
+  await page.getByLabel("Phone number").fill(phone);
+  await page.getByRole("button", { name: "Send code" }).click();
+  await page.getByLabel("6-digit code").fill(code);
+  await page.getByRole("button", { name: "Verify and sign in" }).click();
+}
 
 test.describe("sign-in", () => {
   test.skip(process.env["E2E_AUTH"] !== "1", "needs Supabase Auth (E2E_AUTH=1)");
@@ -50,5 +60,35 @@ test.describe("sign-in", () => {
     await expect(
       page.getByRole("alert").filter({ hasText: "That code is not right" }),
     ).toBeVisible();
+  });
+
+  test("a coach reaches /admin and creates a product; an athlete does not", async ({ page }) => {
+    await signIn(page, "/admin/products");
+    await page.waitForURL("**/admin");
+    // Signed in, no admins row yet: the admin area does not exist for this account.
+    await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Products");
+    expect((await page.request.get("/api/admin/products")).status()).toBe(403);
+
+    const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
+    await db.connect();
+    try {
+      const u = await db.query<{ id: string }>("select id from auth.users where phone = $1", [
+        `91${phone}`,
+      ]);
+      await db.query("select grant_admin_for($1, 'coach', 'script', null)", [u.rows[0]!.id]);
+    } finally {
+      await db.end();
+    }
+
+    await page.goto("/admin/products");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Products");
+    await page.getByRole("button", { name: "New product" }).click();
+    await page.getByLabel("Title").fill("E2E credit pack");
+    await page.getByLabel("Kind").selectOption("credit_pack");
+    await page.getByLabel("Price (₹, tax included)").fill("199");
+    await page.getByLabel("Credits").fill("4");
+    await page.getByRole("button", { name: "Create product" }).click();
+    await expect(page.getByRole("cell", { name: /E2E credit pack/ })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "4 credits" }).first()).toBeVisible();
   });
 });

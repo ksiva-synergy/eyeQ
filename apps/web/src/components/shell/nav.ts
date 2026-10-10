@@ -17,6 +17,7 @@ export function adminNav(): NavItem[] {
   return [
     { href: "/admin/programs", label: t("nav.programBuilder"), icon: "builder" },
     { href: "/admin/athletes", label: t("nav.athletes"), icon: "profile" },
+    { href: "/admin/products", label: t("nav.products"), icon: "coin" },
     { href: "/admin/game", label: t("nav.gameSettings"), icon: "settings" },
   ];
 }
