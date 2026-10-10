@@ -113,8 +113,10 @@ test.describe("sign-in", () => {
       ]);
       const me = u.rows[0]!.id;
 
+      // The admin gate sends a signed-out visit to sign-in with next=/admin.
       await signIn(page, "/admin/athletes");
-      await page.waitForURL("**/admin/athletes");
+      await page.waitForURL(/\/admin\/programs$/);
+      await page.goto("/admin/athletes");
       await page.getByLabel("Search name or phone").fill(phone.slice(-4));
       await expect(page.getByText(`+91 ••••• •${phone.slice(-4)}`).first()).toBeVisible();
       expect(await page.content()).not.toContain(phone);
