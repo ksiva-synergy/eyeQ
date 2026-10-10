@@ -49,6 +49,8 @@ EyeQ is a mobile-first, gamified training app for individual athletes, made by F
 
 ## 2. Architecture
 
+> **Superseded (10 Oct 2026, Karthik).** Section 2 describes the Azure design. Vercel + Supabase replace it until further notice: read 2.0 as the architecture and 2.1 to 2.5 as background only. Nothing Azure (Bicep, Container Apps, Key Vault, Log Analytics, Flexible Server) is built in any phase. `DECISIONS.md` records this.
+
 ### 2.0 Hosting change: Supabase and Vercel (10 Oct 2026, after phase 1)
 
 Karthik moved hosting from Azure to **Supabase for the database** and **Vercel for `apps/web`**, with **Prisma** as the typed data-access layer. This subsection wins over 2.1 to 2.5 wherever they name an Azure service; the rest of the architecture (game engine in Postgres functions, RLS as the second line of defence, our own `/api/v1` in Next.js route handlers, the outbox for anything that calls out) is unchanged. The reasoning is in `DECISIONS.md` under "Hosting: Supabase + Vercel".
@@ -61,7 +63,7 @@ Karthik moved hosting from Azure to **Supabase for the database** and **Vercel f
 | Connections      | Vercel runtime: transaction pooler (6543) as `eyeq_api` / `eyeq_service`. Migrations, tests, Prisma CLI: session pooler or direct (5432) as `postgres` | `app.user_id` is always transaction-local, which is what transaction pooling needs.                                                                              |
 | Web and API      | Vercel, functions in `bom1` (Mumbai), project root `apps/web`                                                                                          | `output: 'standalone'` only off Vercel; the Docker image stays as a CI smoke test.                                                                               |
 | Secrets          | Vercel project env vars (server-only) and GitHub Actions secrets                                                                                       | Rule 12 reads "Vercel env" where it says Key Vault.                                                                                                              |
-| Sign-in          | Better Auth, unchanged (phase 2)                                                                                                                       | Open: Supabase Auth instead (D28).                                                                                                                               |
+| Sign-in          | Supabase Auth (phase 2): phone OTP through the Send SMS hook, Google; Apple with iOS (phase 9)                                                         | D28 settled: Supabase Auth, not Better Auth. The API verifies the Supabase session and talks to Postgres only as `eyeq_api` / `eyeq_service`.                    |
 | Storage          | Supabase Storage (phase 4), private bucket and signed URLs                                                                                             | Replaces Azure Blob; Azurite stays in compose until then.                                                                                                        |
 | Scheduled SQL    | pg_cron on Supabase (phase 6)                                                                                                                          |                                                                                                                                                                  |
 | Scheduled sender | A Vercel Cron route in `apps/web` (phase 6), or `apps/worker` on any runner                                                                            | Vercel Cron at 5-minute cadence needs a Pro plan (D29).                                                                                                          |
@@ -180,7 +182,7 @@ eyeq/
                     app/(public)   program landing pages, legal pages
                     app/(app)      athlete web app: Today, session player, Progress, Programs, Account
                     app/admin      coach admin
-                    app/api/auth   Better Auth handler
+                    app/auth       Supabase Auth callback; app/api/auth/sms-hook (Send SMS hook)
                     app/api/v1     athlete API
                     app/api/admin  admin API
                     app/api/webhooks/{razorpay,revenuecat}
@@ -190,7 +192,7 @@ eyeq/
   packages/
     ui/             tokens.ts (from docs/design/tokens.json), icon paths, web components, native components
     game/           pure TypeScript rules: XP, levels, streak maths; vectors/*.json shared with SQL tests
-    db/             Kysely client, generated types, typed wrappers for SQL functions
+    db/             Prisma client (introspected), asAthlete(), typed wrappers for SQL functions
     api-contract/   zod schemas and types for every /api/v1 and /api/admin request and response; typed fetch client
     i18n/           English message catalogue, typed keys (Tamil and Hindi slot in later)
     config/         eslint, tsconfig, shared constants
@@ -198,10 +200,10 @@ eyeq/
     migrations/     plain SQL, forward only
     tests/          pgTAP
     seed/           game_config defaults, demo content and athletes matching the prototype
-  infra/            Bicep modules, per-environment parameters
+  infra/            empty (section 2 superseded; Vercel + Supabase need no infra code yet)
   docker/           Dockerfile.web, Dockerfile.worker, Dockerfile.postgres (pg_cron + pgTAP), compose.yaml
   docs/             design/, product/
-  .github/workflows/  pr.yml, deploy-staging.yml, release.yml
+  .github/workflows/  pr.yml, migrate.yml, release.yml
 ```
 
 **Default libraries.** Change one only with a line in `DECISIONS.md`.
@@ -237,11 +239,12 @@ Phase 0 copies this section into `CLAUDE.md`. These hold in every phase.
 9. **Rules exist twice and are tested once.** SQL and `packages/game` run the same JSON vectors. A rule change edits both and the vectors in one pull request.
 10. **Training, never diagnosis.** Nothing may claim to test, diagnose or measure eyesight or eye health, or claim clinical or medical accuracy, anywhere, including store listings. Forge Your Peak's method line "Test · Train · Transform" and disclaimers that deny clinical status ("honest, not clinical") are fine. Keep the disclaimers the prototype shows on baseline, drill, progress and paywall screens.
 11. **Privacy.** Analytics events carry the user id and nothing else personal. Public boards show display name, initials avatar, XP level, XP and rank (D25 covers sport). Phone numbers are masked in admin lists. Date of birth never leaves the server.
-12. **Secrets** are server-only environment values locally and Key Vault references in Azure.
+12. **Secrets** are server-only environment values locally and Vercel / GitHub Actions secrets in hosted environments. Never `NEXT_PUBLIC_*`.
 13. **Accessibility floor.** 44 pt targets, layouts that survive 200% text scaling, state never signalled by colour alone, reduced motion respected, captions on by default.
-14. **Check third-party docs before writing integration code.** Razorpay, RevenueCat, Better Auth, Expo, MSG91 and Azure APIs change; this plan names what to build, not exact event names or SDK calls.
+14. **Check third-party docs before writing integration code.** Razorpay, RevenueCat, Supabase, Vercel, Prisma, Expo and MSG91 APIs change; this plan names what to build, not exact event names or SDK calls.
 15. **A phase is done when its acceptance checks pass in CI**, not when the code is written.
 16. **Strings go through `packages/i18n`.** No hard-coded user-facing text in components.
+17. **Web and mobile are at parity.** Every athlete screen and feature exists on both clients. A feature is not done until both have it, or the phase report names the client missing it. The only allowed differences are listed in 8.2.
 
 ## 5. Data model
 
@@ -277,7 +280,7 @@ Build the tables in the architecture document, with the additions below. Money i
 
 | Table or column                                                                                                                                                                                              | Why                                                                                                                                                                         |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Better Auth tables (`user`, `session`, `account`, `verification`)                                                                                                                                            | Replace the Supabase auth schema. Created in phase 2 by Better Auth's own migration output, with UUID ids; the foreign key from `profiles.id` is added then.                |
+| Supabase Auth's `auth.users` (D28)                                                                                                                                                                           | Owned by Supabase, never migrated by us. Phase 2 adds the foreign key from `profiles.id` to `auth.users(id)`.                                                               |
 | `self_ratings` (user_id, area: focus, reaction or tracking, rating 1 to 5, kind: baseline, day14, day21 or adhoc, taken_at)                                                                                  | The onboarding baseline and the "baseline vs now" radar need somewhere to live; the architecture document has no table for it. The prototype re-rates on day 14 and day 21. |
 | `freeze_ledger` (user_id, amount +1 or -1, reason: sub_grant, coin_purchase, used, refund; local_date for `used`)                                                                                            | Freezes are granted, bought, consumed and sometimes refunded (section 6.4). A ledger makes that auditable; `user_stats.freezes_held` becomes its cached sum.                |
 | `notifications` gains `status` (queued, sent, failed, skipped), `send_after`, `kind`, `dedupe_key`                                                                                                           | It doubles as the outbox the worker drains.                                                                                                                                 |
@@ -404,22 +407,22 @@ At most 2 pushes per athlete per local day. When more than two qualify, send in 
 
 ## 7. API
 
-Athlete endpoints live under `/api/v1`, are authenticated by the Better Auth session, validated with zod from `packages/api-contract`, and versioned so old app builds keep working. Server components in `apps/web` call the same services directly rather than over HTTP.
+Athlete endpoints live under `/api/v1`, are authenticated by the Supabase Auth session (cookie on web, bearer token from the Expo client), validated with zod from `packages/api-contract`, and versioned so old app builds keep working. Server components in `apps/web` call the same services directly rather than over HTTP.
 
-| Area         | Endpoints                                                                                                                                                                                                             |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth         | `/api/auth/*` (Better Auth: send OTP, verify, Google, Apple, session, sign out)                                                                                                                                       |
-| Me           | `GET /me`, `PATCH /me`, `POST /me/self-ratings`, `POST /me/push-tokens`, `GET /me/entitlements`; P1: `POST /me/export`, `DELETE /me`                                                                                  |
-| Home         | `GET /home`: one payload for the Home screen (today's session, streak state, level, weekly challenge, weekly rank, active program) so Home opens on one request                                                       |
-| Content      | `GET /programs`, `GET /programs/:slug`, `POST /programs/:id/enroll`, `GET /sessions/:id`, `GET /drills/:id/media?session=`                                                                                            |
-| Training     | `POST /completions` (wraps `complete_drill`; accepts a batch for offline replay)                                                                                                                                      |
-| Progress     | `GET /progress`                                                                                                                                                                                                       |
-| Compete      | `GET /leaderboards` (period: week or all; scope: global or sport), `GET /challenges`, `GET /badges`                                                                                                                   |
-| Rewards      | `GET /rewards`, `POST /rewards/purchase` (item id and, for a drill unlock, the drill), `POST /rewards/redeem`                                                                                                         |
-| Purchases    | `POST /purchases/razorpay/order`, `POST /purchases/razorpay/subscription`, `POST /purchases/refresh`                                                                                                                  |
-| P1 additions | `POST /promo/apply`, `GET /credits`, `POST /credits/spend`, `POST /challenges/:id/enter`, `GET /share/:kind.png`, `GET /notifications` (in-app feed, recap), `GET /recommendations`, `PATCH /me/frame`                |
-| Webhooks     | `POST /api/webhooks/razorpay`, `POST /api/webhooks/revenuecat`                                                                                                                                                        |
-| Admin        | `/api/admin/*`: programs, modules, sessions, drills, reorder, link check, uploads, athletes, entitlement grant and revoke, products, game config, badges, challenges, redemptions, promo codes, dashboard, CSV export |
+| Area         | Endpoints                                                                                                                                                                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth         | Supabase Auth (D28): phone OTP, verify, Google, Apple on iOS, session refresh, sign out; `/auth/callback` exchanges the OAuth code for the cookie session; `POST /api/auth/sms-hook` is the Send SMS hook                                   |
+| Me           | `GET /me`, `PATCH /me`, `POST /me/self-ratings`, `POST /me/push-tokens`, `GET /me/entitlements`; P1: `POST /me/export`, `DELETE /me`                                                                                                        |
+| Home         | `GET /home`: one payload for the Home screen (today's session, streak state, level, weekly challenge, weekly rank, active program) so Home opens on one request                                                                             |
+| Content      | `GET /programs`, `GET /programs/:slug`, `POST /programs/:id/enroll`, `GET /sessions/:id`, `GET /drills/:id/media?session=`                                                                                                                  |
+| Training     | `POST /completions` (wraps `complete_drill`; accepts a batch for offline replay)                                                                                                                                                            |
+| Progress     | `GET /progress`                                                                                                                                                                                                                             |
+| Compete      | `GET /leaderboards` (period: week or all; scope: global or sport), `GET /challenges`, `GET /badges`                                                                                                                                         |
+| Rewards      | `GET /rewards`, `POST /rewards/purchase` (item id and, for a drill unlock, the drill), `POST /rewards/redeem`                                                                                                                               |
+| Purchases    | `POST /purchases/razorpay/order`, `POST /purchases/razorpay/subscription`, `POST /purchases/refresh`                                                                                                                                        |
+| P1 additions | `POST /promo/apply`, `GET /credits`, `POST /credits/spend`, `POST /challenges/:id/enter`, `GET /share/:kind.png`, `GET /notifications` (in-app feed and recap; the feed itself ships in phase 6), `GET /recommendations`, `PATCH /me/frame` |
+| Webhooks     | `POST /api/webhooks/razorpay`, `POST /api/webhooks/revenuecat`                                                                                                                                                                              |
+| Admin        | `/api/admin/*`: programs, modules, sessions, drills, reorder, link check, uploads, athletes, entitlement grant and revoke, products, game config, badges, challenges, redemptions, promo codes, dashboard, CSV export                       |
 
 Conventions: one error shape (`code`, `message`, `details`); rate limits on OTP requests (per phone and per IP) and on completions (per user per minute); admin routes check `admins` and write `audit_log` in the same transaction as the change; webhook routes verify the signature on the raw body, store the event, then process, and return 2xx only once the event is stored.
 
@@ -444,12 +447,12 @@ Conventions: one error shape (`code`, `message`, `details`); rate limits on OTP 
 | 3 Drill player                                   | `session/[id]/[index]`                          | `/app/session/[id]`                                      |
 | 4 Session complete                               | `session/[id]/complete`                         | same page, summary state                                 |
 | 5a Level up, 5b Badge unlock                     | modal routes                                    | overlay                                                  |
-| 6 Leaderboard, 7 Challenges                      | `(tabs)/compete`, two segments                  | not on web at launch                                     |
+| 6 Leaderboard, 7 Challenges                      | `(tabs)/compete`, two segments                  | `/app/compete` (Leaderboard, Challenges)                 |
 | 8 Progress                                       | `(tabs)/progress`                               | `/app/progress`                                          |
-| 9 Trophy case                                    | `trophies` (from Profile)                       | not on web at launch                                     |
+| 9 Trophy case                                    | `trophies` (from Profile)                       | `/app/trophies`                                          |
 | 10a Programs, 10b Program detail                 | `(tabs)/train`, `programs/[slug]`               | `/app/programs`, `/app/programs/[slug]`                  |
 | 11 Paywall                                       | `paywall` modal                                 | `/app/upgrade`                                           |
-| 12 Rewards                                       | `rewards` (from the coin chip)                  | not on web at launch                                     |
+| 12 Rewards                                       | `rewards` (from the coin chip)                  | `/app/rewards`                                           |
 | 13a at risk, 13b freeze used, 13c streak lost    | states of Home                                  | states of `/app`                                         |
 | 14 Profile and account                           | `(tabs)/profile`                                | `/app/account`                                           |
 | 15 Program landing page                          | n/a                                             | `/programs/[slug]` (public, server-rendered)             |
@@ -459,6 +462,26 @@ Conventions: one error shape (`code`, `message`, `details`); rate limits on OTP 
 The paywall board shows "Pay with UPI, Card, Net banking". That row belongs to the web paywall only; in the mobile app purchases go through the store sheet and the row is not shown.
 
 Not drawn in the prototype but required: `/admin/products`, `/admin/redemptions`, `/admin/dashboard`, `/admin/athletes/[id]`, the legal pages, and every empty, loading, error and offline state. Build them from the same components and say so in the phase report.
+
+### 8.2 Web and mobile parity, and the web layout rule
+
+Ground rule 17 holds: the web app has every athlete screen and feature the mobile app has.
+
+**Layout.** One set of web components serves both widths.
+
+- **Below 768 px** the web app is the mobile design: the same boards, the bottom tab bar (Home, Train, Compete, Progress, Profile), sheets, and full-screen moments. Each screen matches its board at 390 × 844.
+- **From 768 px** it follows board 16: side navigation with the same five destinations, cards in two or three columns, and sheets shown as centred dialogs.
+
+**Allowed differences.** Only these:
+
+| Concern           | Web                                                                   | Mobile                                 |
+| ----------------- | --------------------------------------------------------------------- | -------------------------------------- |
+| Payments          | Razorpay Checkout                                                     | Play Billing and StoreKit (RevenueCat) |
+| Restore purchases | Not offered                                                           | Offered                                |
+| Reminders         | Web push (opt-in) plus the in-app feed (`GET /notifications`)         | Expo push                              |
+| Offline           | No queue; a failed completion retries with the same `client_event_id` | Persisted queue replayed on reconnect  |
+| Haptics           | None                                                                  | Yes                                    |
+| Share             | Web Share API where present, else copy link                           | Native share sheet                     |
 
 ## 9. Build phases
 
@@ -495,27 +518,28 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 ### Phase 2: Hosting foundation, sign-in and API skeleton
 
-- [ ] Supabase projects for staging and production in `ap-south-1`; Data API off; login passwords set for `eyeq_api` and `eyeq_service`. Vercel project with root `apps/web`, env vars per environment (2.0).
-- [ ] `deploy-staging.yml`: run `pnpm db:migrate` against staging from GitHub Actions, then let Vercel deploy, then smoke-test `/api/health` and `/api/health/db`.
-- [ ] Better Auth: phone OTP with an SMS sender interface (MSG91 in Azure, console output locally, a fixed test number on staging), Google sign-in, session cookies for web and token storage for the Expo client later. Better Auth's tables come from its own generated migration; add the foreign key from `profiles.id`. Create the `profiles` and `user_stats` rows on first sign-in.
+- [ ] `main` is the default branch and Vercel's production branch; `pr.yml` runs on pull requests, including the Supabase-image job.
+- [ ] Supabase projects for staging and production in `ap-south-1`; the Data API reaches nothing (`public` not exposed, or no grants to `anon` / `authenticated`), proved by a test with the anon key; login passwords set for `eyeq_api` and `eyeq_service`. Vercel project with root `apps/web`, env vars per environment (2.0).
+- [ ] `migrate.yml`: on merge to `main`, run `pnpm db:migrate` from GitHub Actions, then smoke-test `/api/health` and `/api/health/db` once Vercel has deployed. Never from a laptop.
+- [ ] Supabase Auth (D28): phone OTP through the Send SMS hook behind an SMS sender interface (MSG91 later, a fixed test number on staging, console output locally), Google sign-in, cookie sessions on web; bearer tokens for the Expo client later. Supabase Auth's OTP rate limit set to 5 per phone per hour. Add the foreign key from `profiles.id` to `auth.users(id)`. Create the `profiles` and `user_stats` rows on first sign-in.
 - [ ] Request pipeline: session to user, transaction with `app.user_id`, zod validation, error shape, idempotency, rate limits backed by `rate_limits`.
 - [ ] `GET /me`, `PATCH /me`, `/api/health`.
 - [ ] A script, `pnpm admin:grant <phone> <role>`, that creates an `admins` row; it is the only way the first coach or owner is made, and it writes `audit_log`.
-- [ ] Sentry on web and server; structured request logs to Log Analytics; PostHog server client and feature flags (used later for paywall variants and new game rules).
+- [ ] Sentry on web and server; structured request logs (JSON to stdout, read in Vercel's logs); PostHog server client and feature flags (used later for paywall variants and new game rules). Each skips cleanly when its key is missing.
 
 **Acceptance.** The staging URL serves over HTTPS on the Vercel domain. A person can sign in by phone OTP and by Google on staging, and `GET /me` returns their profile. The sixth OTP request in the window is refused. An integration test shows a request for user A cannot return user B's data even when the service code is deliberately wrong (RLS catches it). Migrations ran through the job, not from a laptop.
 
-**Gate.** Needs from Karthik before this phase can finish: Supabase projects (staging, production) and a Vercel project with Git connected, a Google OAuth client. MSG91 can follow; staging works with the test number.
+**Gate.** Needs from Karthik before this phase can finish: Supabase projects (staging, production) and a Vercel project with Git connected, a Google OAuth client configured in Supabase Auth, the Send SMS hook secret. MSG91 can follow; staging works with the test number.
 
 ### Phase 3: Design system and web shell
 
 - [ ] `packages/ui/src/tokens.ts` from `tokens.json`; Tailwind theme and CSS variables for both themes; fonts self-hosted; the 16 icons as components from the board's SVG paths.
 - [ ] Web components for every entry in the token file's component list, each with its states.
 - [ ] A development-only gallery at `/dev/components` laid out like the "DS · Components" board, for side-by-side comparison.
-- [ ] App shells: public layout, athlete layout with side navigation (board 16), admin layout (board 17).
+- [ ] App shells: public layout, responsive athlete shell per 8.2 (bottom tab bar below 768 px, side navigation from 768 px per board 16), admin layout (board 17).
 - [ ] `packages/i18n` in place and used by every component.
 
-**Acceptance.** The gallery matches the board at 1× on colours, type sizes, radii and spacing (compare screenshots against the rendered prototype). Automated accessibility checks pass on the gallery in both themes. At 200% text size nothing clips or overlaps. With reduced motion set, moments cross-fade.
+**Acceptance.** The gallery matches the board at 1× on colours, type sizes, radii and spacing (compare screenshots against the rendered prototype). The athlete shell is checked at 390 × 844 (tab bar, matching the phone boards) and at 1440 wide (side navigation, board 16). Automated accessibility checks pass on the gallery in both themes. At 200% text size nothing clips or overlaps. With reduced motion set, moments cross-fade.
 
 ### Phase 4: Coach admin, content and athletes
 
@@ -531,6 +555,8 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 ### Phase 5: Athlete web app, the daily loop
 
+Build each screen phone-width first (390 × 844, the mobile board), then widen it to the board 16 layout (8.2).
+
 - [ ] Onboarding in four steps (boards 1b to 1e): sign in, profile (display name, sport, playing level, date of birth, goal, session length), self-rated baseline, starter program; the first session starts from the last step. Board 1c has no name field: add one, since the PRD collects a name and the boards need a display name. Avatars are initials (D22).
 - [ ] Today (`/app`) from `GET /home`, including the at-risk, frozen and lost states.
 - [ ] `DrillPlayer` with a provider interface (`youtube`, `drive`, room for `mux`). YouTube through the IFrame Player API, tracking distinct seconds watched so seeking does not count. Drive through the preview iframe with a minimum on-screen time (default 80% of the drill's duration). "Mark done" unlocks at 80% and says why while disabled. Captions on by default.
@@ -542,7 +568,7 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 - [ ] "Preview as athlete" in the admin builder, now that the session view and player exist.
 - [ ] PostHog in the web client; server-side `drill_completed`, `session_completed` and `streak_extended` events emitted from the completion route, carrying the user id only.
 
-**Acceptance.** A Playwright run takes a new athlete from sign-in through onboarding and a four-drill session and sees +65 XP, a streak of 1 and the first badge, with ledger rows matching the screen. The seeded Arjun completes his session and sees +72 XP, streak 13, and 151 XP to level 8. A paid drill's video reference is absent from every payload until entitled. First load of `/app` is one API round trip.
+**Acceptance.** Every Playwright run below runs at 390 × 844 and at 1440 × 900. A Playwright run takes a new athlete from sign-in through onboarding and a four-drill session and sees +65 XP, a streak of 1 and the first badge, with ledger rows matching the screen. The seeded Arjun completes his session and sees +72 XP, streak 13, and 151 XP to level 8. A paid drill's video reference is absent from every payload until entitled. First load of `/app` is one API round trip.
 
 **Gate.** Demo to the coach. This is the PRD's biggest risk (does it feel like training or homework); collect his reaction before building more.
 
@@ -550,12 +576,14 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 - [ ] Endpoints and services for leaderboards, challenges, badges and rewards (section 7).
 - [ ] pg_cron schedules: `leaderboard-refresh` every 5 minutes; `daily-reminder`, `streak-at-risk` and `streak-close` every 15 minutes, each selecting athletes by local time; `challenge-ending` hourly; `rank-day-snapshot` at `30 18 * * *`; `week-rollover` at `30 18 * * 0`; `entitlement-expiry` hourly.
-- [ ] `apps/worker`: drain queued `notifications`, enforce the 2-a-day cap and toggles, send through a channel interface (email through Resend is wired now and first used for receipts in phase 7; push arrives in phase 9), mark results, retry with backoff. Add the `eyeq-worker` job to Bicep and deploy it.
+- [ ] `apps/worker`: drain queued `notifications`, enforce the 2-a-day cap and toggles, send through a channel interface (email through Resend is wired now and first used for receipts in phase 7; push arrives in phase 9), mark results, retry with backoff. Deploy it as the scheduled sender chosen in D29.
 - [ ] Coin spends: freeze and drill unlock (P0). Frames, vouchers and the real-world redemption queue are phase 10.
-- [ ] Web surfaces where they exist: challenge and rank cards on Today; the rest waits for mobile.
+- [ ] Web screens (8.1, 8.2): Compete (`/app/compete`, Leaderboard and Challenges segments), Trophy case (`/app/trophies`), Rewards (`/app/rewards`), and the challenge and rank cards on Today, each phone-width first and checked at both widths.
+- [ ] `GET /notifications` as the in-app feed, shown on web.
+- [ ] Web push: a service worker, an explicit opt-in, subscriptions stored in `push_tokens` (platform `web`), sent by the worker through the same channel interface.
 - [ ] Admin: weekly challenge editor (title, target, rewards, badge, schedule next week or repeat) and program challenges on the program page.
 
-**Acceptance.** With the clock moved in tests: a missed day with a freeze keeps the streak and consumes the freeze; without one it resets and keeps best; the at-risk notice is queued at 8 pm local for a qualifying athlete in two different timezones and not for one who trained; a third push in a day is skipped and recorded; a challenge-ending notice is queued 24 hours before the window closes for an athlete who has not finished it; rollover freezes last week's ranks, awards the weekly badges and opens the new challenge. The worker job runs on staging on schedule and its failures raise an alert.
+**Acceptance.** With the clock moved in tests: a missed day with a freeze keeps the streak and consumes the freeze; without one it resets and keeps best; the at-risk notice is queued at 8 pm local for a qualifying athlete in two different timezones and not for one who trained; a third push in a day is skipped and recorded; a challenge-ending notice is queued 24 hours before the window closes for an athlete who has not finished it; rollover freezes last week's ranks, awards the weekly badges and opens the new challenge. The worker job runs on staging on schedule and its failures raise an alert. On web at both widths, Compete, Trophy case and Rewards render from their endpoints, a freeze bought on Rewards appears on Today, the in-app feed lists a queued notice, and a web push opt-in stores a `push_tokens` row.
 
 ### Phase 7: Payments and entitlements on web
 
@@ -573,9 +601,11 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 ### Phase 8: Mobile app
 
+Mobile ports from the web app: the same screens, states and flows already built and tested on web, through `packages/api-contract`. Differences are only those in 8.2.
+
 - [ ] `apps/mobile` with Expo Router, a development build (not Expo Go), EAS profiles for development, staging and production, and OTA channels. Minimum OS: Android 9 (API 28) and iOS 16.
 - [ ] Native components for the full component list; fonts; both themes; the five motion moments with Reanimated and haptics.
-- [ ] Better Auth Expo client: phone OTP and Google; session in SecureStore.
+- [ ] Supabase Auth in the Expo client: phone OTP and Google; session in SecureStore; the API takes its access token as a bearer token.
 - [ ] All boards 1a to 14, with the tab bar (Home, Train, Compete, Progress, Profile), using `packages/api-contract`. The paywall is built without the payment-method row; purchase buttons are wired in phase 9.
 - [ ] Drill player: `react-native-youtube-iframe` and a Drive WebView behind the same provider interface.
 - [ ] Offline: a persisted queue of completion events (`client_event_id`, device `completed_at` with offset, score, watch percentage) replayed in order on reconnect. Offline, the summary shows a preview from `packages/game` marked as pending and replaces it with the server result on sync.
@@ -583,7 +613,7 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 - [ ] Sentry and PostHog; the analytics events `drill_completed`, `session_completed`, `streak_extended`, `paywall_viewed`, `purchase_completed`.
 - [ ] Pipeline: a merge to `main` publishes an EAS Update to the staging channel; a release tag promotes JavaScript-only changes to production; native changes go through an EAS Build and store review.
 
-**Acceptance.** Maestro flows pass on an Android emulator for onboarding, a full session, leaderboard, rewards spend and sign-out. A session completed in airplane mode syncs on reconnect, credits the day it was done, and is not double-counted when the queue is replayed twice. On a mid-range Android device (4 GB RAM) on 4G, cold start to Home is under 2 seconds and the summary appears under 1 second after the last drill. Text at 200% does not break Home, the drill player or the summary.
+**Acceptance.** Maestro flows pass on an Android emulator for onboarding, a full session, leaderboard, rewards spend and sign-out. A session completed in airplane mode syncs on reconnect, credits the day it was done, and is not double-counted when the queue is replayed twice. On a mid-range Android device (4 GB RAM) on 4G, cold start to Home is under 2 seconds and the summary appears under 1 second after the last drill. Text at 200% does not break Home, the drill player or the summary. A parity checklist (every athlete screen and feature in 8.1, each ticked for web and for mobile, with any gap named against an allowed difference in 8.2) is complete and attached to the phase report.
 
 ### Phase 9: Store payments and push
 
@@ -600,6 +630,8 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 ### Phase 10: Launch + 60 days (P1)
 
+Every athlete-facing P1 feature ships on web and mobile together (ground rule 17); mobile ports from the web build.
+
 - [ ] Account deletion and data export (one function bundling a user's rows as JSON, delivered by a short-lived link).
 - [ ] Recommendations from the onboarding profile ("Recommended for you").
 - [ ] Paid challenges with their own leaderboard and an entry product; real-world reward requests and the admin redemption queue; profile frames; program discount vouchers issued as single-use promo codes.
@@ -609,7 +641,7 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 - [ ] Admin dashboard: daily actives, sessions, streak distribution, revenue by channel from `payment_events`, and the PRD's success metrics: weekly training days per active athlete (days with a completed session; target 4+), day-1 activation (sign-ups finishing a session on day 1; 70%), day-30 retention (still training in week 5; 40%), 7-day streak rate in the first month (50%), free-to-paid within 30 days (15%), renewal at the first renewal date (70%), revenue per paying athlete, program completion (50%).
 - [ ] Overtaken alerts, at most one a day.
 
-**Acceptance.** Each item has an end-to-end test. A config change made today leaves today's awards untouched and changes tomorrow's. Deleting an account removes personal data and keeps anonymised ledger totals consistent. The dashboard's revenue matches a sum over `payment_events` for the same period.
+**Acceptance.** Each item has an end-to-end test, on web and on mobile for athlete-facing items. A config change made today leaves today's awards untouched and changes tomorrow's. Deleting an account removes personal data and keeps anonymised ledger totals consistent. The dashboard's revenue matches a sum over `payment_events` for the same period.
 
 ### Phase 11: Hardening and launch
 
@@ -666,10 +698,10 @@ Non-functional targets and where they are proven: performance (phase 8 acceptanc
 | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------- |
 | Mobile app (Expo), Android and iOS                                                                                                     | `apps/mobile`                                           | 8, 9       |
 | Web app (Next.js), athlete web + /admin                                                                                                | `apps/web`                                              | 3 to 7     |
-| Auth: phone OTP, Google, Apple                                                                                                         | Better Auth in `apps/web`                               | 2, 9       |
-| Postgres: RLS, ledgers, game functions                                                                                                 | Azure Database for PostgreSQL                           | 1          |
+| Auth: phone OTP, Google, Apple                                                                                                         | Supabase Auth, verified in `apps/web`                   | 2, 9       |
+| Postgres: RLS, ledgers, game functions                                                                                                 | Supabase Postgres                                       | 1          |
 | Edge Functions: webhooks, video token, push                                                                                            | Webhook and media routes in `apps/web`; `apps/worker`   | 5, 6, 7, 9 |
-| pg_cron jobs: leaderboards, streak close                                                                                               | pg_cron on Flexible Server                              | 1, 6       |
+| pg_cron jobs: leaderboards, streak close                                                                                               | pg_cron on Supabase                                     | 1, 6       |
 | RevenueCat to backend by webhook                                                                                                       | `/api/webhooks/revenuecat`                              | 9          |
 | Razorpay to backend by webhook                                                                                                         | `/api/webhooks/razorpay`                                | 7          |
 | Video: YouTube, Drive; Mux later                                                                                                       | `DrillPlayer` provider interface                        | 5, 8       |
@@ -684,7 +716,7 @@ Non-functional targets and where they are proven: performance (phase 8 acceptanc
 
 | Item                                                                                    | Needed by                      | Note                                                                                            |
 | --------------------------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
-| Azure subscription, permission to create resources and a GitHub deployment identity     | Phase 2                        |                                                                                                 |
+| Supabase and Vercel projects, GitHub Actions secrets for the migrate job                | Phase 2                        | Replaces the Azure subscription (section 2 superseded).                                         |
 | Google Cloud project: OAuth client; API key for YouTube Data and Drive (link check)     | Phases 2, 4                    |                                                                                                 |
 | MSG91 account with DLT registration of the sender ID and OTP template                   | Before real users              | Registration is done by the legal entity and takes time; start early. Staging works without it. |
 | Sentry, PostHog (EU cloud), Resend projects                                             | Phases 2, 6                    |                                                                                                 |
@@ -720,7 +752,7 @@ Claude Code builds the default and moves on unless the row says BLOCKER. "PRD" a
 | D16 | Web checkout from the public page                                                                                                                  | Verify the phone by OTP inline, then create the order                                                                                                                            | The purchase must attach to an account                                                                         |
 | D17 | At-risk nudge time: PRD 8 pm; prototype adds "or 90 minutes after the usual session if later"                                                      | 8 pm local                                                                                                                                                                       | Config key reserved                                                                                            |
 | D18 | Mirroring Razorpay revenue into RevenueCat (architecture doc)                                                                                      | Revenue by channel comes from `payment_events` in the admin dashboard; mirror only if RevenueCat's API supports external purchases with revenue                                  | Unverified; check their docs                                                                                   |
-| D19 | Brand name and hostname (PRD open question)                                                                                                        | "EyeQ by Forge Your Peak", one constant; Azure default hostname until a domain is chosen                                                                                         | **BLOCKER for store listing**                                                                                  |
+| D19 | Brand name and hostname (PRD open question)                                                                                                        | "EyeQ by Forge Your Peak", one constant; Vercel default hostname until a domain is chosen                                                                                        | **BLOCKER for store listing**                                                                                  |
 | D20 | Does the free tier's daily drill count as the day's session for the streak?                                                                        | Yes; the PRD says free users keep their streak                                                                                                                                   |                                                                                                                |
 | D21 | Prices, which programs are subscription or paid entry, sports to tag, rewards budget, legal entity, launch date (PRD open questions)               | Placeholders; publishing a paid program requires a price. **BLOCKER for production payments:** prices and legal entity                                                           |                                                                                                                |
 | D22 | Avatars: the PRD lists an avatar on the profile; the prototype uses initials only                                                                  | Initials, with a frame once earned; `avatar_url` stays in the schema                                                                                                             | Photo upload of minors is worth avoiding until consent is settled                                              |
@@ -729,7 +761,7 @@ Claude Code builds the default and moves on unless the row says BLOCKER. "PRD" a
 | D25 | What a public board row shows: PRD says display name and avatar only; prototype adds sport and level                                               | Display name, initials, XP level, XP and rank; sport only on the sport board, where it is implied                                                                                | Flip one view to match the prototype                                                                           |
 | D26 | Manual "use your streak freeze" with undo (prototype)                                                                                              | Not built. A held freeze applies automatically at local midnight; the at-risk state says so                                                                                      | Same outcome, one less control                                                                                 |
 | D27 | City on the profile (prototype)                                                                                                                    | Not collected                                                                                                                                                                    | The PRD asks for minimal personal data                                                                         |
-| D28 | Sign-in after the move to Supabase: Better Auth (plan) or Supabase Auth (phone OTP via a Send SMS hook to MSG91, Google, Apple)                    | Better Auth, as in phase 2; Supabase Auth is not used                                                                                                                            | Supabase Auth would remove most of phase 2's auth work but ties the API to its JWTs                            |
+| D28 | Sign-in after the move to Supabase: Better Auth (plan) or Supabase Auth (phone OTP via a Send SMS hook to MSG91, Google, Apple)                    | **Settled (Karthik): Supabase Auth.** Phone OTP and Google now; Apple with iOS                                                                                                   | The API verifies Supabase sessions and still talks to Postgres only as `eyeq_api` / `eyeq_service`             |
 | D29 | Scheduled sender on Vercel: Vercel Cron every 5 minutes needs a Pro plan                                                                           | A cron route in `apps/web`; on Hobby, pg_cron + `pg_net` calls it instead                                                                                                        | Decide by phase 6                                                                                              |
 
 ## 14. Not built, and the room left for it

@@ -4,7 +4,7 @@ EyeQ is a mobile-first, gamified vision-training app for athletes by Forge Your 
 
 Order of authority when sources disagree: the PRD decides rules, numbers and scope; the prototype decides look, layout, copy tone and motion; the plan decides infrastructure, build order and the default for each known conflict (plan section 13).
 
-Hosting is **Supabase (Postgres) + Vercel (`apps/web`)** with **Prisma** as the data-access layer; plan section 2.0 overrides the Azure text elsewhere in the plan.
+Hosting is **Supabase (Postgres) + Vercel (`apps/web`)** with **Prisma** as the data-access layer; plan section 2.0 overrides the Azure text elsewhere in the plan, which is superseded until further notice. Sign-in is **Supabase Auth** (D28).
 
 ## Ground rules (plan section 4)
 
@@ -23,9 +23,10 @@ These hold in every phase.
 11. **Privacy.** Analytics events carry the user id and nothing else personal. Public boards show display name, initials avatar, XP level, XP and rank (D25 covers sport). Phone numbers are masked in admin lists. Date of birth never leaves the server.
 12. **Secrets** are server-only environment values locally and Vercel / GitHub Actions secrets in hosted environments. Never `NEXT_PUBLIC_*`.
 13. **Accessibility floor.** 44 pt targets, layouts that survive 200% text scaling, state never signalled by colour alone, reduced motion respected, captions on by default.
-14. **Check third-party docs before writing integration code.** Razorpay, RevenueCat, Better Auth, Expo, MSG91, Supabase, Vercel and Prisma APIs change; the plan names what to build, not exact event names or SDK calls.
+14. **Check third-party docs before writing integration code.** Razorpay, RevenueCat, Supabase Auth, Expo, MSG91, Supabase, Vercel and Prisma APIs change; the plan names what to build, not exact event names or SDK calls.
 15. **A phase is done when its acceptance checks pass in CI**, not when the code is written.
 16. **Strings go through `packages/i18n`.** No hard-coded user-facing text in components.
+17. **Web and mobile are at parity.** Every athlete screen and feature exists on both clients. A feature is not done until both have it, or the phase report names the client missing it. The only allowed differences are in plan section 8.2: payments, restore purchases, reminders, offline queue, haptics, share sheet.
 
 ## Working conventions
 
