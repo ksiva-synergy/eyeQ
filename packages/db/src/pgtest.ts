@@ -38,7 +38,9 @@ async function main() {
   const url = targetFor("test");
   const only = process.argv[2];
   const all = (await readdir(TESTS_DIR)).filter((f) => f.endsWith(".sql")).sort();
-  const preludes = all.filter((f) => f.startsWith("_"));
+  // _admin_*.sql preludes run as the admin role, before the switch to eyeq_owner; the rest after.
+  const adminPreludes = all.filter((f) => f.startsWith("_admin"));
+  const preludes = all.filter((f) => f.startsWith("_") && !f.startsWith("_admin"));
   const files = all.filter((f) => !f.startsWith("_") && (!only || f.includes(only)));
   if (files.length === 0) throw new Error(`no tests in ${TESTS_DIR}`);
 
@@ -53,6 +55,8 @@ async function main() {
       console.log(`# ${file}`);
       await client.query("begin");
       try {
+        for (const p of adminPreludes)
+          await client.query(await readFile(path.join(TESTS_DIR, p), "utf8"));
         await client.query("set local role eyeq_owner");
         await seedConfig(client);
         await loadVectors(client);

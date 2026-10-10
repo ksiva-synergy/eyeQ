@@ -3,6 +3,7 @@ packages:
   - packages/*
 ignoredBuiltDependencies:
   - unrs-resolver
+  - "@sentry/cli"
 onlyBuiltDependencies:
   - sharp
   - esbuild

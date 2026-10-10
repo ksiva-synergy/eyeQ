@@ -44,6 +44,7 @@
   "rate.otp_per_phone_per_hour": 5,
   "rate.otp_per_ip_per_hour": 20,
   "rate.completions_per_user_per_minute": 30,
+  "rate.api_per_user_per_minute": 120,
   "video.done_threshold": 0.8,
   "progress.weekly_target": 4,
   "board.scopes": ["global", "sport"],

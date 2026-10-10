@@ -1,0 +1,31 @@
+/**
+ * Server-only environment, read lazily so a missing optional key never breaks a build
+ * (ground rule 12: nothing secret is NEXT_PUBLIC_*). Every integration skips cleanly
+ * when its keys are absent.
+ */
+export type AppEnv = "local" | "test" | "staging" | "production";
+
+function str(name: string): string | undefined {
+  const v = process.env[name];
+  return v && v.trim() !== "" ? v.trim() : undefined;
+}
+
+export const env = {
+  appEnv: (): AppEnv => (str("APP_ENV") as AppEnv | undefined) ?? "local",
+  /** Public origin of the app, for OAuth redirects. Falls back to the request origin. */
+  appUrl: () => str("APP_URL"),
+  supabase: () => {
+    const url = str("SUPABASE_URL");
+    const key = str("SUPABASE_PUBLISHABLE_KEY");
+    return url && key ? { url, key } : undefined;
+  },
+  smsHookSecret: () => str("SEND_SMS_HOOK_SECRET"),
+  smsProvider: () => (str("SMS_PROVIDER") ?? "console") as "console" | "test" | "msg91",
+  otpTestPhone: () => str("OTP_TEST_PHONE"),
+  sentryDsn: () => str("SENTRY_DSN"),
+  posthog: () => {
+    const key = str("POSTHOG_API_KEY");
+    return key ? { key, host: str("POSTHOG_HOST") ?? "https://eu.i.posthog.com" } : undefined;
+  },
+  str,
+};

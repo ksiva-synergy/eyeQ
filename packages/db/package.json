@@ -14,12 +14,13 @@
     "migrate": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts up",
     "reset": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts reset",
     "test:pg": "node --env-file-if-exists=../../.env --import tsx src/pgtest.ts",
-    "codegen": "node --env-file-if-exists=../../.env node_modules/prisma/build/index.js db pull && prisma format && prisma generate",
+    "codegen": "node --env-file-if-exists=../../.env --import tsx src/codegen-guard.ts && node --env-file-if-exists=../../.env node_modules/prisma/build/index.js db pull && prisma format && prisma generate",
     "migrate:status": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts status",
     "seed": "node --env-file-if-exists=../../.env --import tsx src/seed.ts",
     "test:integration": "node --env-file-if-exists=../../.env --import tsx node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts",
     "generate": "prisma generate",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "admin:grant": "node --env-file-if-exists=../../.env --import tsx src/admin-grant.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

@@ -152,6 +152,12 @@ insert into reward_items (id, slug, kind, title, description, coin_price, per_us
 
 -- ---------------------------------------------------------------- athletes (about 25, 18 cricketers)
 -- Arjun R. is sid(1, 1). Levels on the boards are reproduced through total XP.
+-- Each athlete is an auth user first (profiles.id references auth.users, migration 0014);
+-- demo users have no phone or email, so nobody can sign in as them.
+-- The runner sets role eyeq_owner; auth.users belongs to the admin role, so step out for it.
+reset role;
+insert into auth.users (id) select pg_temp.sid(1, n) from generate_series(1, 25) n on conflict do nothing;
+set role eyeq_owner;
 insert into profiles (id, display_name, sport, playing_level, dob, goal, timezone, visibility, onboarded_at, created_at) values
   (pg_temp.sid(1, 1), 'Arjun R.', 'cricket', 'district', '2004-03-14', 'Pick up the ball earlier', 'Asia/Kolkata', 'public', now() - interval '40 days', now() - interval '40 days'),
   (pg_temp.sid(1, 2), 'Rohan S.', 'cricket', 'state', '2001-06-02', null, 'Asia/Kolkata', 'public', now() - interval '120 days', now() - interval '120 days'),
