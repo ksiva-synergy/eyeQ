@@ -16,14 +16,17 @@
     "test:e2e": "pnpm --filter web test:e2e",
     "db:up": "docker compose -f docker/compose.yaml up -d --wait",
     "db:down": "docker compose -f docker/compose.yaml down",
-    "db:supabase:up": "supabase db start",
+    "db:supabase:up": "node scripts/supabase-env.mjs && supabase db start",
     "db:supabase:down": "supabase stop --no-backup",
     "db:migrate": "pnpm --filter @eyeq/db migrate",
     "db:reset": "pnpm --filter @eyeq/db reset",
     "db:test": "pnpm --filter @eyeq/db test:pg",
     "db:types": "pnpm --filter @eyeq/db codegen",
     "db:seed": "pnpm --filter @eyeq/db seed",
-    "db:test:integration": "pnpm --filter @eyeq/db test:integration && pnpm --filter web test:integration"
+    "db:test:integration": "pnpm --filter @eyeq/db test:integration && pnpm --filter web test:integration",
+    "supabase:up": "node scripts/supabase-env.mjs && supabase start --exclude studio,realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit",
+    "supabase:down": "supabase stop --no-backup",
+    "supabase:status": "supabase status -o env"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

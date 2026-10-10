@@ -56,21 +56,21 @@ export function supabaseVerifier(): SessionVerifier {
       const supabase = supabaseFor(requestJar(req));
       const { data, error } = await supabase.auth.getClaims(bearer);
       if (error || !data?.claims) return null;
-      const c = data.claims as Record<string, unknown>;
-      if (
-        c["role"] !== "authenticated" ||
-        typeof c["sub"] !== "string" ||
-        c["is_anonymous"] === true
-      )
-        return null;
-      const meta = (c["user_metadata"] ?? {}) as Record<string, unknown>;
-      const name = meta["full_name"] ?? meta["name"];
-      return {
-        userId: c["sub"],
-        phone: e164(c["phone"]),
-        email: typeof c["email"] === "string" && c["email"] !== "" ? c["email"] : null,
-        name: typeof name === "string" ? name : null,
-      } satisfies Session;
+      return claimsToSession(data.claims as Record<string, unknown>);
     },
+  };
+}
+
+/** Maps verified Supabase JWT claims to a Session; null for anything but a real athlete. */
+export function claimsToSession(c: Record<string, unknown>): Session | null {
+  if (c["role"] !== "authenticated" || typeof c["sub"] !== "string" || c["is_anonymous"] === true)
+    return null;
+  const meta = (c["user_metadata"] ?? {}) as Record<string, unknown>;
+  const name = meta["full_name"] ?? meta["name"];
+  return {
+    userId: c["sub"],
+    phone: e164(c["phone"]),
+    email: typeof c["email"] === "string" && c["email"] !== "" ? c["email"] : null,
+    name: typeof name === "string" ? name : null,
   };
 }
