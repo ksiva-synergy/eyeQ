@@ -1,9 +1,14 @@
 /**
- * @eyeq/ui: tokens, icons and components.
- * Phase 3 generates `tokens.ts` from docs/design/tokens.json and adds the
- * web and native component sets. Until then this package only exports the
- * token file's shape so other packages can type against it.
+ * @eyeq/ui: design tokens (generated from docs/design/tokens.json) shared by
+ * web and native. Web components are in "@eyeq/ui/web"; the CSS theme in
+ * "@eyeq/ui/theme.css" and base styles in "@eyeq/ui/styles.css".
  */
-export type ThemeName = "dark" | "light";
+export {
+  tokens,
+  type Tokens,
+  type ThemeName,
+  type ColorToken,
+  type TypographyToken,
+} from "./tokens.ts";
 
-export const THEMES: readonly ThemeName[] = ["dark", "light"] as const;
+export const THEMES = ["dark", "light"] as const;
