@@ -533,11 +533,11 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 ### Phase 3: Design system and web shell
 
-- [ ] `packages/ui/src/tokens.ts` from `tokens.json`; Tailwind theme and CSS variables for both themes; fonts self-hosted; the 16 icons as components from the board's SVG paths.
-- [ ] Web components for every entry in the token file's component list, each with its states.
-- [ ] A development-only gallery at `/dev/components` laid out like the "DS · Components" board, for side-by-side comparison.
-- [ ] App shells: public layout, responsive athlete shell per 8.2 (bottom tab bar below 768 px, side navigation from 768 px per board 16), admin layout (board 17).
-- [ ] `packages/i18n` in place and used by every component.
+- [x] `packages/ui/src/tokens.ts` from `tokens.json`; Tailwind theme and CSS variables for both themes; fonts self-hosted; the 16 icons as components from the board's SVG paths.
+- [x] Web components for every entry in the token file's component list, each with its states.
+- [x] A development-only gallery at `/dev/components` laid out like the "DS · Components" board, for side-by-side comparison.
+- [x] App shells: public layout, responsive athlete shell per 8.2 (bottom tab bar below 768 px, side navigation from 768 px per board 16), admin layout (board 17).
+- [x] `packages/i18n` in place and used by every component.
 
 **Acceptance.** The gallery matches the board at 1× on colours, type sizes, radii and spacing (compare screenshots against the rendered prototype). The athlete shell is checked at 390 × 844 (tab bar, matching the phone boards) and at 1440 wide (side navigation, board 16). Automated accessibility checks pass on the gallery in both themes. At 200% text size nothing clips or overlaps. With reduced motion set, moments cross-fade.
 
