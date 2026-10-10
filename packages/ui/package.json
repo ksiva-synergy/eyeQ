@@ -1,0 +1,21 @@
+{
+  "name": "@eyeq/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Design tokens, icons and components for web and native (phase 3)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@eyeq/config": "workspace:*",
+    "eslint": "^9.33.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

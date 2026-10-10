@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ design system — colour tokens</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.sw{display:flex;flex-direction:column;gap:8px}
+.sw .b{height:56px;border-radius:10px;box-sizing:border-box}
+.sw .n{font-size:13px;font-weight:700}
+.sw .h{font-size:11px;font-weight:600;opacity:.75;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width:1240px;height:900px;box-sizing:border-box;padding:40px 48px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="cap" style="color:#B197FC">EyeQ · Forge Your Peak · Design system 01</div>
+      <h1 class="d" style="margin:0;font-size:56px">Colour tokens</h1>
+    </div>
+    <p style="margin:0;max-width:520px;font-size:14px;line-height:1.5;color:#A9A8B8">Black ground, one violet primary, one red reserved for the single most important action on a screen. Every semantic colour has a <strong style="color:#F3F2F8">fill</strong> (white or near-black text on it) and a <strong style="color:#F3F2F8">text</strong> variant (4.5:1 on the ground). Status is never colour alone: it always pairs with a glyph or a label.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:24px;flex:1">
+    <!-- DARK -->
+    <div style="background:#15151D;border:1px solid #2A2A37;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="d" style="font-size:26px">Dark · primary theme</div>
+        <div class="cap" style="color:#A9A8B8">theme.dark</div>
+      </div>
+      <div class="cap" style="color:#8E8DA0">Surfaces &amp; text</div>
+      <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px">
+        <div class="sw"><div class="b" style="background:#0B0B10;border:1px solid #2A2A37"></div><div class="n">ground / pitch</div><div class="h">#0B0B10</div></div>
+        <div class="sw"><div class="b" style="background:#15151D;border:1px solid #2A2A37"></div><div class="n">surface-1 / court</div><div class="h">#15151D</div></div>
+        <div class="sw"><div class="b" style="background:#1E1E28;border:1px solid #2A2A37"></div><div class="n">surface-2 / raised</div><div class="h">#1E1E28</div></div>
+        <div class="sw"><div class="b" style="background:#2A2A37"></div><div class="n">border / hairline</div><div class="h">#2A2A37</div></div>
+        <div class="sw"><div class="b" style="background:#F3F2F8"></div><div class="n">text-primary</div><div class="h">#F3F2F8 · 17.6:1</div></div>
+        <div class="sw"><div class="b" style="background:#A9A8B8"></div><div class="n">text-secondary</div><div class="h">#A9A8B8 · 8.3:1</div></div>
+        <div class="sw"><div class="b" style="background:#8E8DA0"></div><div class="n">text-muted</div><div class="h">#8E8DA0 · 5.9:1</div></div>
+        <div class="sw"><div class="b" style="background:#F3F2F8;opacity:.08"></div><div class="n">overlay / scrim</div><div class="h">white 8% · black 60%</div></div>
+      </div>
+      <div class="cap" style="color:#8E8DA0">Semantic</div>
+      <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px">
+        <div class="sw"><div class="b" style="background:#7C3AED;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 5.0:1</div><div class="n">primary / volt violet</div><div class="h">#7C3AED fill · #B197FC text</div></div>
+        <div class="sw"><div class="b" style="background:#DA2141;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 4.9:1</div><div class="n">cta / ignite red</div><div class="h">#DA2141 fill · #FF6B81 text</div></div>
+        <div class="sw"><div class="b" style="background:#FFB020;display:flex;align-items:center;justify-content:center;color:#15141D;font-weight:800;font-size:12px">Aa 10:1</div><div class="n">streak / ember</div><div class="h">#FFB020 fill &amp; text</div></div>
+        <div class="sw"><div class="b" style="background:#FFD23F;display:flex;align-items:center;justify-content:center;color:#15141D;font-weight:800;font-size:12px">Aa 13:1</div><div class="n">xp / gold</div><div class="h">#FFD23F fill &amp; text</div></div>
+        <div class="sw"><div class="b" style="background:#1F9D5A;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 4.6:1</div><div class="n">success / field green</div><div class="h">#1F9D5A fill · #3DD68C text</div></div>
+        <div class="sw"><div class="b" style="background:#5AB4FF;display:flex;align-items:center;justify-content:center;color:#15141D;font-weight:800;font-size:12px">Aa 8:1</div><div class="n">rank / sky</div><div class="h">#5AB4FF text · #1B4F7A fill</div></div>
+        <div class="sw"><div class="b" style="background:#241B3F"></div><div class="n">primary-subtle</div><div class="h">#241B3F · tints behind violet text</div></div>
+        <div class="sw"><div class="b" style="background:#3A1118"></div><div class="n">cta-subtle / danger-subtle</div><div class="h">#3A1118 · behind red text</div></div>
+      </div>
+    </div>
+
+    <!-- LIGHT -->
+    <div style="background:#FFFFFF;color:#15141D;border:1px solid #DCD9E8;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="d" style="font-size:26px">Light · secondary theme</div>
+        <div class="cap" style="color:#4F4D5E">theme.light</div>
+      </div>
+      <div class="cap" style="color:#6E6C7E">Surfaces &amp; text</div>
+      <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px">
+        <div class="sw"><div class="b" style="background:#F5F4FA;border:1px solid #DCD9E8"></div><div class="n">ground</div><div class="h">#F5F4FA</div></div>
+        <div class="sw"><div class="b" style="background:#FFFFFF;border:1px solid #DCD9E8"></div><div class="n">surface-1</div><div class="h">#FFFFFF</div></div>
+        <div class="sw"><div class="b" style="background:#ECEAF4;border:1px solid #DCD9E8"></div><div class="n">surface-2</div><div class="h">#ECEAF4</div></div>
+        <div class="sw"><div class="b" style="background:#DCD9E8"></div><div class="n">border</div><div class="h">#DCD9E8</div></div>
+        <div class="sw"><div class="b" style="background:#15141D"></div><div class="n">text-primary</div><div class="h">#15141D · 17:1</div></div>
+        <div class="sw"><div class="b" style="background:#4F4D5E"></div><div class="n">text-secondary</div><div class="h">#4F4D5E · 8.2:1</div></div>
+        <div class="sw"><div class="b" style="background:#6E6C7E"></div><div class="n">text-muted</div><div class="h">#6E6C7E · 5.3:1</div></div>
+        <div class="sw"><div class="b" style="background:#15141D;opacity:.06"></div><div class="n">overlay / scrim</div><div class="h">black 6% · black 50%</div></div>
+      </div>
+      <div class="cap" style="color:#6E6C7E">Semantic</div>
+      <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px">
+        <div class="sw"><div class="b" style="background:#6D28D9;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 6.6:1</div><div class="n">primary</div><div class="h">#6D28D9 fill · #5B21B6 text</div></div>
+        <div class="sw"><div class="b" style="background:#C8102E;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 6.2:1</div><div class="n">cta</div><div class="h">#C8102E fill · #B50E29 text</div></div>
+        <div class="sw"><div class="b" style="background:#F59E0B;display:flex;align-items:center;justify-content:center;color:#15141D;font-weight:800;font-size:12px">Aa 8:1</div><div class="n">streak</div><div class="h">#F59E0B fill · #9A5B00 text</div></div>
+        <div class="sw"><div class="b" style="background:#FFD23F;display:flex;align-items:center;justify-content:center;color:#15141D;font-weight:800;font-size:12px">Aa 12:1</div><div class="n">xp</div><div class="h">#FFD23F fill · #8A6400 text</div></div>
+        <div class="sw"><div class="b" style="background:#1F9D5A;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 4.6:1</div><div class="n">success</div><div class="h">#1F9D5A fill · #0F7A43 text</div></div>
+        <div class="sw"><div class="b" style="background:#1B6FB8;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px">Aa 5.4:1</div><div class="n">rank</div><div class="h">#1B6FB8 fill &amp; text</div></div>
+        <div class="sw"><div class="b" style="background:#EFE9FF;border:1px solid #DCD9E8"></div><div class="n">primary-subtle</div><div class="h">#EFE9FF</div></div>
+        <div class="sw"><div class="b" style="background:#FDE8EC;border:1px solid #DCD9E8"></div><div class="n">cta-subtle / danger-subtle</div><div class="h">#FDE8EC</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px">
+    <div style="display:flex;flex-direction:column;gap:4px"><div class="cap" style="color:#B197FC">Violet is structure</div><div style="font-size:13px;line-height:1.45;color:#A9A8B8">Primary buttons, selected tabs, progress fills, links, level badges. Never for alerts.</div></div>
+    <div style="display:flex;flex-direction:column;gap:4px"><div class="cap" style="color:#FF6B81">Red is the one action</div><div style="font-size:13px;line-height:1.45;color:#A9A8B8">At most one red button per screen: Start session, Mark done, Buy. Red text only for destructive or loss states.</div></div>
+    <div style="display:flex;flex-direction:column;gap:4px"><div class="cap" style="color:#FFB020">Ember and gold are rewards</div><div style="font-size:13px;line-height:1.45;color:#A9A8B8">Streak flame is ember; XP and coins are gold. They are the only warm colours, so earned things feel earned.</div></div>
+    <div style="display:flex;flex-direction:column;gap:4px"><div class="cap" style="color:#3DD68C">Flat by default</div><div style="font-size:13px;line-height:1.45;color:#A9A8B8">Surfaces are flat fills with 1 px hairlines; no blur, no glass, no photo backgrounds. Keeps a ₹10k Android at 60 fps.</div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+
+
+</body></html>

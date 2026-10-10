@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ — Go Pro</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC;text-decoration:none}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.tn{font-variant-numeric:tabular-nums}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.card{background:#15151D;border:1px solid #2A2A37;border-radius:20px;box-sizing:border-box}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;font:800 15px/1.2 Manrope,sans-serif;border:0;cursor:pointer;padding:0 20px;box-sizing:border-box;width:100%;text-decoration:none;color:#fff}
+.cta{background:#DA2141;color:#fff}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid #2A2A37;background:#15151D;color:#F3F2F8;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:7px;background:#1E1E28;border:1px solid #2A2A37;font-size:11px;font-weight:700;white-space:nowrap}
+.plan{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#15151D;border:2px solid #2A2A37;cursor:pointer;text-align:left;width:100%;color:#F3F2F8;font-family:inherit}
+.plan.on{background:#241B3F;border-color:#7C3AED}
+.rad{width:20px;height:20px;border-radius:50%;border:2px solid #8E8DA0;box-sizing:border-box;flex-shrink:0}
+.plan.on .rad{border-color:#B197FC;box-shadow:inset 0 0 0 4px #15151D;background:#B197FC}
+.tr{display:grid;grid-template-columns:1fr 60px 60px;align-items:center;min-height:36px;font-size:13px;border-bottom:1px solid #2A2A37}
+.tr span:nth-child(2),.tr span:nth-child(3){text-align:center}
+</style>
+</helmet>
+<div style="width:390px;height:844px;position:relative;overflow:hidden;background:#0B0B10;box-sizing:border-box">
+  <div style="position:absolute;inset:0;overflow:auto;padding:56px 20px 150px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <a class="ib" href="Programs.dc.html" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+      <a href="#restore" style="font-size:13px;font-weight:800;min-height:44px;display:flex;align-items:center">Restore purchases</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="cap" style="color:#B197FC">EyeQ Pro</div>
+      <h1 class="d" style="margin:0;font-size:40px">EVERY PROGRAM.<br>EVERY DRILL.</h1>
+      <p style="margin:0;font-size:14px;line-height:1.5;color:#A9A8B8">All 4 programs, premium challenges, streak freezes monthly, and coach feedback on your scores.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px" role="radiogroup" aria-label="Plan">
+      <sc-for list="{{plans}}" as="p" hint-placeholder-count="3">
+        <button class="{{p.cls}}" onClick="{{p.pick}}" role="radio" aria-checked="{{p.on}}">
+          <span class="rad"></span>
+          <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="display:flex;align-items:center;gap:8px"><span style="font-size:15px;font-weight:800">{{p.name}}</span><sc-if value="{{p.badge}}" hint-placeholder-val="{{ false }}"><span class="chip" style="background:#1F3A2A;border-color:#2E6B45;color:#3DD68C">{{p.badge}}</span></sc-if></span><span style="font-size:12px;color:#A9A8B8">{{p.sub}}</span></span>
+          <span class="d tn" style="font-size:24px">{{p.price}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div class="cap">Or pay once</div>
+    <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px">
+      <button class="{{onceCls}}" onClick="{{pickOnce}}" style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px">
+        <span style="font-size:13px;font-weight:800">This program only</span><span style="font-size:11px;color:#A9A8B8">Reaction Edge · lifetime</span><span class="d tn" style="font-size:22px">₹[PRICE]</span>
+      </button>
+      <button class="{{creditsCls}}" onClick="{{pickCredits}}" style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px">
+        <span style="font-size:13px;font-weight:800">Credits pack</span><span style="font-size:11px;color:#A9A8B8">500 coins · unlock drills à la carte</span><span class="d tn" style="font-size:22px">₹[PRICE]</span>
+      </button>
+    </div>
+
+    <div class="cap">Free vs Pro</div>
+    <div class="card" style="padding:4px 14px">
+      <div class="tr" style="min-height:30px"><span class="cap"></span><span class="cap">Free</span><span class="cap" style="color:#B197FC">Pro</span></div>
+      <div class="tr"><span>Daily session + streaks</span><span style="color:#3DD68C">✓</span><span style="color:#3DD68C">✓</span></div>
+      <div class="tr"><span>3-Day Eye Health Reset</span><span style="color:#3DD68C">✓</span><span style="color:#3DD68C">✓</span></div>
+      <div class="tr"><span>Leaderboards &amp; weekly challenge</span><span style="color:#3DD68C">✓</span><span style="color:#3DD68C">✓</span></div>
+      <div class="tr"><span>All programs (4)</span><span style="color:#8E8DA0">1 trial</span><span style="color:#3DD68C">✓</span></div>
+      <div class="tr"><span>Premium challenges</span><span style="color:#8E8DA0">pay/entry</span><span style="color:#3DD68C">✓</span></div>
+      <div class="tr"><span>Streak freezes</span><span style="color:#8E8DA0">buy</span><span style="color:#3DD68C">2 / mo</span></div>
+      <div class="tr" style="border-bottom:0"><span>Coach feedback on scores</span><span style="color:#8E8DA0">—</span><span style="color:#3DD68C">✓</span></div>
+    </div>
+    <p style="margin:0;font-size:11px;line-height:1.5;color:#8E8DA0">Prices in ₹, incl. GST. Under 18: a parent or guardian completes the purchase. Cancel anytime from Profile · Purchases. <a href="#terms">Terms</a></p>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 32px;background:#0B0B10;border-top:1px solid #2A2A37;display:flex;flex-direction:column;gap:8px">
+    <button class="btn cta">{{ctaLabel}}</button>
+    <div style="display:flex;justify-content:center;gap:10px;align-items:center;font-size:11px;font-weight:700;color:#8E8DA0"><span>Pay with</span><span class="chip">UPI</span><span class="chip">Card</span><span class="chip">Net banking</span></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { pick: 'annual' }; }
+  renderVals() {
+    const defs = [
+      { id: 'annual', name: 'Annual', sub: '₹[PRICE]/month, billed yearly', price: '₹[ANNUAL]', badge: 'Best value · save 40 %' },
+      { id: 'quarterly', name: 'Quarterly', sub: '₹[PRICE]/month, billed every 3 months', price: '₹[QUARTERLY]', badge: '' },
+      { id: 'monthly', name: 'Monthly', sub: 'Cancel anytime', price: '₹[MONTHLY]', badge: '' }
+    ];
+    const pk = this.state.pick;
+    const labels = { annual: 'Start Pro · ₹[ANNUAL] / year', quarterly: 'Start Pro · ₹[QUARTERLY] / quarter', monthly: 'Start Pro · ₹[MONTHLY] / month', once: 'Buy Reaction Edge · ₹[PRICE]', credits: 'Buy 500 coins · ₹[PRICE]' };
+    return {
+      plans: defs.map((d) => ({ ...d, on: pk === d.id, cls: 'plan' + (pk === d.id ? ' on' : ''), pick: () => this.setState({ pick: d.id }) })),
+      onceCls: 'plan' + (pk === 'once' ? ' on' : ''), creditsCls: 'plan' + (pk === 'credits' ? ' on' : ''),
+      pickOnce: () => this.setState({ pick: 'once' }), pickCredits: () => this.setState({ pick: 'credits' }),
+      ctaLabel: labels[pk]
+    };
+  }
+}
+</script>
+
+
+</body></html>

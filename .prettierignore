@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+.turbo
+pnpm-lock.yaml
+docs/design/screens
+docs/design/tokens.prototype.json
+coverage
+playwright-report
+test-results

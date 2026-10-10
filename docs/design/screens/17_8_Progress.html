@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ — Progress</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC;text-decoration:none}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.tn{font-variant-numeric:tabular-nums}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.card{background:#15151D;border:1px solid #2A2A37;border-radius:20px;box-sizing:border-box}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;background:#1E1E28;border:1px solid #2A2A37;font-size:12px;font-weight:700;white-space:nowrap}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-height:44px;justify-content:center;font-size:11px;font-weight:700;color:#8E8DA0;text-decoration:none;position:relative}
+.tab.on{color:#B197FC}.tab.on:before{content:"";position:absolute;top:-8px;width:24px;height:3px;border-radius:2px;background:#7C3AED}
+.pill{min-height:36px;padding:0 12px;border-radius:10px;border:1px solid #2A2A37;background:#1E1E28;color:#A9A8B8;font:700 12px Manrope,sans-serif;cursor:pointer;white-space:nowrap}
+.pill.on{background:#241B3F;border-color:#7C3AED;color:#D4C6FF}
+.cell{aspect-ratio:1;border-radius:4px;background:#1E1E28}
+.c1{background:#3B2A66}.c2{background:#5B3DB0}.c3{background:#7C3AED}.c4{background:#B197FC}
+</style>
+</helmet>
+<div style="width:390px;height:844px;position:relative;overflow:hidden;background:#0B0B10;box-sizing:border-box">
+  <div style="position:absolute;inset:0;overflow:auto;padding:56px 20px 110px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="d" style="font-size:30px">PROGRESS</div>
+      <span class="chip" style="color:#A9A8B8">Last 8 weeks</span>
+    </div>
+
+    <!-- stat tiles -->
+    <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:10px">
+      <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:2px"><span class="cap">Sessions</span><span class="d tn" style="font-size:30px">31</span><span style="font-size:11px;color:#3DD68C;font-weight:700">▲ 4 vs last 4 wk</span></div>
+      <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:2px"><span class="cap">Minutes</span><span class="d tn" style="font-size:30px">438</span><span style="font-size:11px;color:#A9A8B8;font-weight:700">14 avg / session</span></div>
+      <div class="card" style="padding:12px;display:flex;flex-direction:column;gap:2px"><span class="cap" style="color:#FFB020">Best streak</span><span class="d tn" style="font-size:30px;color:#FFB020">19</span><span style="font-size:11px;color:#A9A8B8;font-weight:700">current 12</span></div>
+    </div>
+
+    <!-- sessions per week -->
+    <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:800">Sessions per week</span><span class="cap">target 5</span></div>
+      <svg viewBox="0 0 326 120" width="100%" height="120" role="img" aria-label="Sessions per week for the last 8 weeks: 2, 3, 4, 3, 5, 4, 5, 3 so far this week">
+        <line x1="0" y1="20" x2="326" y2="20" stroke="#2A2A37" stroke-dasharray="3 4"></line><text x="0" y="14" font-family="Manrope,sans-serif" font-size="10" font-weight="700" fill="#8E8DA0">5</text>
+        <line x1="0" y1="100" x2="326" y2="100" stroke="#2A2A37"></line>
+        <rect x="8" y="68" width="26" height="32" rx="3" fill="#3B2A66"></rect>
+        <rect x="48" y="52" width="26" height="48" rx="3" fill="#3B2A66"></rect>
+        <rect x="88" y="36" width="26" height="64" rx="3" fill="#5B3DB0"></rect>
+        <rect x="128" y="52" width="26" height="48" rx="3" fill="#3B2A66"></rect>
+        <rect x="168" y="20" width="26" height="80" rx="3" fill="#7C3AED"></rect>
+        <rect x="208" y="36" width="26" height="64" rx="3" fill="#5B3DB0"></rect>
+        <rect x="248" y="20" width="26" height="80" rx="3" fill="#7C3AED"></rect>
+        <rect x="288" y="52" width="26" height="48" rx="3" fill="#7C3AED" stroke="#B197FC" stroke-width="2" stroke-dasharray="3 3"></rect>
+        <g font-family="Manrope,sans-serif" font-size="10" font-weight="700" fill="#8E8DA0" text-anchor="middle"><text x="21" y="115">W1</text><text x="61" y="115">W2</text><text x="101" y="115">W3</text><text x="141" y="115">W4</text><text x="181" y="115">W5</text><text x="221" y="115">W6</text><text x="261" y="115">W7</text><text x="301" y="115" fill="#B197FC">now</text></g>
+        <g font-family="Barlow Condensed,Impact,sans-serif" font-size="13" font-weight="700" fill="#F3F2F8" text-anchor="middle"><text x="181" y="14">5</text><text x="261" y="14">5</text><text x="301" y="46">3</text></g>
+      </svg>
+    </div>
+
+    <!-- heatmap -->
+    <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:800">Streak calendar</span><span class="cap">minutes / day</span></div>
+      <div style="display:grid;grid-template-columns:28px repeat(7, minmax(0, 1fr));gap:4px;align-items:center">
+        <span></span><span class="cap" style="text-align:center">M</span><span class="cap" style="text-align:center">T</span><span class="cap" style="text-align:center">W</span><span class="cap" style="text-align:center">T</span><span class="cap" style="text-align:center">F</span><span class="cap" style="text-align:center">S</span><span class="cap" style="text-align:center">S</span>
+        <span class="cap">Sep</span><div class="cell c2"></div><div class="cell"></div><div class="cell c3"></div><div class="cell c1"></div><div class="cell"></div><div class="cell c3"></div><div class="cell c2"></div>
+        <span class="cap"></span><div class="cell c3"></div><div class="cell c3"></div><div class="cell"></div><div class="cell c2"></div><div class="cell c3"></div><div class="cell c4"></div><div class="cell"></div>
+        <span class="cap"></span><div class="cell c3"></div><div class="cell c2"></div><div class="cell c3"></div><div class="cell c3"></div><div class="cell c4"></div><div class="cell c3"></div><div class="cell c2"></div>
+        <span class="cap">Oct</span><div class="cell c3"></div><div class="cell c3"></div><div class="cell c2"></div><div class="cell c4"></div><div class="cell c3"></div><div class="cell c3"></div><div class="cell c3"></div>
+        <span class="cap"></span><div class="cell c3"></div><div class="cell c2"></div><div class="cell c3"></div><div class="cell c3"></div><div class="cell" style="border:2px solid #FFB020;box-sizing:border-box"></div><div class="cell" style="background:transparent;border:1px dashed #2A2A37"></div><div class="cell" style="background:transparent;border:1px dashed #2A2A37"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8E8DA0;font-weight:700"><span>0</span><div class="cell" style="width:12px;aspect-ratio:1"></div><div class="cell c1" style="width:12px"></div><div class="cell c2" style="width:12px"></div><div class="cell c3" style="width:12px"></div><div class="cell c4" style="width:12px"></div><span>20+ min</span><span style="margin-left:auto;color:#FFB020">▢ today · pending</span></div>
+    </div>
+
+    <!-- score trend -->
+    <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:800">Score trend</span><span class="cap">clean shifts · best set</span></div>
+      <div style="display:flex;gap:6px;overflow:auto">
+        <sc-for list="{{drills}}" as="dr" hint-placeholder-count="4"><button class="{{dr.cls}}" onClick="{{dr.pick}}" aria-pressed="{{dr.on}}">{{dr.name}}</button></sc-for>
+      </div>
+      <svg viewBox="0 0 326 110" width="100%" height="110" role="img" aria-label="{{trendLabel}}">
+        <line x1="0" y1="90" x2="326" y2="90" stroke="#2A2A37"></line><line x1="0" y1="50" x2="326" y2="50" stroke="#2A2A37" stroke-dasharray="3 4"></line><line x1="0" y1="10" x2="326" y2="10" stroke="#2A2A37" stroke-dasharray="3 4"></line>
+        <polyline points="{{trendPts}}" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+        <circle cx="{{lastX}}" cy="{{lastY}}" r="5" fill="#B197FC" stroke="#15151D" stroke-width="2"></circle>
+        <text x="{{lastX}}" y="{{lastLabelY}}" text-anchor="end" font-family="Barlow Condensed,Impact,sans-serif" font-size="16" font-weight="700" fill="#F3F2F8">{{lastVal}}</text>
+        <g font-family="Manrope,sans-serif" font-size="10" font-weight="700" fill="#8E8DA0"><text x="0" y="104">Day 1 · {{firstVal}}</text><text x="326" y="104" text-anchor="end">Day 9</text></g>
+      </svg>
+    </div>
+
+    <!-- radar -->
+    <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:800">Baseline vs now</span><span class="cap">self-rated · 1–5</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg width="170" height="160" viewBox="0 0 170 160" role="img" aria-label="Radar: Focus 3 to 4, Reaction 2 to 4, Tracking 3 to 4">
+          <g fill="none" stroke="#2A2A37"><polygon points="85,14 151,118 19,118"></polygon><polygon points="85,42 128,106 42,106"></polygon><polygon points="85,70 106,96 64,96"></polygon></g>
+          <polygon points="85,42 128,106 42,106" fill="none" stroke="#8E8DA0" stroke-width="2" stroke-dasharray="4 4"></polygon>
+          <polygon points="85,28 140,112 30,112" fill="#7C3AED" fill-opacity=".3" stroke="#B197FC" stroke-width="2.5"></polygon>
+          <g font-family="Manrope,sans-serif" font-size="10" font-weight="800" fill="#A9A8B8"><text x="85" y="8" text-anchor="middle">FOCUS</text><text x="156" y="132" text-anchor="middle">REACTION</text><text x="16" y="132" text-anchor="middle">TRACKING</text></g>
+        </svg>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;font-size:12px">
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:18px;height:0;border-top:2px dashed #8E8DA0"></span><span style="color:#A9A8B8;font-weight:700">Baseline · 25 Sep</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:18px;height:10px;background:#7C3AED;border-radius:3px"></span><span style="font-weight:800">Now · day 9</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px;color:#A9A8B8;padding-top:4px" class="tn"><span>Focus 3 → <b style="color:#F3F2F8">4</b></span><span>Reaction 2 → <b style="color:#F3F2F8">4</b></span><span>Tracking 3 → <b style="color:#F3F2F8">4</b></span></div>
+          <span style="font-size:11px;color:#8E8DA0">Re-rate on day 14</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin:0;font-size:11px;line-height:1.5;color:#8E8DA0;text-align:center">Scores and ratings track your training. They are not a measure of eye health.</p>
+  </div>
+
+  <nav aria-label="Main" style="position:absolute;left:0;right:0;bottom:0;height:84px;padding:12px 8px 24px;box-sizing:border-box;background:#0F0F15;border-top:1px solid #2A2A37;display:flex">
+    <a class="tab" href="Home.dc.html"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a>
+    <a class="tab" href="Programs.dc.html"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M10 8l6 4-6 4z"></path></svg>Train</a>
+    <a class="tab" href="Leaderboard.dc.html"><svg class="i" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path></svg>Compete</a>
+    <a class="tab on" href="Progress.dc.html"><svg class="i" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V6M16 20v-10M22 20H2"></path></svg>Progress</a>
+    <a class="tab" href="Profile.dc.html"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Profile</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { drill: 'Near–Far' }; }
+  renderVals() {
+    const data = {
+      'Near–Far': { vals: [14,16,15,18,19,21,20,22,24], max: 30, unit: 'clean shifts' },
+      'Flash Catch': { vals: [3,3,4,3,4,4,5,4,5], max: 5, unit: 'self-rating' },
+      'Saccade': { vals: [9,10,12,11,13,14,14,16,17], max: 20, unit: 'rungs' },
+      'Recall': { vals: [5,5,6,6,6,7,7,7,8], max: 10, unit: 'digits' }
+    };
+    const cur = data[this.state.drill];
+    const n = cur.vals.length;
+    const pts = cur.vals.map((v, i) => [Math.round(8 + i * (310 / (n - 1))), Math.round(90 - (v / cur.max) * 80)]);
+    const last = pts[n - 1];
+    return {
+      drills: Object.keys(data).map((name) => ({ name, on: name === this.state.drill, cls: 'pill' + (name === this.state.drill ? ' on' : ''), pick: () => this.setState({ drill: name }) })),
+      trendPts: pts.map((p) => p.join(',')).join(' '),
+      lastX: last[0], lastY: last[1], lastLabelY: last[1] - 10, lastVal: cur.vals[n - 1], firstVal: cur.vals[0],
+      trendLabel: this.state.drill + ' ' + cur.unit + ' over 9 days: ' + cur.vals.join(', ')
+    };
+  }
+}
+</script>
+
+
+</body></html>

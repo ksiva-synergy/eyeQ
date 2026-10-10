@@ -1,0 +1,141 @@
+{
+  "$source": "Extracted from the EyeQ prototype (DS · Colour tokens, DS · Type/spacing/radii/elevation/icons, DS · Motion moments, DS · Components). The prototype is the authority; if a value here disagrees with a screen, the screen wins and this file gets fixed.",
+  "color": {
+    "dark": {
+      "ground": "#0B0B10",
+      "surface1": "#15151D",
+      "surface2": "#1E1E28",
+      "tabBar": "#0F0F15",
+      "border": "#2A2A37",
+      "borderStrong": "#34344A",
+      "textPrimary": "#F3F2F8",
+      "textSecondary": "#A9A8B8",
+      "textMuted": "#8E8DA0",
+      "textDisabled": "#6E6D7E",
+      "primaryFill": "#7C3AED",
+      "primaryText": "#B197FC",
+      "primaryTextStrong": "#D4C6FF",
+      "primarySubtle": "#241B3F",
+      "primarySubtleBorder": "#3B2A66",
+      "ctaFill": "#DA2141",
+      "ctaText": "#FF6B81",
+      "ctaSubtle": "#3A1118",
+      "streakFill": "#FFB020",
+      "streakText": "#FFB020",
+      "streakSubtle": "#3A2A08",
+      "xpFill": "#FFD23F",
+      "xpText": "#FFD23F",
+      "goldSubtle": "#2B2308",
+      "goldSubtleBorder": "#5C4A0E",
+      "successFill": "#1F9D5A",
+      "successText": "#3DD68C",
+      "successSubtle": "#1F3A2A",
+      "successSubtleBorder": "#2E6B45",
+      "rankFill": "#1B4F7A",
+      "rankText": "#5AB4FF",
+      "onFill": "#FFFFFF",
+      "onWarmFill": "#15141D",
+      "overlay": "rgba(255,255,255,0.08)",
+      "scrim": "rgba(0,0,0,0.60)"
+    },
+    "light": {
+      "ground": "#F5F4FA",
+      "surface1": "#FFFFFF",
+      "surface2": "#ECEAF4",
+      "border": "#DCD9E8",
+      "textPrimary": "#15141D",
+      "textSecondary": "#4F4D5E",
+      "textMuted": "#6E6C7E",
+      "primaryFill": "#6D28D9",
+      "primaryText": "#5B21B6",
+      "primarySubtle": "#EFE9FF",
+      "ctaFill": "#C8102E",
+      "ctaText": "#B50E29",
+      "ctaSubtle": "#FDE8EC",
+      "streakFill": "#F59E0B",
+      "streakText": "#9A5B00",
+      "xpFill": "#FFD23F",
+      "xpText": "#8A6400",
+      "successFill": "#1F9D5A",
+      "successText": "#0F7A43",
+      "rankFill": "#1B6FB8",
+      "rankText": "#1B6FB8",
+      "onFill": "#FFFFFF",
+      "onWarmFill": "#15141D",
+      "overlay": "rgba(21,20,29,0.06)",
+      "scrim": "rgba(0,0,0,0.50)"
+    },
+    "usage": {
+      "violet": "Structure: primary buttons, selected tabs, progress fills, links, level badges. Never for alerts.",
+      "red": "The one action: at most one red button per screen (Start session, Mark done, Buy). Red text only for destructive or loss states.",
+      "emberAndGold": "Rewards only: streak flame is ember; XP and coins are gold. The only warm colours.",
+      "surfaces": "Flat fills with 1 px hairlines. No blur, no glass, no photo backgrounds.",
+      "status": "Never colour alone: always paired with a glyph or a label."
+    }
+  },
+  "font": {
+    "display": { "family": "Barlow Condensed", "fallback": "Impact, 'Arial Narrow', sans-serif", "weights": [700, 800], "use": "Numbers, levels, headlines only. Never paragraphs." },
+    "body": { "family": "Manrope", "fallback": "system-ui, sans-serif", "weights": [500, 600, 700, 800] },
+    "numerals": "tabular-nums everywhere a number can change"
+  },
+  "type": {
+    "hero": { "font": "display", "size": 96, "lineHeight": 88, "weight": 800, "letterSpacing": "-0.02em" },
+    "displayXl": { "font": "display", "size": 56, "lineHeight": 52, "weight": 800 },
+    "displayL": { "font": "display", "size": 36, "lineHeight": 36, "weight": 700 },
+    "displayM": { "font": "display", "size": 26, "lineHeight": 28, "weight": 700 },
+    "title": { "font": "body", "size": 18, "lineHeight": 24, "weight": 800 },
+    "body": { "font": "body", "size": 15, "lineHeight": 22, "weight": 500 },
+    "bodyS": { "font": "body", "size": 13, "lineHeight": 18, "weight": 600 },
+    "label": { "font": "body", "size": 11, "lineHeight": 14, "weight": 800, "letterSpacing": "0.12em", "transform": "uppercase" },
+    "rules": "Minimum body 15 px; captions 13 px, never below 12. Sizes in rem so 200 % OS scaling reflows. Text rows use min-height, not fixed height."
+  },
+  "space": { "s1": 4, "s2": 8, "s3": 12, "s4": 16, "s5": 20, "s6": 24, "s8": 32, "s12": 48 },
+  "layout": { "screenGutter": 20, "cardPadding": 16, "listRowMin": 56, "listRowMax": 64, "touchTargetMin": 44, "buttonHeight": 52, "buttonHeightSmall": 40, "tabBarHeight": 84, "mobileFrame": [390, 844], "webFrame": 1440 },
+  "radius": { "chip": 8, "iconButton": 12, "button": 14, "planCard": 16, "card": 20, "full": 999 },
+  "elevation": {
+    "e0": "1 px hairline border, flat fill",
+    "e1": "0 8px 24px rgba(0,0,0,0.45), sheets and modals only",
+    "rule": "Elevation is a lighter surface plus a brighter hairline, not blur. One real shadow level."
+  },
+  "icon": {
+    "grid": 24, "stroke": 2, "caps": "round", "joins": "round",
+    "set": ["home", "train", "compete", "progress", "profile", "streak", "xp", "coin", "eye", "lock", "freeze", "check", "chevron", "whatsapp", "share", "settings"],
+    "rule": "Outline set; filled variants only for the active tab and the streak flame. Reward glyphs carry their semantic colour; the rest inherit text colour. SVG paths are in screens/01_DS_Type_spacing_radii_elevation_icons.html."
+  },
+  "motion": {
+    "curve": { "spring": "cubic-bezier(.34,1.56,.64,1)", "settle": "cubic-bezier(.2,.9,.2,1)" },
+    "moment": {
+      "xpCountUp": { "ms": 900, "note": "Number ticks 0 to total in 700 ms (easeOutQuart, whole numbers); bar fills old to new over 900 ms; breakdown lines stamp in 80 ms apart. Haptic: light at 700 ms." },
+      "streakFlame": { "ms": 800, "note": "Flame springs 60 % to 115 % to 100 %; ember glow blooms to 18 %; count slides up 250 ms later. Flame size tier: 1-6 small, 7-20 medium, 21+ large. Haptic: medium at 480 ms." },
+      "levelUp": { "ms": 1100, "note": "Full-screen on primary-subtle ground; hex badge springs from 30 % with a -12 degree twist; rays burst and fade; title slides up. Haptic: success at 500 ms." },
+      "badgeUnlock": { "ms": 1000, "note": "Tile flips in on Y from 90 degrees with 4 % overshoot; one diagonal sheen at 500 ms. Several badges stagger 120 ms, max three on screen, rest collapse into '+N more'. Haptic: light at 550 ms." },
+      "rankChange": { "ms": 700, "note": "Own row swaps with the overtaken row, 48 px translate with 4 px overshoot; delta stamps in after. Digits cross-fade, never spin. No haptic." }
+    },
+    "rules": [
+      "Every moment is under 1.2 s and never blocks the next action: Continue is live from frame 0.",
+      "Two curves only: spring for things that gain, settle for things that move.",
+      "Vector shapes, strokes and opacity only. No blur, particles, GIF, or Lottie heavier than 60 KB.",
+      "Tap anywhere to skip. Reduced motion collapses everything to a cross-fade. Sound off by default.",
+      "Never for failure: streak-lost and paywall states get a 200 ms fade only."
+    ]
+  },
+  "component": [
+    "Button: cta (red), primary (violet), ghost, disabled-with-reason, icon 44, small 40, text link",
+    "Card: surface-1, raised, primary-subtle",
+    "Chip: default, selected, measurement area (violet + eye glyph), coin, XP",
+    "Progress ring",
+    "XP bar: 10 px track, violet fill, ticks at 25 %",
+    "Streak counter: done, pending, at risk (amber chip + countdown), frozen (sky), lost (muted, best streak shown)",
+    "Level badge (hex) with rank title",
+    "Rank row: 56 px min, display-face numeral, initials avatar, sport and level, weekly XP; own row violet-subtle and pinned when off-screen",
+    "Drill card: pending, done (struck, green), locked (dashed border, lock glyph, how to unlock)",
+    "Challenge card: progress bar + fraction; paid adds price chip and prize line",
+    "Video player frame: 16:9, violet progress, red play, set chip, CC on",
+    "Paywall plan card: radio semantics; selected = violet-subtle fill + 2 px violet border",
+    "Bottom tab bar: Home, Train, Compete, Progress, Profile; active = violet label + 3 px bar; labels always shown",
+    "Toast: bottom, 3 s, one line, optional Undo",
+    "Modal / bottom sheet: sheets for decisions, centred modals only for blocking errors; two buttons max",
+    "Empty (glyph + one line + next action), loading (shimmer skeleton matching row shape, never spinners in lists), locked",
+    "Inputs: phone with +91 prefix, 6-digit OTP boxes, segmented control, toggle with an On/Off word"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@eyeq/api-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "zod schemas and types for /api/v1 and /api/admin, plus a typed fetch client",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@eyeq/config": "workspace:*",
+    "eslint": "^9.33.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "zod": "^4.1.5"
+  }
+}

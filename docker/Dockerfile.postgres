@@ -1,0 +1,10 @@
+# Local and CI Postgres matching Azure Flexible Server's extension set:
+# pg_cron (scheduled SQL jobs) and pgTAP (database tests).
+FROM postgres:16
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-16-cron postgresql-16-pgtap \
+ && rm -rf /var/lib/apt/lists/*
+
+# pg_cron must be preloaded and bound to the app database.
+CMD ["postgres", "-c", "shared_preload_libraries=pg_cron", "-c", "cron.database_name=eyeq", "-c", "log_min_messages=warning"]

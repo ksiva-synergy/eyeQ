@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ design system — type, spacing, radii, elevation, icons</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.row{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #2A2A37;padding:10px 0}
+.row .m{width:150px;font-size:11px;font-weight:700;color:#8E8DA0;font-variant-numeric:tabular-nums;flex-shrink:0}
+.ic{width:44px;height:44px;border-radius:12px;background:#1E1E28;border:1px solid #2A2A37;display:flex;align-items:center;justify-content:center;color:#F3F2F8}
+.ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sp{background:#7C3AED;border-radius:3px;height:16px}
+.rad{width:56px;height:56px;background:#1E1E28;border:1px solid #2A2A37}
+</style>
+</helmet>
+<div style="width:1240px;height:900px;box-sizing:border-box;padding:40px 48px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div class="cap" style="color:#B197FC">EyeQ · Design system 02</div>
+    <h1 class="d" style="margin:0;font-size:56px">Type, spacing, radii, elevation, icons</h1>
+  </div>
+
+  <div style="display:grid;grid-template-columns:7fr 5fr;gap:24px;flex:1;min-height:0">
+    <!-- TYPE -->
+    <div style="background:#15151D;border:1px solid #2A2A37;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div class="d" style="font-size:26px">Type scale</div>
+        <div style="font-size:12px;color:#A9A8B8">Display: <strong style="color:#F3F2F8">Barlow Condensed</strong> 700/800 · Body: <strong style="color:#F3F2F8">Manrope</strong> 500–800 · tabular numerals everywhere</div>
+      </div>
+      <div class="row"><div class="m">hero · 96/88 · -2%</div><div class="d" style="font-size:96px;line-height:.9;letter-spacing:-.02em;font-weight:800;color:#FFD23F">2,040</div></div>
+      <div class="row"><div class="m">display-xl · 56/52</div><div class="d" style="font-size:56px;font-weight:800">LEVEL 7 · PROSPECT</div></div>
+      <div class="row"><div class="m">display-l · 36/36</div><div class="d" style="font-size:36px">12-day streak</div></div>
+      <div class="row"><div class="m">display-m · 26/28</div><div class="d" style="font-size:26px">Today's session</div></div>
+      <div class="row"><div class="m">title · 18/24 · 800</div><div style="font-size:18px;font-weight:800">Near–Far Focus Shifts</div></div>
+      <div class="row"><div class="m">body · 15/22 · 500</div><div style="font-size:15px;line-height:22px;font-weight:500">Shift your gaze between the near card and the far card on every beep. Keep both eyes open.</div></div>
+      <div class="row"><div class="m">body-s · 13/18 · 600</div><div style="font-size:13px;line-height:18px;font-weight:600;color:#A9A8B8">Dynamic Visual Acuity · 4 min · 3 sets × 30 s</div></div>
+      <div class="row" style="border-bottom:0"><div class="m">label · 11/14 · 800 · +12%</div><div class="cap" style="color:#B197FC">Weekly challenge</div></div>
+      <div style="margin-top:auto;font-size:12px;line-height:1.5;color:#8E8DA0">Minimum body text 15 px; captions 13 px, never below 12. All text set in rem so 200 % OS scaling reflows; layouts use min-height, not fixed height, on text rows. Display face is for numbers, levels, headlines only — never for paragraphs.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:24px;min-height:0">
+      <!-- SPACING + RADII -->
+      <div style="background:#15151D;border:1px solid #2A2A37;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px">
+        <div class="d" style="font-size:26px">Spacing · 4 pt grid</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-1 · 4</div><div class="sp" style="width:4px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-2 · 8</div><div class="sp" style="width:8px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-3 · 12</div><div class="sp" style="width:12px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-4 · 16</div><div class="sp" style="width:16px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-5 · 20</div><div class="sp" style="width:20px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-6 · 24</div><div class="sp" style="width:24px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-8 · 32</div><div class="sp" style="width:32px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px"><div class="cap" style="width:70px">s-12 · 48</div><div class="sp" style="width:48px"></div></div>
+        </div>
+        <div style="font-size:12px;color:#8E8DA0">Screen gutter 20 · card padding 16 · list row 56–64 · touch target ≥ 44</div>
+        <div class="d" style="font-size:26px;margin-top:6px">Radii &amp; elevation</div>
+        <div style="display:flex;gap:16px;align-items:flex-end">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="rad" style="border-radius:8px"></div><div class="cap">r-s 8 · chips</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="rad" style="border-radius:14px"></div><div class="cap">r-m 14 · buttons</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="rad" style="border-radius:20px"></div><div class="cap">r-l 20 · cards</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="rad" style="border-radius:999px"></div><div class="cap">r-full · avatars</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center;margin-left:auto"><div class="rad" style="border-radius:14px;background:#1E1E28;border-color:#2A2A37"></div><div class="cap">e-0 hairline</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div class="rad" style="border-radius:14px;background:#1E1E28;border-color:#34344A;box-shadow:0 8px 24px rgba(0,0,0,.45)"></div><div class="cap">e-1 sheet · modal</div></div>
+        </div>
+        <div style="font-size:12px;color:#8E8DA0">Elevation is a lighter surface + brighter hairline, not blur. One real shadow level, reserved for sheets and modals.</div>
+      </div>
+
+      <!-- ICONS -->
+      <div style="background:#15151D;border:1px solid #2A2A37;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px;flex:1">
+        <div class="d" style="font-size:26px">Iconography · 24 px, 2 px stroke, rounded caps</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="ic" title="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg></div>
+          <div class="ic" title="train"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M10 8l6 4-6 4z"></path></svg></div>
+          <div class="ic" title="compete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path></svg></div>
+          <div class="ic" title="progress"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-7M10 20V6M16 20v-10M22 20H2"></path></svg></div>
+          <div class="ic" title="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></div>
+          <div class="ic" title="streak" style="color:#FFB020"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9.5 12 11 13 12 13c-.5-3-1.5-6 0-10z"></path></svg></div>
+          <div class="ic" title="xp" style="color:#FFD23F"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg></div>
+          <div class="ic" title="coin" style="color:#FFD23F"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+          <div class="ic" title="eye" style="color:#B197FC"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></div>
+          <div class="ic" title="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+          <div class="ic" title="freeze" style="color:#5AB4FF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"></path></svg></div>
+          <div class="ic" title="check" style="color:#3DD68C"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-11"></path></svg></div>
+          <div class="ic" title="chevron"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></div>
+          <div class="ic" title="whatsapp" style="color:#3DD68C"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.5-4A8 8 0 1 1 8 18.5z"></path><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2z"></path></svg></div>
+          <div class="ic" title="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6"></path></svg></div>
+          <div class="ic" title="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"></path></svg></div>
+        </div>
+        <div style="font-size:12px;line-height:1.5;color:#8E8DA0">Geometric outline set, drawn on a 24 grid with 2 px rounded strokes; filled variants only for the active tab and the streak flame. Reward glyphs (flame, bolt, coin) carry their semantic colour; everything else inherits text colour.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+
+
+</body></html>

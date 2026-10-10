@@ -1,0 +1,29 @@
+{
+  "name": "eyeq",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=web",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "turbo run test",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "db:up": "docker compose -f docker/compose.yaml up -d --wait",
+    "db:down": "docker compose -f docker/compose.yaml down",
+    "db:migrate": "pnpm --filter @eyeq/db migrate",
+    "db:reset": "pnpm --filter @eyeq/db reset",
+    "db:test": "pnpm --filter @eyeq/db test:pg",
+    "db:types": "pnpm --filter @eyeq/db codegen"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
+  }
+}

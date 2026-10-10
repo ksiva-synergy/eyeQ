@@ -1,0 +1,21 @@
+{
+  "name": "@eyeq/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "English message catalogue with typed keys",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@eyeq/config": "workspace:*",
+    "eslint": "^9.33.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

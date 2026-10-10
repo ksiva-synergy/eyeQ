@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ design system — motion moments</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.panel{background:#15151D;border:1px solid #2A2A37;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stage{height:170px;border-radius:14px;background:#0B0B10;border:1px solid #2A2A37;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.spec{font-size:12px;line-height:1.5;color:#A9A8B8}
+.spec b{color:#F3F2F8}
+.tick{font-size:11px;font-weight:700;color:#8E8DA0;display:flex;gap:10px;flex-wrap:wrap}
+.tick span{background:#1E1E28;border:1px solid #2A2A37;border-radius:6px;padding:3px 7px}
+/* XP bar */
+.run-a .xpfill,.run-b .xpfill{animation:xpfill .9s cubic-bezier(.2,.9,.2,1) both}
+@keyframes xpfill{from{width:34%}to{width:52%}}
+.run-a .xpnum,.run-b .xpnum{animation:pop .9s cubic-bezier(.2,.9,.2,1) both}
+@keyframes pop{0%{transform:scale(.85);opacity:0}30%{opacity:1}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+/* flame */
+.run-a .flame,.run-b .flame{animation:flame .8s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 100%}
+@keyframes flame{0%{transform:scale(.6);opacity:.4}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.run-a .glow,.run-b .glow{animation:glow .8s ease-out both}
+@keyframes glow{0%{opacity:0;transform:scale(.4)}50%{opacity:.5}100%{opacity:.18;transform:scale(1)}}
+.run-a .snum,.run-b .snum{animation:slideup .5s .25s cubic-bezier(.2,.9,.2,1) both}
+@keyframes slideup{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+/* level up */
+.run-a .badge,.run-b .badge{animation:badge 1.1s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes badge{0%{transform:scale(.3) rotate(-12deg);opacity:0}45%{transform:scale(1.12) rotate(2deg);opacity:1}70%{transform:scale(.96)}100%{transform:scale(1) rotate(0)}}
+.run-a .rays,.run-b .rays{animation:rays 1.1s ease-out both}
+@keyframes rays{0%{transform:scale(.2) rotate(0);opacity:0}40%{opacity:.5}100%{transform:scale(1.4) rotate(25deg);opacity:0}}
+.run-a .lvtxt,.run-b .lvtxt{animation:slideup .4s .5s cubic-bezier(.2,.9,.2,1) both}
+/* badge unlock */
+.run-a .card3,.run-b .card3{animation:flip 1s cubic-bezier(.2,.9,.2,1) both;transform-style:preserve-3d}
+@keyframes flip{0%{transform:perspective(600px) rotateY(90deg) scale(.8);opacity:0}55%{transform:perspective(600px) rotateY(-10deg) scale(1.04);opacity:1}100%{transform:perspective(600px) rotateY(0) scale(1)}}
+.run-a .shine,.run-b .shine{animation:shine .6s .5s ease-out both}
+@keyframes shine{from{transform:translateX(-120%) skewX(-20deg);opacity:.0}50%{opacity:.5}to{transform:translateX(220%) skewX(-20deg);opacity:0}}
+/* rank */
+.run-a .rowme,.run-b .rowme{animation:rowup .7s cubic-bezier(.2,.9,.2,1) both}
+@keyframes rowup{0%{transform:translateY(48px)}60%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+.run-a .rowother,.run-b .rowother{animation:rowdown .7s cubic-bezier(.2,.9,.2,1) both}
+@keyframes rowdown{0%{transform:translateY(-48px)}60%{transform:translateY(4px)}100%{transform:translateY(0)}}
+.run-a .delta,.run-b .delta{animation:slideup .4s .45s cubic-bezier(.2,.9,.2,1) both}
+@media (prefers-reduced-motion: reduce){.run-a *,.run-b *{animation-duration:.01s !important;animation-delay:0s !important}}
+</style>
+</helmet>
+<div style="width:1240px;height:900px;box-sizing:border-box;padding:40px 48px;display:flex;flex-direction:column;gap:22px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="cap" style="color:#B197FC">EyeQ · Design system 03</div>
+      <h1 class="d" style="margin:0;font-size:56px">Motion moments</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="spec" style="max-width:520px">Five reward moments, each <b>under 1.2 s</b>, one spring curve, one ease-out. Every full-screen moment is <b>skippable by tapping anywhere</b> and collapses to a 10 ms cross-fade under reduced-motion. Haptic: one light tap at the peak frame. No particle systems, no confetti — vector shapes only, so they run on low-end Android.</div>
+      <button onClick="{{replay}}" style="height:44px;padding:0 20px;border-radius:12px;border:1px solid #2A2A37;background:#1E1E28;color:#F3F2F8;font:700 14px Manrope,sans-serif;cursor:pointer;flex-shrink:0">Replay all</button>
+    </div>
+  </div>
+
+  <div class="{{runClass}}" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:20px;flex:1">
+    <!-- 1 XP count-up -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="d" style="font-size:24px">01 · XP count-up</div><div class="cap">0.9 s</div></div>
+      <div class="stage" style="flex-direction:column;gap:14px;align-items:stretch;padding:20px;justify-content:center">
+        <div style="display:flex;align-items:baseline;gap:8px"><div class="xpnum d" style="font-size:64px;color:#FFD23F;font-weight:800;font-variant-numeric:tabular-nums">+{{xp}}</div><div class="cap" style="color:#FFD23F">xp</div></div>
+        <div style="height:10px;border-radius:999px;background:#1E1E28;overflow:hidden"><div class="xpfill" style="height:100%;width:52%;background:#7C3AED;border-radius:999px"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#A9A8B8"><span>Level 7</span><span>223 XP to Level 8</span></div>
+      </div>
+      <div class="spec">Number ticks from 0 to total in <b>700 ms</b> (ease-out, quantised to whole numbers), while the bar fills from the old value to the new one over 900 ms. Each line of the breakdown stamps in 80 ms apart after the total lands. Skippable: tap sets final values.</div>
+      <div class="tick"><span>number: easeOutQuart</span><span>bar: cubic-bezier(.2,.9,.2,1)</span><span>haptic: light at 700 ms</span></div>
+    </div>
+
+    <!-- 2 streak flame -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="d" style="font-size:24px">02 · Streak flame grows</div><div class="cap">0.8 s</div></div>
+      <div class="stage">
+        <div class="glow" style="position:absolute;width:150px;height:150px;border-radius:50%;background:#FFB020"></div>
+        <div style="display:flex;align-items:center;gap:14px;position:relative">
+          <svg class="flame" width="72" height="72" viewBox="0 0 24 24" fill="#FFB020" aria-hidden="true"><path d="M12 3c.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9.5 12 11 13 12 13c-.5-3-1.5-6 0-10z"></path></svg>
+          <div class="snum" style="display:flex;flex-direction:column"><div class="d" style="font-size:64px;color:#FFB020;font-weight:800;font-variant-numeric:tabular-nums">13</div><div class="cap" style="color:#FFB020">day streak</div></div>
+        </div>
+      </div>
+      <div class="spec">The flame springs from 60 % to 115 % and settles at 100 % (<b>overshoot spring</b>), an ember glow blooms behind it to 18 % and stays, and the count slides up 250 ms later with the new number. Flame size on Home scales with streak tier: 1–6 small, 7–20 medium, 21+ large.</div>
+      <div class="tick"><span>spring: cubic-bezier(.34,1.56,.64,1)</span><span>glow: ease-out</span><span>haptic: medium at 480 ms</span></div>
+    </div>
+
+    <!-- 3 level up -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="d" style="font-size:24px">03 · Level-up</div><div class="cap">1.1 s</div></div>
+      <div class="stage">
+        <svg class="rays" width="220" height="220" viewBox="0 0 100 100" aria-hidden="true" style="position:absolute;color:#7C3AED"><g stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M50 4v16M50 80v16M4 50h16M80 50h16M17 17l11 11M72 72l11 11M17 83l11-11M72 28l11-11"></path></g></svg>
+        <div style="display:flex;align-items:center;gap:16px;position:relative">
+          <svg class="badge" width="88" height="96" viewBox="0 0 88 96" aria-hidden="true"><path d="M44 2l38 22v44L44 94 6 68V24z" fill="#7C3AED"></path><path d="M44 12l29 17v34L44 80 15 63V29z" fill="#241B3F"></path><text x="44" y="60" text-anchor="middle" font-family="Barlow Condensed, Impact, sans-serif" font-weight="800" font-size="40" fill="#F3F2F8">8</text></svg>
+          <div class="lvtxt" style="display:flex;flex-direction:column"><div class="cap" style="color:#B197FC">Level up</div><div class="d" style="font-size:40px;line-height:1">CONTENDER</div></div>
+        </div>
+      </div>
+      <div class="spec">Full-screen takeover on a violet-subtle ground: the hex badge springs in from 30 % with a −12° twist, rays burst and fade in 1.1 s, then the new title slides up. Screen dims the rest; a single <b>Continue</b> button sits in the thumb zone and the whole screen is tappable to skip.</div>
+      <div class="tick"><span>badge: spring</span><span>rays: ease-out, fade to 0</span><span>haptic: success at 500 ms</span></div>
+    </div>
+
+    <!-- 4 badge unlock -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="d" style="font-size:24px">04 · Badge unlock</div><div class="cap">1.0 s</div></div>
+      <div class="stage">
+        <div class="card3" style="width:130px;height:130px;border-radius:20px;background:#1E1E28;border:1px solid #34344A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden">
+          <div class="shine" style="position:absolute;inset:0;width:40%;background:#F3F2F8;opacity:0"></div>
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9.5 12 11 13 12 13c-.5-3-1.5-6 0-10z"></path></svg>
+          <div class="d" style="font-size:18px;text-align:center;line-height:1">TWO-WEEK<br>FLAME</div>
+        </div>
+      </div>
+      <div class="spec">The badge tile <b>flips in on the Y axis</b> from 90° with a 4 % overshoot, then a single diagonal sheen sweeps across once at 500 ms. If more than one badge unlocks, tiles stagger by 120 ms, max three on screen, the rest collect into a “+2 more” tile.</div>
+      <div class="tick"><span>flip: cubic-bezier(.2,.9,.2,1)</span><span>sheen: 600 ms, once</span><span>haptic: light at 550 ms</span></div>
+    </div>
+
+    <!-- 5 rank change -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="d" style="font-size:24px">05 · Rank change</div><div class="cap">0.7 s</div></div>
+      <div class="stage" style="flex-direction:column;align-items:stretch;padding:14px;gap:6px;justify-content:center">
+        <div class="rowother" style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:10px;background:#15151D;border:1px solid #2A2A37"><div class="d" style="width:26px;font-size:20px;color:#8E8DA0">4</div><div style="width:26px;height:26px;border-radius:50%;background:#2A2A37;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">SK</div><div style="font-size:13px;font-weight:700;flex:1">Sneha K.</div><div style="font-size:12px;color:#A9A8B8;font-variant-numeric:tabular-nums">396 XP</div></div>
+        <div class="rowme" style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:10px;background:#241B3F;border:1px solid #7C3AED"><div class="d" style="width:26px;font-size:20px;color:#B197FC">3</div><div style="width:26px;height:26px;border-radius:50%;background:#7C3AED;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">AR</div><div style="font-size:13px;font-weight:700;flex:1">You · Arjun R.</div><div class="delta" style="font-size:12px;font-weight:800;color:#3DD68C;display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>1</div><div style="font-size:12px;color:#A9A8B8;font-variant-numeric:tabular-nums">412 XP</div></div>
+      </div>
+      <div class="spec">Your pinned row <b>swaps places</b> with the row it overtook: both translate 48 px with a 4 px overshoot and settle in 700 ms, then a green ▲1 (or sky ▼n) delta stamps in. Rank digits cross-fade, they never spin. Plays on Leaderboard open and in the Session-complete summary.</div>
+      <div class="tick"><span>rows: cubic-bezier(.2,.9,.2,1)</span><span>delta: 400 ms slide-up</span><span>haptic: none</span></div>
+    </div>
+
+    <!-- principles -->
+    <div class="panel" style="background:#241B3F;border-color:#3B2A66">
+      <div class="d" style="font-size:24px">Rules every moment follows</div>
+      <div class="spec" style="color:#D4C6FF;display:flex;flex-direction:column;gap:8px">
+        <div><b>Under 1.2 s, always.</b> Celebrations never block the next action; the Continue button is live from frame 0.</div>
+        <div><b>Two curves only.</b> Spring <code>(.34,1.56,.64,1)</code> for things that gain (flame, badge); settle <code>(.2,.9,.2,1)</code> for things that move (bars, rows, numbers).</div>
+        <div><b>Vector, not video.</b> Shapes, strokes and opacity only; no blur, no particles, no GIF or Lottie heavier than 60 KB.</div>
+        <div><b>Skippable and quiet.</b> Tap anywhere to skip; reduced-motion collapses everything to a cross-fade; sound off by default.</div>
+        <div><b>Never for failure.</b> Streak-lost and paywall states get a 200 ms fade only. Motion is a reward, not a nag.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { run: 'run-a', xp: 72 }; this.timer = null; }
+  componentDidMount(){ this.countUp(); }
+  countUp(){
+    if (this.timer) clearInterval(this.timer);
+    const start = Date.now();
+    this.setState({ xp: 0 });
+    this.timer = setInterval(() => {
+      const t = Math.min(1, (Date.now() - start) / 700);
+      const e = 1 - Math.pow(1 - t, 4);
+      this.setState({ xp: Math.round(72 * e) });
+      if (t >= 1) { clearInterval(this.timer); this.timer = null; }
+    }, 40);
+  }
+  renderVals() {
+    return {
+      runClass: this.state.run,
+      xp: this.state.xp,
+      replay: () => { this.setState({ run: this.state.run === 'run-a' ? 'run-b' : 'run-a' }); this.countUp(); }
+    };
+  }
+}
+</script>
+
+
+</body></html>

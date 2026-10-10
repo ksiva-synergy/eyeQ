@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ — Baseline self-rating</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC;text-decoration:none}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.tn{font-variant-numeric:tabular-nums}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;font:800 15px/1.2 Manrope,sans-serif;border:0;cursor:pointer;padding:0 20px;box-sizing:border-box;width:100%;text-decoration:none;color:#fff}
+.cta{background:#DA2141;color:#fff}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid #2A2A37;background:#15151D;color:#F3F2F8;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.card{background:#15151D;border:1px solid #2A2A37;border-radius:20px;box-sizing:border-box}
+.r{flex:1;min-height:48px;border-radius:12px;border:1px solid #2A2A37;background:#1E1E28;color:#F3F2F8;font-family:'Barlow Condensed',Impact,sans-serif;font-weight:800;font-size:22px;cursor:pointer}
+.r.on{background:#7C3AED;border-color:#7C3AED;color:#fff}
+.r.lt{background:#241B3F;border-color:#3B2A66}
+</style>
+</helmet>
+<div style="width:390px;height:844px;position:relative;overflow:hidden;background:#0B0B10;box-sizing:border-box">
+  <div style="position:absolute;inset:0;overflow:auto;padding:56px 20px 120px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <a class="ib" href="Onb-Profile.dc.html" aria-label="Back"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"></path></svg></a>
+      <span class="cap">Step 3 of 4</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="cap" style="color:#B197FC">Test · Train · Transform</div>
+      <h1 class="d" style="margin:0;font-size:40px">RATE YOURSELF TODAY</h1>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#A9A8B8">Be honest — this is your starting line, not a test. You'll rate again after 14 days and see the gap.</p>
+    </div>
+
+    <sc-for list="{{areas}}" as="a" hint-placeholder-count="3">
+      <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:800">{{a.name}}</div><div style="font-size:12px;color:#A9A8B8">{{a.hint}}</div></div>
+          <div class="d tn" style="font-size:30px;color:#B197FC">{{a.val}}<span style="font-size:14px;color:#8E8DA0">/5</span></div>
+        </div>
+        <div style="display:flex;gap:6px" role="group" aria-label="{{a.name}} rating">
+          <sc-for list="{{a.opts}}" as="o" hint-placeholder-count="5">
+            <button class="{{o.cls}}" onClick="{{o.pick}}" aria-pressed="{{o.on}}">{{o.n}}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#8E8DA0"><span>Struggling</span><span>Sharp</span></div>
+      </div>
+    </sc-for>
+
+    <div style="display:flex;gap:10px;padding:12px 14px;border-radius:14px;background:#15151D;border:1px solid #2A2A37">
+      <svg class="i" viewBox="0 0 24 24" style="color:#8E8DA0;width:20px;height:20px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+      <p style="margin:0;font-size:12px;line-height:1.5;color:#A9A8B8">Self-ratings track your training, nothing more. If you have concerns about your eyesight, see an optometrist.</p>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 32px;background:#0B0B10;border-top:1px solid #2A2A37">
+    <a class="btn cta" href="Onb-Starter.dc.html">Save baseline</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { Focus: 3, Reaction: 2, Tracking: 3 }; }
+  renderVals() {
+    const defs = [
+      { name: 'Focus', hint: 'Staying locked in through a long over or rally' },
+      { name: 'Reaction', hint: 'First move after the ball leaves the hand or racquet' },
+      { name: 'Tracking', hint: 'Keeping a fast ball in clear view to contact' }
+    ];
+    return {
+      areas: defs.map((d) => {
+        const val = this.state[d.name];
+        return {
+          name: d.name, hint: d.hint, val,
+          opts: [1,2,3,4,5].map((n) => ({
+            n, on: n === val,
+            cls: 'r' + (n === val ? ' on' : (n < val ? ' lt' : '')),
+            pick: () => this.setState({ [d.name]: n })
+          }))
+        };
+      })
+    };
+  }
+}
+</script>
+
+
+</body></html>

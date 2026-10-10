@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ — Sign in</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC;text-decoration:none}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.tn{font-variant-numeric:tabular-nums}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;font:800 15px/1.2 Manrope,sans-serif;border:0;cursor:pointer;padding:0 20px;box-sizing:border-box;width:100%;text-decoration:none;color:#fff}
+.cta{background:#DA2141;color:#fff}.pri{background:#7C3AED;color:#fff}.gho{background:#1E1E28;color:#F3F2F8;border:1px solid #2A2A37}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid #2A2A37;background:#15151D;color:#F3F2F8;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.otp{flex:1;height:56px;border-radius:12px;background:#1E1E28;border:1px solid #2A2A37;display:flex;align-items:center;justify-content:center;font-size:28px}
+</style>
+</helmet>
+<div style="width:390px;height:844px;position:relative;overflow:hidden;background:#0B0B10;box-sizing:border-box;display:flex;flex-direction:column;padding:56px 20px 40px;gap:24px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <a class="ib" href="Onb-Welcome.dc.html" aria-label="Back"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"></path></svg></a>
+    <span class="cap">Step 1 of 4</span>
+  </div>
+
+  <sc-if value="{{isPhone}}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;gap:24px;flex:1">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h1 class="d" style="margin:0;font-size:40px">SIGN IN</h1>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#A9A8B8">We'll text you a 6-digit code. No password to remember.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label for="ph" class="cap">Phone number</label>
+      <div style="display:flex;gap:8px">
+        <div style="height:52px;padding:0 12px;border-radius:14px;background:#1E1E28;border:1px solid #2A2A37;display:flex;align-items:center;font-size:15px;font-weight:700">+91</div>
+        <input id="ph" type="tel" inputmode="numeric" placeholder="98400 00000" style="flex:1;min-width:0;height:52px;padding:0 14px;border-radius:14px;background:#1E1E28;border:1px solid #7C3AED;color:#F3F2F8;font:700 16px Manrope,sans-serif;box-sizing:border-box">
+      </div>
+    </div>
+    <button class="btn cta" onClick="{{sendOtp}}">Send code</button>
+    <div style="display:flex;align-items:center;gap:12px"><div style="flex:1;height:1px;background:#2A2A37"></div><span class="cap">or</span><div style="flex:1;height:1px;background:#2A2A37"></div></div>
+    <a class="btn gho" href="Onb-Profile.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#F3F2F8" stroke-width="2"></circle><path d="M12 7v10M7 12h10" stroke="#F3F2F8" stroke-width="2" stroke-linecap="round"></path></svg>Continue with Google</a>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:10px;padding:12px 14px;border-radius:14px;background:#15151D;border:1px solid #2A2A37"><svg class="i" viewBox="0 0 24 24" style="color:#B197FC;width:20px;height:20px"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><p style="margin:0;font-size:12px;line-height:1.5;color:#A9A8B8">Under 18? A parent or guardian will confirm your account and handle any purchases.</p></div>
+      <p style="margin:0;font-size:11px;line-height:1.5;color:#8E8DA0;text-align:center">By continuing you agree to the <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{isOtp}}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:24px;flex:1">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h1 class="d" style="margin:0;font-size:40px">ENTER THE CODE</h1>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#A9A8B8">Sent to +91 98400 ••••5 · <button onClick="{{back}}" style="background:none;border:0;padding:0;color:#B197FC;font:700 15px Manrope,sans-serif;cursor:pointer;min-height:44px">change</button></p>
+    </div>
+    <div style="display:flex;gap:8px" role="group" aria-label="One-time code">
+      <div class="otp d tn">4</div><div class="otp d tn">8</div><div class="otp d tn" style="border-color:#7C3AED">|</div><div class="otp"></div><div class="otp"></div><div class="otp"></div>
+    </div>
+    <a class="btn cta" href="Onb-Profile.dc.html">Verify and continue</a>
+    <div style="display:flex;justify-content:center;align-items:center;gap:6px;font-size:13px;color:#A9A8B8;min-height:44px">Didn't get it? <span class="tn" style="font-weight:800;color:#F3F2F8">Resend in 0:24</span></div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { step: 'phone' }; }
+  renderVals() {
+    return {
+      isPhone: this.state.step === 'phone',
+      isOtp: this.state.step === 'otp',
+      sendOtp: () => this.setState({ step: 'otp' }),
+      back: () => this.setState({ step: 'phone' })
+    };
+  }
+}
+</script>
+
+
+</body></html>

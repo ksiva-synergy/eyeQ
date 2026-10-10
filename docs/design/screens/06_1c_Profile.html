@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>EyeQ — Your profile</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#0B0B10;color:#F3F2F8;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B197FC;text-decoration:none}a:hover{color:#D4C6FF}
+.d{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:700;line-height:.95;letter-spacing:-.01em}
+.tn{font-variant-numeric:tabular-nums}
+.cap{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8E8DA0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;font:800 15px/1.2 Manrope,sans-serif;border:0;cursor:pointer;padding:0 20px;box-sizing:border-box;width:100%;text-decoration:none;color:#fff}
+.cta{background:#DA2141;color:#fff}.pri{background:#7C3AED;color:#fff}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid #2A2A37;background:#15151D;color:#F3F2F8;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.pill{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid #2A2A37;background:#1E1E28;color:#F3F2F8;font:700 14px Manrope,sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px}
+.pill.on{background:#241B3F;border-color:#7C3AED;color:#D4C6FF}
+.seg{flex:1;min-height:44px;border-radius:10px;border:0;background:transparent;color:#A9A8B8;font:800 14px Manrope,sans-serif;cursor:pointer}
+.seg.on{background:#7C3AED;color:#fff}
+.in{width:100%;height:52px;padding:0 14px;border-radius:14px;background:#1E1E28;border:1px solid #2A2A37;color:#F3F2F8;font:700 16px Manrope,sans-serif;box-sizing:border-box}
+</style>
+</helmet>
+<div style="width:390px;height:844px;position:relative;overflow:hidden;background:#0B0B10;box-sizing:border-box">
+  <div style="position:absolute;inset:0;overflow:auto;padding:56px 20px 120px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <a class="ib" href="Onb-SignIn.dc.html" aria-label="Back"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"></path></svg></a>
+      <span class="cap">Step 2 of 4</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <h1 class="d" style="margin:0;font-size:40px">SET UP YOUR ATHLETE</h1>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#A9A8B8">This picks your drills and who you compete against.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="cap">Your sport</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" role="group" aria-label="Sport">
+        <sc-for list="{{sports}}" as="s" hint-placeholder-count="5">
+          <button class="{{s.cls}}" onClick="{{s.pick}}" aria-pressed="{{s.on}}">{{s.name}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="cap">Playing level</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" role="group" aria-label="Playing level">
+        <sc-for list="{{levels}}" as="l" hint-placeholder-count="5">
+          <button class="{{l.cls}}" onClick="{{l.pick}}" aria-pressed="{{l.on}}">{{l.name}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label for="dob" class="cap">Date of birth</label>
+      <input id="dob" class="in" type="text" inputmode="numeric" placeholder="DD / MM / YYYY" value="14 / 03 / 2007">
+      <div style="font-size:12px;color:#8E8DA0">Under 18 accounts need a parent to confirm purchases.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="cap">Main goal</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" role="group" aria-label="Goal">
+        <sc-for list="{{goals}}" as="g" hint-placeholder-count="4">
+          <button class="{{g.cls}}" onClick="{{g.pick}}" aria-pressed="{{g.on}}">{{g.name}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="cap">Session length</div>
+      <div role="group" aria-label="Session length" style="display:flex;background:#1E1E28;border:1px solid #2A2A37;border-radius:14px;padding:4px;gap:4px">
+        <sc-for list="{{lengths}}" as="m" hint-placeholder-count="3">
+          <button class="{{m.cls}}" onClick="{{m.pick}}" aria-pressed="{{m.on}}">{{m.name}}</button>
+        </sc-for>
+      </div>
+      <div style="font-size:12px;color:#8E8DA0">Before or after practice works best. You can change this any time.</div>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 32px;background:#0B0B10;border-top:1px solid #2A2A37">
+    <a class="btn cta" href="Onb-Baseline.dc.html">Continue</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { sport: 'Cricket', level: 'State', goal: 'Reaction speed', len: '15 min' }; }
+  mk(list, key, base) {
+    return list.map((name) => {
+      const on = this.state[key] === name;
+      return { name, on, cls: base + (on ? ' on' : ''), pick: () => this.setState({ [key]: name }) };
+    });
+  }
+  renderVals() {
+    return {
+      sports: this.mk(['Cricket','Badminton','Tennis','Football','Other'], 'sport', 'pill'),
+      levels: this.mk(['School','Club','District','State','National'], 'level', 'pill'),
+      goals: this.mk(['Reaction speed','Focus under pressure','Tracking the ball','Decision-making'], 'goal', 'pill'),
+      lengths: this.mk(['10 min','15 min','20 min'], 'len', 'seg')
+    };
+  }
+}
+</script>
+
+
+</body></html>
