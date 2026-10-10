@@ -1,4 +1,5 @@
 {
   "extends": "@eyeq/config/tsconfig/library.json",
-  "include": ["src"]
+  "compilerOptions": { "resolveJsonModule": true },
+  "include": ["src", "vectors/*.json", "../../db/seed/game_config.json"]
 }

@@ -1,38 +1,63 @@
 /**
  * Runs the pgTAP suite in db/tests against DATABASE_URL.
  *
- * Each *.sql file is run inside a transaction that is rolled back, so tests
- * never leave rows behind and can run in any order. Output is TAP; a failing
- * assertion or a plan mismatch fails the process.
+ * Each *.sql test file runs inside a transaction that is rolled back, so tests never
+ * leave rows behind and can run in any order. Before each file the runner:
+ *   - seeds game_config from db/seed/game_config.json (rule 8),
+ *   - loads packages/game/vectors/*.json into a temp table test_vectors(name, data) (rule 9),
+ *   - runs every db/tests/_*.sql prelude (shared fixtures).
+ * Output is TAP; a failing assertion, a plan mismatch or an error fails the process.
+ *   pnpm db:test            all files
+ *   pnpm db:test streak     files whose name contains "streak"
  */
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+import { seedConfig } from "./seed.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const TESTS_DIR = path.resolve(here, "../../../db/tests");
+const VECTORS_DIR = path.resolve(here, "../../../packages/game/vectors");
+
+async function loadVectors(client: pg.Client) {
+  await client.query(
+    "create temp table test_vectors (name text primary key, data jsonb not null) on commit drop",
+  );
+  for (const f of (await readdir(VECTORS_DIR)).filter((f) => f.endsWith(".json")).sort()) {
+    const data = await readFile(path.join(VECTORS_DIR, f), "utf8");
+    await client.query("insert into test_vectors (name, data) values ($1, $2::jsonb)", [
+      f.replace(/\.json$/, ""),
+      data,
+    ]);
+  }
+}
 
 async function main() {
   const url = process.env["DATABASE_URL"];
   if (!url) throw new Error("DATABASE_URL is not set");
   const only = process.argv[2];
-  const files = (await readdir(TESTS_DIR))
-    .filter((f) => f.endsWith(".sql") && (!only || f.includes(only)))
-    .sort();
+  const all = (await readdir(TESTS_DIR)).filter((f) => f.endsWith(".sql")).sort();
+  const preludes = all.filter((f) => f.startsWith("_"));
+  const files = all.filter((f) => !f.startsWith("_") && (!only || f.includes(only)));
   if (files.length === 0) throw new Error(`no tests in ${TESTS_DIR}`);
 
   const client = new pg.Client({ connectionString: url });
   await client.connect();
+  await client.query("create extension if not exists pgtap");
   let failed = 0;
   let total = 0;
   try {
-    await client.query("create extension if not exists pgtap");
     for (const file of files) {
       const sql = await readFile(path.join(TESTS_DIR, file), "utf8");
       console.log(`# ${file}`);
       await client.query("begin");
       try {
+        await client.query("set local role eyeq_owner");
+        await seedConfig(client);
+        await loadVectors(client);
+        for (const p of preludes)
+          await client.query(await readFile(path.join(TESTS_DIR, p), "utf8"));
         const res = await client.query(sql);
         const results = Array.isArray(res) ? res : [res];
         for (const r of results) {

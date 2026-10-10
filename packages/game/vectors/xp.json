@@ -1,0 +1,96 @@
+{
+  "$description": "Session XP: drills + session bonus, then the streak multiplier on that base (D14), rounded half up (plan 6.1).",
+  "rules": {
+    "xp_per_drill": 10,
+    "session_bonus": 25,
+    "multiplier_step": 0.1,
+    "multiplier_days": 7,
+    "multiplier_cap": 0.5
+  },
+  "multiplier": [
+    { "streak": 0, "factor": 1.0 },
+    { "streak": 6, "factor": 1.0 },
+    { "streak": 7, "factor": 1.1 },
+    { "streak": 12, "factor": 1.1 },
+    { "streak": 13, "factor": 1.1 },
+    { "streak": 14, "factor": 1.2 },
+    { "streak": 20, "factor": 1.2 },
+    { "streak": 21, "factor": 1.3 },
+    { "streak": 28, "factor": 1.4 },
+    { "streak": 35, "factor": 1.5 },
+    { "streak": 60, "factor": 1.5 },
+    { "streak": 365, "factor": 1.5 }
+  ],
+  "sessions": [
+    {
+      "name": "4 drills, streak 0",
+      "drills": [10, 10, 10, 10],
+      "streak": 0,
+      "drill_xp": 40,
+      "bonus": 25,
+      "multiplier": 0,
+      "total": 65
+    },
+    {
+      "name": "4 drills, streak 12 (prototype)",
+      "drills": [10, 10, 10, 10],
+      "streak": 12,
+      "drill_xp": 40,
+      "bonus": 25,
+      "multiplier": 7,
+      "total": 72
+    },
+    {
+      "name": "4 drills, streak 14",
+      "drills": [10, 10, 10, 10],
+      "streak": 14,
+      "drill_xp": 40,
+      "bonus": 25,
+      "multiplier": 13,
+      "total": 78
+    },
+    {
+      "name": "4 drills, streak 35",
+      "drills": [10, 10, 10, 10],
+      "streak": 35,
+      "drill_xp": 40,
+      "bonus": 25,
+      "multiplier": 33,
+      "total": 98
+    },
+    {
+      "name": "4 drills, streak 60 (capped)",
+      "drills": [10, 10, 10, 10],
+      "streak": 60,
+      "drill_xp": 40,
+      "bonus": 25,
+      "multiplier": 33,
+      "total": 98
+    },
+    {
+      "name": "3 drills with an override, streak 7",
+      "drills": [10, 15, 10],
+      "streak": 7,
+      "drill_xp": 35,
+      "bonus": 25,
+      "multiplier": 6,
+      "total": 66
+    },
+    {
+      "name": "1 free drill, streak 21",
+      "drills": [10],
+      "streak": 21,
+      "drill_xp": 10,
+      "bonus": 25,
+      "multiplier": 11,
+      "total": 46
+    }
+  ],
+  "round_half_up": [
+    { "value": 71.5, "rounded": 72 },
+    { "value": 97.5, "rounded": 98 },
+    { "value": 71.4, "rounded": 71 },
+    { "value": 71.6, "rounded": 72 },
+    { "value": 65, "rounded": 65 }
+  ]
+}

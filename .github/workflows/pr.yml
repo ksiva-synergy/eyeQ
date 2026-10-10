@@ -39,10 +39,12 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
 
-      - name: Migrate and run pgTAP
+      - name: Migrate, run pgTAP, integration tests, then seed
         run: |
           pnpm db:migrate
           pnpm db:test
+          pnpm db:test:integration
+          pnpm db:seed
 
       - name: Build web
         run: pnpm --filter web build

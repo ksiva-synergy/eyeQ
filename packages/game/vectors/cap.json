@@ -1,0 +1,25 @@
+{
+  "$description": "Daily cap of 400 on drill, session bonus, personal best and multiplier XP (plan 6.1, D13). A row that would exceed the cap is truncated and flagged; challenge and program XP are exempt.",
+  "rules": { "daily_cap": 400 },
+  "cases": [
+    { "so_far": 0, "requested": 10, "reason": "drill", "awarded": 10, "truncated": false },
+    { "so_far": 390, "requested": 10, "reason": "drill", "awarded": 10, "truncated": false },
+    { "so_far": 395, "requested": 10, "reason": "drill", "awarded": 5, "truncated": true },
+    { "so_far": 400, "requested": 25, "reason": "session_bonus", "awarded": 0, "truncated": true },
+    {
+      "so_far": 380,
+      "requested": 33,
+      "reason": "streak_multiplier",
+      "awarded": 20,
+      "truncated": true
+    },
+    { "so_far": 400, "requested": 150, "reason": "challenge", "awarded": 150, "truncated": false },
+    {
+      "so_far": 400,
+      "requested": 500,
+      "reason": "program_complete",
+      "awarded": 500,
+      "truncated": false
+    }
+  ]
+}

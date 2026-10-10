@@ -15,7 +15,9 @@
     "reset": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts reset",
     "test:pg": "node --env-file-if-exists=../../.env --import tsx src/pgtest.ts",
     "codegen": "kysely-codegen --dialect postgres --env-file ../../.env --out-file src/generated/schema.ts",
-    "migrate:status": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts status"
+    "migrate:status": "node --env-file-if-exists=../../.env --import tsx src/migrate.ts status",
+    "seed": "node --env-file-if-exists=../../.env --import tsx src/seed.ts",
+    "test:integration": "node --env-file-if-exists=../../.env --import tsx node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "kysely": "^0.28.5",

@@ -19,7 +19,9 @@
     "db:migrate": "pnpm --filter @eyeq/db migrate",
     "db:reset": "pnpm --filter @eyeq/db reset",
     "db:test": "pnpm --filter @eyeq/db test:pg",
-    "db:types": "pnpm --filter @eyeq/db codegen"
+    "db:types": "pnpm --filter @eyeq/db codegen",
+    "db:seed": "pnpm --filter @eyeq/db seed",
+    "db:test:integration": "pnpm --filter @eyeq/db test:integration"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
