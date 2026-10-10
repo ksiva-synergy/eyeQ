@@ -8,6 +8,7 @@ export * from "./errors.ts";
 export * from "./me.ts";
 export * from "./auth.ts";
 export * from "./content.ts";
+export * from "./admin-products.ts";
 
 export const healthResponseSchema = z.object({
   ok: z.literal(true),

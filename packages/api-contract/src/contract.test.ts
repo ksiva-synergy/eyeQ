@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  adminProductCreateSchema,
+  adminProductUpdateSchema,
   otpVerifySchema,
   patchMeRequestSchema,
   phoneSchema,
@@ -73,5 +75,46 @@ describe("content reads (rule 5)", () => {
     );
     expect(programSlugParamsSchema.safeParse({ slug: "../etc" }).success).toBe(false);
     expect(sessionIdParamsSchema.safeParse({ id: "1" }).success).toBe(false);
+  });
+});
+
+describe("admin products", () => {
+  const base = { title: "EyeQ Pro · monthly", pricePaise: 29900 };
+  it("matches the grant to the kind", () => {
+    expect(
+      adminProductCreateSchema.safeParse({
+        ...base,
+        kind: "subscription",
+        grants: { scope: "subscription", durationDays: 30 },
+      }).success,
+    ).toBe(true);
+    expect(
+      adminProductCreateSchema.safeParse({
+        ...base,
+        kind: "program",
+        grants: { scope: "subscription", durationDays: 30 },
+      }).success,
+    ).toBe(false);
+    expect(
+      adminProductCreateSchema.safeParse({ ...base, kind: "program", grants: { scope: "program" } })
+        .success,
+    ).toBe(false);
+    expect(
+      adminProductCreateSchema.safeParse({
+        ...base,
+        kind: "credit_pack",
+        grants: { scope: "credits" },
+      }).success,
+    ).toBe(false);
+  });
+  it("keeps money in whole paise and refuses unknown fields", () => {
+    const ok = {
+      ...base,
+      kind: "subscription",
+      grants: { scope: "subscription", durationDays: 30 },
+    };
+    expect(adminProductCreateSchema.safeParse({ ...ok, pricePaise: 299.5 }).success).toBe(false);
+    expect(adminProductCreateSchema.safeParse({ ...ok, price: 299 }).success).toBe(false);
+    expect(adminProductUpdateSchema.safeParse({ kind: "program" }).success).toBe(false);
   });
 });
