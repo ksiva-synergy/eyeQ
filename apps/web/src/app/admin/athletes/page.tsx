@@ -1,7 +1,6 @@
-import { ComingSoon } from "@/components/shell/ComingSoon";
+import { AthletesAdmin } from "./AthletesAdmin";
 
-export default function Page() {
-  return (
-    <ComingSoon title="shell.admin.athletesTitle" icon="profile" body="shell.admin.soonBody" />
-  );
+// Athletes list (plan phase 4, board 17): search, plan filter, CSV export, 50 per page.
+export default function AthletesPage() {
+  return <AthletesAdmin />;
 }

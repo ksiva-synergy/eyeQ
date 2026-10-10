@@ -9,6 +9,7 @@ export * from "./me.ts";
 export * from "./auth.ts";
 export * from "./content.ts";
 export * from "./admin-products.ts";
+export * from "./admin-athletes.ts";
 
 export const healthResponseSchema = z.object({
   ok: z.literal(true),

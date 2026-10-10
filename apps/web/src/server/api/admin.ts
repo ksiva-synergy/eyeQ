@@ -57,6 +57,8 @@ export interface AdminRouteSpec<
   /** Owner-only actions (game settings, granting admins). Defaults to coach or owner. */
   ownerOnly?: boolean;
   status?: number;
+  /** The handler returns CSV text, sent as a download with this file name (exports). */
+  csv?: { filename: string };
   handler: (
     ctx: AdminContext<
       S extends z.ZodType ? z.output<S> : undefined,
@@ -133,6 +135,17 @@ export function adminRoute<
 
       status = result.status;
       replayed = result.replayed;
+      if (spec.csv) {
+        return new Response(String(result.body), {
+          status: result.status,
+          headers: {
+            ...NO_STORE,
+            "content-type": "text/csv; charset=utf-8",
+            "content-disposition": `attachment; filename="${spec.csv.filename}"`,
+            "x-request-id": requestId,
+          },
+        });
+      }
       return Response.json(result.body, {
         status: result.status,
         headers: {
