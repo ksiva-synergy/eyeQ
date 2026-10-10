@@ -4,6 +4,7 @@ create function pg_temp.fx_user(p_name text, p_tz text default 'Asia/Kolkata', p
 language plpgsql as $$
 declare v uuid := gen_random_uuid();
 begin
+  perform pg_temp.fx_auth_user(v);  -- profiles.id references auth.users (0014)
   insert into profiles (id, display_name, sport, timezone, visibility, dob, onboarded_at, created_at)
   values (v, p_name, p_sport, p_tz, p_vis, p_dob, now() - interval '60 days', now() - interval '60 days');
   perform ensure_user_stats(v);

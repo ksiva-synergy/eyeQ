@@ -18,9 +18,13 @@ describeDb("concurrent coin spends", () => {
   beforeAll(async () => {
     const c = await pool.connect();
     try {
+      const u = await c.query<{ id: string }>(
+        "insert into auth.users (id) values (gen_random_uuid()) returning id",
+      );
       await c.query("set role eyeq_owner");
       const r = await c.query<{ id: string }>(
-        `insert into profiles (id, display_name, sport) values (gen_random_uuid(), 'Race', 'cricket') returning id`,
+        `insert into profiles (id, display_name, sport) values ($1, 'Race', 'cricket') returning id`,
+        [u.rows[0]!.id],
       );
       userId = r.rows[0]!.id;
       await c.query("select ensure_user_stats($1)", [userId]);

@@ -21,12 +21,16 @@ describeDb("prisma client as an athlete", () => {
   beforeAll(async () => {
     const c = await pool.connect();
     try {
-      await c.query("set role eyeq_owner");
       for (const name of ["Prisma A", "Prisma B"]) {
-        const r = await c.query<{ id: string }>(
-          `insert into profiles (id, display_name, sport) values (gen_random_uuid(), $1, 'cricket') returning id`,
-          [name],
+        const u = await c.query<{ id: string }>(
+          "insert into auth.users (id) values (gen_random_uuid()) returning id",
         );
+        await c.query("set role eyeq_owner");
+        const r = await c.query<{ id: string }>(
+          `insert into profiles (id, display_name, sport) values ($1, $2, 'cricket') returning id`,
+          [u.rows[0]!.id, name],
+        );
+        await c.query("reset role");
         ids.push(r.rows[0]!.id);
         await c.query("select ensure_user_stats($1)", [r.rows[0]!.id]);
       }

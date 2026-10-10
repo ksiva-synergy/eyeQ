@@ -9,6 +9,17 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["auth", "public"]
+}
+
+model users {
+  id         String    @id @db.Uuid
+  phone      String?   @unique
+  email      String?
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  profiles   profiles?
+
+  @@schema("auth")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -18,6 +29,8 @@ model admins {
   role       String
   created_at DateTime @default(now()) @db.Timestamptz(6)
   profiles   profiles @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -33,6 +46,7 @@ model audit_log {
   created_at  DateTime @default(now()) @db.Timestamptz(6)
 
   @@index([target_type, target_id, created_at(sort: Desc)], map: "audit_log_target_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -52,6 +66,8 @@ model badges {
   created_at   DateTime      @default(now()) @db.Timestamptz(6)
   challenges   challenges[]
   user_badges  user_badges[]
+
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -66,6 +82,7 @@ model challenge_progress {
   profiles     profiles   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([challenge_id, user_id])
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -90,6 +107,7 @@ model challenges {
   programs           programs?            @relation(fields: [program_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([window_start, window_end], map: "challenges_window_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -105,6 +123,7 @@ model coin_ledger {
   redemptions redemptions[]
 
   @@index([user_id, created_at], map: "coin_ledger_user_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -119,6 +138,7 @@ model credit_ledger {
   profiles   profiles @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([user_id, created_at], map: "credit_ledger_user_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -142,6 +162,7 @@ model drill_completions {
   @@unique([user_id, client_event_id])
   @@index([user_id, local_date], map: "drill_completions_user_day_idx")
   @@index([user_id, drill_id, completed_at], map: "drill_completions_user_drill_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -175,6 +196,8 @@ model drills {
   products            products?             @relation(fields: [ppv_product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   session_completions session_completions[]
   session_drills      session_drills[]
+
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -194,6 +217,7 @@ model enrollments {
   profiles                  profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_id, program_id])
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -212,6 +236,7 @@ model entitlement_events {
   payment_events   payment_events? @relation(fields: [payment_event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([entitlement_id, at], map: "entitlement_events_ent_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -233,6 +258,7 @@ model entitlements {
 
   @@index([ends_at], map: "entitlements_expiry_idx", where: raw("(status = ANY (ARRAY['active'::text, 'grace'::text]))"))
   @@index([user_id, scope, scope_id], map: "entitlements_user_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -250,6 +276,7 @@ model freeze_ledger {
   @@unique([user_id, local_date], map: "freeze_ledger_one_refund_per_day_idx", where: raw("(reason = 'refund'::text)"))
   @@unique([user_id, local_date], map: "freeze_ledger_one_use_per_day_idx", where: raw("(reason = 'used'::text)"))
   @@index([user_id, created_at], map: "freeze_ledger_user_idx")
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -261,6 +288,25 @@ model game_config {
   created_at  DateTime @default(now()) @db.Timestamptz(6)
 
   @@id([key, active_from])
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model idempotency_keys {
+  user_id      String    @db.Uuid
+  key          String
+  route        String
+  request_hash String
+  status       Int?
+  response     Json?
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  completed_at DateTime? @db.Timestamptz(6)
+  profiles     profiles  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, key])
+  @@index([created_at], map: "idempotency_keys_created_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -281,6 +327,7 @@ model leaderboard_weekly {
 
   @@id([week_start, scope, scope_value, user_id])
   @@index([week_start, scope, scope_value, rank], map: "leaderboard_weekly_rank_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -291,6 +338,8 @@ model measurement_tags {
   group  String
   sort   Int      @default(0)
   drills drills[]
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -307,6 +356,7 @@ model modules {
   sessions    sessions[]
 
   @@unique([program_id, order])
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -329,6 +379,7 @@ model notifications {
 
   @@index([status, send_after], map: "notifications_queue_idx", where: raw("(status = 'queued'::text)"))
   @@index([user_id, local_date], map: "notifications_user_day_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -347,6 +398,7 @@ model payment_events {
   promo_redemptions  promo_redemptions[]
 
   @@unique([provider, external_id])
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -369,6 +421,8 @@ model products {
   drills              drills[]
   programs            programs[]
   promo_codes         promo_codes[]
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -401,8 +455,10 @@ model profiles {
   enrollments         enrollments?
   entitlements        entitlements[]
   freeze_ledger       freeze_ledger[]
+  idempotency_keys    idempotency_keys[]
   leaderboard_weekly  leaderboard_weekly[]
   notifications       notifications[]
+  users               users                 @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   promo_codes         promo_codes[]
   promo_redemptions   promo_redemptions[]
   push_tokens         push_tokens[]
@@ -415,6 +471,7 @@ model profiles {
   xp_ledger           xp_ledger[]
 
   @@index([sport])
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -442,6 +499,8 @@ model programs {
   modules         modules[]
   products        products?     @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   sessions        sessions[]
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -461,6 +520,8 @@ model promo_codes {
   products          products?           @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   profiles          profiles?           @relation(fields: [single_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
   promo_redemptions promo_redemptions[]
+
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -473,6 +534,8 @@ model promo_redemptions {
   payment_events   payment_events? @relation(fields: [payment_event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   promo_codes      promo_codes     @relation(fields: [promo_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   profiles         profiles        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -488,6 +551,7 @@ model push_tokens {
   profiles     profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([user_id], map: "push_tokens_user_idx")
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -497,6 +561,7 @@ model rate_limits {
   count        Int      @default(0)
 
   @@id([key, window_start])
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -513,6 +578,8 @@ model redemptions {
   coin_ledger    coin_ledger? @relation(fields: [coin_ledger_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reward_items   reward_items @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   profiles       profiles     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -531,6 +598,8 @@ model reward_items {
   sort            Int           @default(0)
   redemptions     redemptions[]
   user_items      user_items[]
+
+  @@schema("public")
 }
 
 model schema_migrations {
@@ -538,6 +607,8 @@ model schema_migrations {
   name       String
   checksum   String
   applied_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -552,6 +623,7 @@ model self_ratings {
   profiles profiles @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([user_id, taken_at(sort: Desc)], map: "self_ratings_user_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -570,6 +642,7 @@ model session_completions {
 
   @@unique([user_id, local_date])
   @@index([user_id, session_id], map: "session_completions_session_idx")
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -583,6 +656,7 @@ model session_drills {
   @@id([session_id, drill_id])
   @@unique([session_id, order])
   @@index([drill_id], map: "session_drills_drill_idx")
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -602,6 +676,7 @@ model sessions {
   programs            programs              @relation(fields: [program_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([program_id, day_number])
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -613,6 +688,7 @@ model user_badges {
   profiles   profiles @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([user_id, badge_id])
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -626,6 +702,7 @@ model user_items {
   profiles     profiles     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([user_id], map: "user_items_user_idx")
+  @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -641,6 +718,8 @@ model user_stats {
   last_judged_local_date DateTime? @db.Date
   updated_at             DateTime  @default(now()) @db.Timestamptz(6)
   profiles               profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -660,4 +739,5 @@ model xp_ledger {
   @@index([created_at], map: "xp_ledger_created_idx")
   @@index([user_id, local_date], map: "xp_ledger_user_day_idx")
   @@index([user_id, reason, source_id], map: "xp_ledger_user_reason_source_idx")
+  @@schema("public")
 }
