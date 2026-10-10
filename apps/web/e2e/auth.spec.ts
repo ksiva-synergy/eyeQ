@@ -91,4 +91,59 @@ test.describe("sign-in", () => {
     await expect(page.getByRole("cell", { name: /E2E credit pack/ })).toBeVisible();
     await expect(page.getByRole("cell", { name: "4 credits" }).first()).toBeVisible();
   });
+
+  test("a coach finds an athlete, grants a program by hand, and it unlocks and is audited", async ({
+    page,
+  }) => {
+    // Runs after the product test, so this account is already a coach. It is also the
+    // athlete here: the only phone this job can sign in with.
+    const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
+    await db.connect();
+    try {
+      const tag = crypto.randomUUID().slice(0, 8);
+      const slug = `e2e-grant-${tag}`;
+      const prog = await db.query<{ id: string }>(
+        `insert into programs (slug, title, duration_days, is_free, in_subscription, status)
+         values ($1, $2, 7, false, false, 'published') returning id`,
+        [slug, `E2E grant ${tag}`],
+      );
+      const programId = prog.rows[0]!.id;
+      const u = await db.query<{ id: string }>("select id from auth.users where phone = $1", [
+        `91${phone}`,
+      ]);
+      const me = u.rows[0]!.id;
+
+      // The admin gate sends a signed-out visit to sign-in with next=/admin.
+      await signIn(page, "/admin/athletes");
+      await page.waitForURL(/\/admin\/programs$/);
+      await page.goto("/admin/athletes");
+      await page.getByLabel("Search name or phone").fill(phone.slice(-4));
+      await expect(page.getByText(`+91 ••••• •${phone.slice(-4)}`).first()).toBeVisible();
+      expect(await page.content()).not.toContain(phone);
+
+      const before = await page.request.get(`/api/v1/programs/${slug}`);
+      expect((await before.json()).hasAccess).toBe(false);
+
+      await page.goto(`/admin/athletes/${me}`);
+      await page.getByRole("button", { name: "Grant access" }).click();
+      const sheet = page.getByRole("dialog", { name: "Manual grant" });
+      await sheet.getByRole("radio", { name: "Program" }).click();
+      await sheet.getByLabel("Program, drill or challenge id").fill(programId);
+      await sheet.getByLabel("Reason · kept in the audit log").fill("e2e comp");
+      await sheet.getByRole("button", { name: "Grant", exact: true }).click();
+      await expect(page.getByText(`Program · E2E grant ${tag}`)).toBeVisible();
+      await expect(page.getByText("Manual grant · From", { exact: false }).first()).toBeVisible();
+
+      const after = await page.request.get(`/api/v1/programs/${slug}`);
+      expect((await after.json()).hasAccess).toBe(true);
+      const audit = await db.query(
+        `select a.actor_id from audit_log a join entitlements e on e.id::text = a.target_id
+         where a.action = 'entitlement.grant' and e.scope_id = $1 and e.source = 'admin'`,
+        [programId],
+      );
+      expect(audit.rows).toEqual([{ actor_id: me }]);
+    } finally {
+      await db.end();
+    }
+  });
 });
