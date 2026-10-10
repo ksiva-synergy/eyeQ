@@ -1,0 +1,21 @@
+# Supabase CLI config, used only for a local Postgres that matches hosted Supabase
+# (non-superuser `postgres`, the `extensions` schema, Supabase's default grants).
+#   pnpm db:supabase:up    start it on port 55322, then run the db scripts with
+#   DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55322/postgres
+# Schema changes are db/migrations applied by `pnpm db:migrate`, never `supabase db push`
+# or supabase/migrations, so the CLI's own migration and seed steps are off.
+project_id = "eyeq"
+
+[db]
+port = 55322
+shadow_port = 55320
+major_version = 17
+
+[db.pooler]
+enabled = false
+
+[db.migrations]
+enabled = false
+
+[db.seed]
+enabled = false
