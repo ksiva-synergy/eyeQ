@@ -1,4 +1,4 @@
-# EyeQ build plan for Claude Code (Azure)
+# EyeQ build plan for Claude Code (Supabase + Vercel)
 
 10 Oct 2026 · Karthik Sivakumar · Sources: EyeQ Product Requirements, EyeQ System Architecture (both 10 Oct 2026), the EyeQ prototype (30 boards), and this plan's Azure decisions.
 
@@ -43,11 +43,29 @@ EyeQ is a mobile-first, gamified training app for individual athletes, made by F
 - `apps/mobile`: Expo (React Native) app for Android and iOS, 14 screen groups.
 - `apps/worker`: a small scheduled job that sends pushes and emails.
 - A PostgreSQL database that is the game engine: ledgers, rules, entitlements, scheduled jobs.
-- Azure infrastructure as code, three environments, CI/CD.
+- Hosting on Supabase (Postgres) and Vercel (web and API), CI/CD. (Was Azure; see 2.0.)
 
 **Scope reading.** "Everything in the product requirements" is built as: all P0 items (phases 1 to 9), all P1 "launch + 60 days" items (phase 10), launch hardening (phase 11). P2 items (leagues, friend challenges, head-to-head, in-app vision tests, protected video host) are not built; section 14 lists the room left for them.
 
-## 2. Architecture on Azure
+## 2. Architecture
+
+### 2.0 Hosting change: Supabase and Vercel (10 Oct 2026, after phase 1)
+
+Karthik moved hosting from Azure to **Supabase for the database** and **Vercel for `apps/web`**, with **Prisma** as the typed data-access layer. This subsection wins over 2.1 to 2.5 wherever they name an Azure service; the rest of the architecture (game engine in Postgres functions, RLS as the second line of defence, our own `/api/v1` in Next.js route handlers, the outbox for anything that calls out) is unchanged. The reasoning is in `DECISIONS.md` under "Hosting: Supabase + Vercel".
+
+| Concern          | Now                                                                                                                                                    | Notes                                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Postgres         | Supabase, region `ap-south-1` (Mumbai), Postgres 17                                                                                                    | Same SQL migrations, roles and pgTAP suite. Migrations 0012 and 0013 adapt roles and lock out Supabase's Data API. CI also runs the suite on the Supabase image. |
+| Schema changes   | Plain SQL in `db/migrations`, applied by `pnpm db:migrate`                                                                                             | Never Prisma Migrate, `db push` or `supabase/migrations`.                                                                                                        |
+| Data access      | Prisma 7 (`prisma-client` generator, `@prisma/adapter-pg`) in `packages/db`                                                                            | Schema introspected from the migrated database (`pnpm db:types`); SQL game functions called with `$queryRaw`; `asAthlete()` sets `app.user_id` per transaction.  |
+| Connections      | Vercel runtime: transaction pooler (6543) as `eyeq_api` / `eyeq_service`. Migrations, tests, Prisma CLI: session pooler or direct (5432) as `postgres` | `app.user_id` is always transaction-local, which is what transaction pooling needs.                                                                              |
+| Web and API      | Vercel, functions in `bom1` (Mumbai), project root `apps/web`                                                                                          | `output: 'standalone'` only off Vercel; the Docker image stays as a CI smoke test.                                                                               |
+| Secrets          | Vercel project env vars (server-only) and GitHub Actions secrets                                                                                       | Rule 12 reads "Vercel env" where it says Key Vault.                                                                                                              |
+| Sign-in          | Better Auth, unchanged (phase 2)                                                                                                                       | Open: Supabase Auth instead (D28).                                                                                                                               |
+| Storage          | Supabase Storage (phase 4), private bucket and signed URLs                                                                                             | Replaces Azure Blob; Azurite stays in compose until then.                                                                                                        |
+| Scheduled SQL    | pg_cron on Supabase (phase 6)                                                                                                                          |                                                                                                                                                                  |
+| Scheduled sender | A Vercel Cron route in `apps/web` (phase 6), or `apps/worker` on any runner                                                                            | Vercel Cron at 5-minute cadence needs a Pro plan (D29).                                                                                                          |
+| Infra as code    | None needed for now; `infra/` stays empty                                                                                                              |                                                                                                                                                                  |
 
 ### 2.1 Overview
 
@@ -188,19 +206,19 @@ eyeq/
 
 **Default libraries.** Change one only with a line in `DECISIONS.md`.
 
-| Need                  | Default                                                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Web styling           | Tailwind CSS, theme generated from `tokens.ts`, CSS variables for dark and light                              |
-| Native styling        | React Native `StyleSheet` reading the same `tokens.ts`                                                        |
-| Data fetching         | TanStack Query on web client components and mobile                                                            |
-| Validation            | zod, in `packages/api-contract`                                                                               |
-| Database access       | `pg` + Kysely; SQL functions called through typed wrappers                                                    |
-| Migrations            | Plain SQL files with a small runner (dbmate or equivalent)                                                    |
-| Tests                 | Vitest (unit), pgTAP (database), Playwright (web end to end), Maestro (mobile flows)                          |
-| Drag and drop (admin) | dnd-kit                                                                                                       |
-| Charts                | Inline SVG on web, `react-native-svg` on mobile; the four charts in the prototype do not need a chart library |
-| Mobile animation      | Reanimated; no Lottie file over 60 KB                                                                         |
-| Mobile storage        | SecureStore for the session, MMKV or SQLite for the offline queue                                             |
+| Need                  | Default                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Web styling           | Tailwind CSS, theme generated from `tokens.ts`, CSS variables for dark and light                               |
+| Native styling        | React Native `StyleSheet` reading the same `tokens.ts`                                                         |
+| Data fetching         | TanStack Query on web client components and mobile                                                             |
+| Validation            | zod, in `packages/api-contract`                                                                                |
+| Database access       | Prisma 7 with `@prisma/adapter-pg`, schema introspected from the SQL migrations; SQL functions via `$queryRaw` |
+| Migrations            | Plain SQL files with a small runner (dbmate or equivalent)                                                     |
+| Tests                 | Vitest (unit), pgTAP (database), Playwright (web end to end), Maestro (mobile flows)                           |
+| Drag and drop (admin) | dnd-kit                                                                                                        |
+| Charts                | Inline SVG on web, `react-native-svg` on mobile; the four charts in the prototype do not need a chart library  |
+| Mobile animation      | Reanimated; no Lottie file over 60 KB                                                                          |
+| Mobile storage        | SecureStore for the session, MMKV or SQLite for the offline queue                                              |
 
 Components are implemented once for web and once for native against the same token file and the same component list. Do not introduce react-native-web to share them; with about twenty components, two implementations cost less than one cross-platform abstraction.
 
@@ -475,19 +493,19 @@ No UI in this phase. This is the part errors cost most in, so it is built and te
 
 **Gate.** Report the rule decisions taken from section 13 and any rule the sources left undefined.
 
-### Phase 2: Azure foundation, sign-in and API skeleton
+### Phase 2: Hosting foundation, sign-in and API skeleton
 
-- [ ] Bicep for every resource in 2.4 except the worker job, which is added with its image in phase 6. Deploy staging. GitHub OIDC for deployments.
-- [ ] `deploy-staging.yml`: build and push the image, run `eyeq-migrate`, update the container app, smoke-test `/api/health`.
+- [ ] Supabase projects for staging and production in `ap-south-1`; Data API off; login passwords set for `eyeq_api` and `eyeq_service`. Vercel project with root `apps/web`, env vars per environment (2.0).
+- [ ] `deploy-staging.yml`: run `pnpm db:migrate` against staging from GitHub Actions, then let Vercel deploy, then smoke-test `/api/health` and `/api/health/db`.
 - [ ] Better Auth: phone OTP with an SMS sender interface (MSG91 in Azure, console output locally, a fixed test number on staging), Google sign-in, session cookies for web and token storage for the Expo client later. Better Auth's tables come from its own generated migration; add the foreign key from `profiles.id`. Create the `profiles` and `user_stats` rows on first sign-in.
 - [ ] Request pipeline: session to user, transaction with `app.user_id`, zod validation, error shape, idempotency, rate limits backed by `rate_limits`.
 - [ ] `GET /me`, `PATCH /me`, `/api/health`.
 - [ ] A script, `pnpm admin:grant <phone> <role>`, that creates an `admins` row; it is the only way the first coach or owner is made, and it writes `audit_log`.
 - [ ] Sentry on web and server; structured request logs to Log Analytics; PostHog server client and feature flags (used later for paywall variants and new game rules).
 
-**Acceptance.** The staging URL serves over HTTPS on the Azure domain. A person can sign in by phone OTP and by Google on staging, and `GET /me` returns their profile. The sixth OTP request in the window is refused. An integration test shows a request for user A cannot return user B's data even when the service code is deliberately wrong (RLS catches it). Migrations ran through the job, not from a laptop.
+**Acceptance.** The staging URL serves over HTTPS on the Vercel domain. A person can sign in by phone OTP and by Google on staging, and `GET /me` returns their profile. The sixth OTP request in the window is refused. An integration test shows a request for user A cannot return user B's data even when the service code is deliberately wrong (RLS catches it). Migrations ran through the job, not from a laptop.
 
-**Gate.** Needs from Karthik before this phase can finish: an Azure subscription and deploy permissions, a Google OAuth client. MSG91 can follow; staging works with the test number.
+**Gate.** Needs from Karthik before this phase can finish: Supabase projects (staging, production) and a Vercel project with Git connected, a Google OAuth client. MSG91 can follow; staging works with the test number.
 
 ### Phase 3: Design system and web shell
 
@@ -711,6 +729,8 @@ Claude Code builds the default and moves on unless the row says BLOCKER. "PRD" a
 | D25 | What a public board row shows: PRD says display name and avatar only; prototype adds sport and level                                               | Display name, initials, XP level, XP and rank; sport only on the sport board, where it is implied                                                                                | Flip one view to match the prototype                                                                           |
 | D26 | Manual "use your streak freeze" with undo (prototype)                                                                                              | Not built. A held freeze applies automatically at local midnight; the at-risk state says so                                                                                      | Same outcome, one less control                                                                                 |
 | D27 | City on the profile (prototype)                                                                                                                    | Not collected                                                                                                                                                                    | The PRD asks for minimal personal data                                                                         |
+| D28 | Sign-in after the move to Supabase: Better Auth (plan) or Supabase Auth (phone OTP via a Send SMS hook to MSG91, Google, Apple)                    | Better Auth, as in phase 2; Supabase Auth is not used                                                                                                                            | Supabase Auth would remove most of phase 2's auth work but ties the API to its JWTs                            |
+| D29 | Scheduled sender on Vercel: Vercel Cron every 5 minutes needs a Pro plan                                                                           | A cron route in `apps/web`; on Hobby, pg_cron + `pg_net` calls it instead                                                                                                        | Decide by phase 6                                                                                              |
 
 ## 14. Not built, and the room left for it
 
