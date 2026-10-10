@@ -23,6 +23,11 @@ export const env = {
   smsProvider: () => (str("SMS_PROVIDER") ?? "console") as "console" | "test" | "msg91",
   otpTestPhone: () => str("OTP_TEST_PHONE"),
   sentryDsn: () => str("SENTRY_DSN"),
+  /**
+   * The /dev/components gallery: always on under `next dev`; in a production build only
+   * with DEV_GALLERY=1 (staging, CI). Read at build time, since the page is prerendered.
+   */
+  devGallery: () => process.env.NODE_ENV !== "production" || str("DEV_GALLERY") === "1",
   posthog: () => {
     const key = str("POSTHOG_API_KEY");
     return key ? { key, host: str("POSTHOG_HOST") ?? "https://eu.i.posthog.com" } : undefined;

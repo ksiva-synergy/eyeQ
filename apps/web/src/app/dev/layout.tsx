@@ -1,14 +1,15 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { env } from "@/server/env";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 /**
- * Development tooling. Served locally, in CI and on Vercel preview deployments;
- * never on a Vercel production deployment (VERCEL_ENV is set by Vercel itself).
+ * Development tooling behind DEV_GALLERY (see server/env.ts): on locally, in CI and on
+ * staging; off for real production.
  */
 export default function DevLayout({ children }: { children: React.ReactNode }) {
-  if (process.env["VERCEL_ENV"] === "production") notFound();
+  if (!env.devGallery()) notFound();
   return children;
 }

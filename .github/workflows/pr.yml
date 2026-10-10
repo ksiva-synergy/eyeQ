@@ -12,6 +12,8 @@ concurrency:
 env:
   DATABASE_URL: postgres://postgres:postgres@localhost:5432/eyeq
   NEXT_TELEMETRY_DISABLED: 1
+  # The component gallery is part of phase 3's acceptance run (Playwright).
+  DEV_GALLERY: "1"
 
 jobs:
   checks:
