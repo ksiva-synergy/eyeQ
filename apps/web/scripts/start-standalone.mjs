@@ -12,7 +12,9 @@ if (!existsSync(path.join(standalone, "server.js"))) {
   process.exit(1);
 }
 cpSync(path.join(root, ".next/static"), path.join(standalone, ".next/static"), { recursive: true });
-cpSync(path.join(root, "public"), path.join(standalone, "public"), { recursive: true });
+if (existsSync(path.join(root, "public"))) {
+  cpSync(path.join(root, "public"), path.join(standalone, "public"), { recursive: true });
+}
 
 const child = spawn(process.execPath, [path.join(standalone, "server.js")], {
   stdio: "inherit",
