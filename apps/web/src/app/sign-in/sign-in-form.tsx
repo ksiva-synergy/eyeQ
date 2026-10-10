@@ -77,7 +77,10 @@ export function SignInForm() {
   return (
     <div className="flex flex-col gap-5">
       {error && (
-        <p role="alert" className="flex items-center gap-2 rounded-m border border-cta-text px-3 py-2 text-sm">
+        <p
+          role="alert"
+          className="flex items-center gap-2 rounded-m border border-cta-text px-3 py-2 text-sm"
+        >
           <Icon name="alert" size={16} className="text-cta-text" />
           {t(error)}
         </p>
