@@ -113,7 +113,8 @@ update sessions set est_minutes = 10 where program_id = pg_temp.sid(3, 1);
 insert into session_drills (session_id, drill_id, "order")
 select s.id, pg_temp.sid(6, ((s.day_number + k * 3) % 13) + 1), k + 1
 from sessions s cross join generate_series(0, 3) k
-where not (s.program_id = pg_temp.sid(3, 2) and s.day_number = 13)
+where s.program_id in (pg_temp.sid(3, 1), pg_temp.sid(3, 2), pg_temp.sid(3, 3), pg_temp.sid(3, 4))
+  and not (s.program_id = pg_temp.sid(3, 2) and s.day_number = 13)
   and not (s.program_id = pg_temp.sid(3, 1) and k = 3);
 insert into session_drills (session_id, drill_id, "order") values
   (pg_temp.sid(5, 213), pg_temp.sid(6, 1), 1),
