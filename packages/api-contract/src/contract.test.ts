@@ -62,6 +62,7 @@ describe("content reads (rule 5)", () => {
     coinPrice: 30,
     ppvProductId: null,
     locked: false,
+    doneToday: false,
   };
   it("accepts a session drill", () => {
     expect(sessionDrillSchema.safeParse(drill).success).toBe(true);

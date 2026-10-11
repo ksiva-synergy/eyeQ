@@ -49,6 +49,12 @@ export interface RouteSpec<
   /** Defaults to the per-athlete API limit. */
   rateLimits?: RateRule[];
   status?: number;
+  /**
+   * Runs once the transaction has committed, and never for a replayed idempotent result:
+   * the place for side effects such as analytics events, which must not report work that
+   * rolled back. Errors here are logged and never change the response.
+   */
+  afterCommit?: (data: R, session: Session) => void | Promise<void>;
   handler: (
     ctx: RouteContext<
       S extends z.ZodType ? z.output<S> : undefined,
@@ -147,6 +153,13 @@ export function apiRoute<
 
       status = result.status;
       replayed = result.replayed;
+      if (spec.afterCommit && !result.replayed) {
+        try {
+          await spec.afterCommit(result.body as R, session);
+        } catch (e) {
+          log("warn", "afterCommit failed", { requestId, route: spec.name, error: String(e) });
+        }
+      }
       return Response.json(result.body, {
         status: result.status,
         headers: {

@@ -51,9 +51,12 @@ export async function getProgram(tx: Tx, slug: string): Promise<ProgramDetail> {
   return shaped(programDetailSchema, row.v);
 }
 
-/** GET /sessions/:id. Drills carry their lock state, never their video reference. */
+/**
+ * GET /sessions/:id. Drills carry their lock state and whether they are done today, never
+ * their video reference. session_play (0018) is session_detail plus doneToday.
+ */
 export async function getSession(tx: Tx, id: string): Promise<SessionDetail> {
-  const [row] = await tx.$queryRaw<{ v: unknown }[]>`select session_detail(${id}::uuid) as v`;
+  const [row] = await tx.$queryRaw<{ v: unknown }[]>`select session_play(${id}::uuid) as v`;
   if (!row?.v) throw notFound("Session");
   return shaped(sessionDetailSchema, row.v);
 }

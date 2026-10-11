@@ -83,5 +83,8 @@ export async function patchMe(
       ...(n.overtaken !== undefined && { notify_overtaken: n.overtaken }),
     },
   });
+  if (input.onboarded) {
+    await tx.$executeRaw`update profiles set onboarded_at = coalesce(onboarded_at, now()) where id = ${session.userId}::uuid`;
+  }
   return getMe(tx, session);
 }
