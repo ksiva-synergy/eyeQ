@@ -33,7 +33,8 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Pages and /api/v1; not static files, health checks, the auth routes or the SMS hook.
-    "/((?!_next/static|_next/image|favicon.ico|api/health|api/auth|auth/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    // Pages and /api/v1; not static files, the service worker, health checks, the auth
+    // routes, the SMS hook or the cron dispatcher.
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|api/health|api/auth|api/cron|auth/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

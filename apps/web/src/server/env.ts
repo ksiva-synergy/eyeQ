@@ -55,5 +55,20 @@ export const env = {
     const key = str("POSTHOG_API_KEY");
     return key ? { key, host: str("POSTHOG_HOST") ?? "https://eu.i.posthog.com" } : undefined;
   },
+  /** Vercel Cron sends it as `Authorization: Bearer …`; the dispatcher refuses calls without it. */
+  cronSecret: () => str("CRON_SECRET"),
+  /** Resend (email). Both or neither; unset, email rows are retried until it is set. */
+  resend: () => {
+    const key = str("RESEND_API_KEY");
+    const from = str("EMAIL_FROM");
+    return key && from ? { key, from } : undefined;
+  },
+  /** Web push (VAPID). The public key is served to browsers by GET /me/push-config. */
+  vapid: () => {
+    const publicKey = str("VAPID_PUBLIC_KEY");
+    const privateKey = str("VAPID_PRIVATE_KEY");
+    const subject = str("VAPID_SUBJECT");
+    return publicKey && privateKey && subject ? { publicKey, privateKey, subject } : undefined;
+  },
   str,
 };

@@ -380,7 +380,7 @@ export const loop = {
   "account.weeklyRecap": "Weekly recap",
   "account.weeklyRecapSub": "Your week in one message on Monday",
   "account.notificationsNote":
-    "Reminders reach you in the app; browser notifications arrive in a later update.",
+    "Every reminder also appears in Notifications, whether or not this browser shows it.",
   "account.privacy": "Privacy",
   "account.showOnBoards": "Show me on leaderboards",
   "account.showOnBoardsSub":

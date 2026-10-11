@@ -94,6 +94,41 @@ export const compete = {
   "rewards.drills.unlock": "Unlock · {n} coins",
   "rewards.drills.confirm": "Unlock {title}?",
 
+  // ---- notifications: push, email and the in-app feed (plan 6.9, D29)
+  "notify.daily_reminder.title": "Time to train",
+  "notify.daily_reminder.body": "Today's session is waiting. A few minutes keeps you sharp.",
+  "notify.streak_at_risk.title": "Your {n}-day streak is at risk",
+  "notify.streak_at_risk.body": "Train before {time} to keep it going.",
+  "notify.challenge_ending.title": "Challenge ends soon",
+  "notify.challenge_ending.body": "{title} closes {when}. You're not there yet.",
+  "notify.weekly_recap.title": "Your week in EyeQ",
+  "notify.weekly_recap.body": "See how your training went this week.",
+  "notify.overtaken.title": "Someone passed you",
+  "notify.overtaken.body": "Train today to win your place back.",
+  "notify.receipt.title": "Your EyeQ receipt",
+  "notify.receipt.body": "Thanks for your purchase.",
+  "feed.title": "Notifications",
+  "feed.empty.title": "Nothing yet",
+  "feed.empty.body": "Reminders, streak nudges and challenge news show up here.",
+  "feed.markAll": "Mark all read",
+  "feed.unread": "Unread",
+  "feed.link": "Notifications",
+  "feed.linkUnread": "Notifications, {n} unread",
+  "push.title": "Browser notifications",
+  "push.sub":
+    "Reminders and streak nudges in this browser. On iPhone and iPad, add EyeQ to your Home Screen first: Safari sends web notifications only to Home Screen apps.",
+  "push.on": "On in this browser",
+  "push.turnOn": "Turn on",
+  "push.turnOff": "Turn off",
+  "push.blocked":
+    "Blocked in this browser's settings. Allow notifications for this site to turn them on.",
+  "push.unsupported":
+    "This browser can't show notifications. Your reminders still appear in Notifications.",
+  "push.iosHint": "On iPhone and iPad, add EyeQ to your Home Screen, then turn this on there.",
+  "push.error": "Couldn't turn on notifications. Try again.",
+  "push.unavailable":
+    "Browser notifications aren't set up yet. Your reminders still appear in Notifications.",
+
   // ---- shared entry points
   "today.coinsLink": "{n} coins, open rewards",
   "account.badgesLink": "Trophy case, {n} badges",

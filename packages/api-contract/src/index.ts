@@ -10,6 +10,7 @@ export * from "./auth.ts";
 export * from "./content.ts";
 export * from "./daily.ts";
 export * from "./compete.ts";
+export * from "./notify.ts";
 export * from "./admin-products.ts";
 export * from "./admin-athletes.ts";
 export * from "./admin-builder.ts";

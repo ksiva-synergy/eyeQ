@@ -3,7 +3,8 @@ import { cx } from "./cx.ts";
 
 /**
  * The 16 icons of the "DS · Type, spacing, radii, elevation, icons" board, plus
- * the glyphs other boards draw inline (back, close, play, plus, menu). 24 grid,
+ * the glyphs other boards draw inline (back, close, play, plus, menu), and a bell for
+ * the in-app notification feed (phase 6, D29; no board draws one). 24 grid,
  * 2px stroke, round caps and joins, `currentColor`. Filled variants exist only
  * for the active tab, the done streak flame and the XP bolt (plan 8).
  */
@@ -71,6 +72,7 @@ const PATHS = {
   play: <path d="M8 5v14l11-7z" />,
   plus: <path d="M12 5v14M5 12h14" />,
   cross: <path d="M7 7l10 10M17 7L7 17" />,
+  bell: <path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4" />,
   alert: (
     <>
       <circle cx="12" cy="12" r="9" />
