@@ -187,7 +187,8 @@ describeDb("compete and rewards", () => {
       isPublic: true,
       displayName: "Mid Athlete",
       sport,
-      gapAbove: { xp: 100, rank: 1 },
+      gapAbove: { xp: 100, rank: 1, displayName: "Top Athlete" },
+      gapBelow: { xp: 100, rank: 3, displayName: "Young Shown" },
     });
     expect(b.rows.find((r) => r.isMe)?.displayName).toBe("Mid Athlete");
   });

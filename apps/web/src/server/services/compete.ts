@@ -33,6 +33,9 @@ async function one(query: Promise<{ v: unknown }[]>): Promise<unknown> {
   return row?.v ?? null;
 }
 
+type Gap = { xp: number; rank: number; display_name: string };
+const gap = (g: Gap | null) => (g ? { xp: g.xp, rank: g.rank, displayName: g.display_name } : null);
+
 type RawBoard = {
   period: string;
   scope: string;
@@ -54,7 +57,8 @@ type RawBoard = {
     xp: number;
     delta: number | null;
     is_public: boolean;
-    gap_above: { xp: number; rank: number } | null;
+    gap_above: Gap | null;
+    gap_below: Gap | null;
   } | null;
 };
 
@@ -83,7 +87,8 @@ export async function getLeaderboard(tx: Tx, q: LeaderboardQuery): Promise<Leade
       initials: raw.rows.find((r) => r.is_me)?.initials ?? initialsOf(p?.display_name ?? ""),
       level: p?.level ?? 1,
       sport: p?.sport ?? null,
-      gapAbove: raw.me.gap_above ? { xp: raw.me.gap_above.xp, rank: raw.me.gap_above.rank } : null,
+      gapAbove: gap(raw.me.gap_above),
+      gapBelow: gap(raw.me.gap_below),
     };
   }
   return shaped(

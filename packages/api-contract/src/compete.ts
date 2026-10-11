@@ -46,8 +46,17 @@ export const boardMeSchema = z.strictObject({
   initials: z.string(),
   level: z.number().int(),
   sport: z.string().nullable(),
-  /** XP needed to pass the public athlete one place above; null at the top. */
-  gapAbove: z.strictObject({ xp: z.number().int(), rank: z.number().int() }).nullable(),
+  /**
+   * The public athlete one place above and the XP needed to pass them; null at the top.
+   * A display name only, which public boards show anyway (rule 11).
+   */
+  gapAbove: z
+    .strictObject({ xp: z.number().int(), rank: z.number().int(), displayName: z.string() })
+    .nullable(),
+  /** The public athlete one place below and the XP lead over them: the rank-change moment. */
+  gapBelow: z
+    .strictObject({ xp: z.number().int(), rank: z.number().int(), displayName: z.string() })
+    .nullable(),
 });
 export type BoardMe = z.infer<typeof boardMeSchema>;
 
