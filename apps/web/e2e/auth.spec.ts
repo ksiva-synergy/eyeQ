@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import pg from "pg";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import sharp from "sharp";
 import { smallTargets } from "./touch-targets";
 
@@ -310,6 +312,7 @@ test.describe("sign-in", () => {
  * signs in, sets up a profile with a name, rates a baseline, and is given the free Reset as
  * a starter (the cricket recommendation is shown second, as Pro). Runs where E2E_AUTH=1.
  */
+const YT_STUB = readFileSync(path.join(__dirname, "fixtures", "youtube-iframe-api.js"), "utf8");
 const onboardingPhone = process.env["E2E_ONBOARDING_PHONE"] ?? "9000000004";
 
 async function axeCheck(page: Page) {
@@ -438,5 +441,95 @@ test.describe("onboarding", () => {
       dayNumber: 1,
     });
     expect(home.today.drills).toHaveLength(4);
+    const userId: string = me.id;
+
+    // The first session: four drills in the player (board 3), then the summary (board 4).
+    // YouTube's IFrame API is replaced by a fast stand-in (e2e/fixtures), so a drill reaches
+    // its done threshold in about a second.
+    await page.route("https://www.youtube.com/iframe_api", (r) =>
+      r.fulfill({ contentType: "text/javascript", body: YT_STUB }),
+    );
+    await page.getByRole("link", { name: "Start session" }).click();
+    await page.waitForURL(/\/app\/session\/[0-9a-f-]{36}$/);
+    for (let i = 1; i <= 4; i++) {
+      await expect(page.getByText(`Drill ${i} of 4`)).toBeVisible();
+      // Locked until watched, and it says why.
+      await expect(
+        page.getByRole("button", { name: /unlocks at 80 % watched/ }).last(),
+      ).toBeDisabled();
+      if (i === 1) {
+        expect(await smallTargets(page)).toEqual([]);
+        await axeCheck(page);
+      }
+      await page.getByRole("button", { name: "Play drill video" }).click();
+      const done = page.getByRole("button", { name: /^Mark done · \+10 XP$/ }).last();
+      await expect(done).toBeEnabled({ timeout: 10_000 });
+      if (i === 2) {
+        // A dropped request is retried with the same client_event_id (plan phase 5, 8.2).
+        const sent: string[] = [];
+        await page.route("**/api/v1/completions", async (r) => {
+          sent.push(
+            (r.request().postDataJSON() as { events: { clientEventId: string }[] }).events[0]!
+              .clientEventId,
+          );
+          if (sent.length === 1) return r.abort("failed");
+          return r.fallback();
+        });
+        await done.click();
+        await expect(page.getByText("Drill 3 of 4")).toBeVisible({ timeout: 15_000 });
+        expect(sent.length).toBe(2);
+        expect(sent[1]).toBe(sent[0]);
+        await page.unroute("**/api/v1/completions");
+        continue;
+      }
+      await done.click();
+    }
+
+    await expect(page.getByText("Session complete")).toBeVisible();
+    await expect(page.getByText("+65").first()).toBeVisible();
+    await expect(page.getByText("4 drills × 10")).toBeVisible();
+    await expect(page.getByText("Session bonus")).toBeVisible();
+    await expect(page.getByText("streak · +1")).toBeVisible();
+    await expect(page.getByText("First Rep")).toBeVisible();
+    // Contrast is measured once the count-up has landed (moments fade in, under 1.2 s).
+    await page.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((a) => a.playState !== "running" || a.effect?.getTiming().iterations === Infinity),
+    );
+    await axeCheck(page);
+
+    // The ledger matches the screen: 4 × 10 drill XP and the 25 session bonus.
+    const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
+    await db.connect();
+    try {
+      const rows = await db.query<{ reason: string; amount: number }>(
+        "select reason, amount from xp_ledger where user_id = $1 order by created_at, reason",
+        [userId],
+      );
+      expect(rows.rows.map((r) => [r.reason, r.amount]).sort()).toEqual(
+        [
+          ["drill", 10],
+          ["drill", 10],
+          ["drill", 10],
+          ["drill", 10],
+          ["session_bonus", 25],
+        ].sort(),
+      );
+      const badges = await db.query<{ slug: string }>(
+        "select b.slug from user_badges ub join badges b on b.id = ub.badge_id where ub.user_id = $1",
+        [userId],
+      );
+      expect(badges.rows.map((r) => r.slug)).toContain("first-rep");
+    } finally {
+      await db.end();
+    }
+
+    // Continue: the badge moment (board 5b), then Today, now done with a streak of 1.
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText("Badge unlocked").first()).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.waitForURL(/\/app$/);
+    await expect(page.getByText("Today's session is done")).toBeVisible();
   });
 });
