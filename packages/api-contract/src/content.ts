@@ -72,6 +72,8 @@ export const programModuleSchema = z.strictObject({
 
 export const programDetailSchema = programCardSchema.extend({
   modules: z.array(programModuleSchema),
+  /** Distinct drills across every session (a drill repeated on later days counts once). */
+  distinctDrills: z.number().int(),
 });
 export type ProgramDetail = z.infer<typeof programDetailSchema>;
 

@@ -71,6 +71,8 @@ for (const [width, height] of [
       await expect(page.getByRole("region", { name: "Modules" }).getByRole("listitem")).toHaveCount(
         4,
       );
+      // 112 drill slots over 28 days, but 13 distinct drills.
+      await expect(page.getByText("13 coach-led video drills, 4 a day")).toBeVisible();
       await expect(page.getByText("Not a substitute for an eye examination.")).toBeVisible();
       await expect(
         page

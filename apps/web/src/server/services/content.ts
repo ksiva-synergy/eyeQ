@@ -48,7 +48,13 @@ export async function listPrograms(tx: Tx): Promise<ProgramsResponse> {
 export async function getProgram(tx: Tx, slug: string): Promise<ProgramDetail> {
   const [row] = await tx.$queryRaw<{ v: unknown }[]>`select program_detail(${slug}) as v`;
   if (!row?.v) throw notFound("Program");
-  return shaped(programDetailSchema, row.v);
+  const [count] = await tx.$queryRaw<{ n: number }[]>`
+    select count(distinct sd.drill_id)::int as n
+      from session_drills sd
+      join sessions s on s.id = sd.session_id
+      join programs p on p.id = s.program_id
+     where p.slug = ${slug}`;
+  return shaped(programDetailSchema, { ...(row.v as object), distinctDrills: count?.n ?? 0 });
 }
 
 /**

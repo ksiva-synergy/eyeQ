@@ -148,6 +148,27 @@ describeDb("content reads", () => {
     );
   });
 
+  it("GET /programs/:slug counts a drill repeated on later days once", async () => {
+    const p = await buildProgram(admin, { free: true, drills: ["included", "included"] });
+    const m = await admin.query<{ module_id: string }>(
+      `select module_id from sessions where id = $1`,
+      [p.sessionId],
+    );
+    const s2 = await admin.query<{ id: string }>(
+      `insert into sessions (program_id, module_id, day_number) values ($1, $2, 2) returning id`,
+      [p.programId, m.rows[0]!.module_id],
+    );
+    await admin.query(
+      `insert into session_drills (session_id, drill_id, "order") values ($1, $2, 1), ($1, $3, 2)`,
+      [s2.rows[0]!.id, p.drillIds[0], p.drillIds[1]],
+    );
+    const res = await programRoute(as(athlete), params({ slug: p.slug }));
+    const detail = programDetailSchema.parse(await res.json());
+    const slots = detail.modules.flatMap((x) => x.sessions).reduce((a, x) => a + x.drillCount, 0);
+    expect(slots).toBe(4);
+    expect(detail.distinctDrills).toBe(2);
+  });
+
   it("refuses an anonymous caller", async () => {
     const res = await programsRoute(as(null));
     expect(res.status).toBe(401);
@@ -175,6 +196,8 @@ describeDb("content reads", () => {
     const detail = programDetailSchema.parse(JSON.parse(text));
     expect(detail.modules[0]?.sessions.map((s) => s.id)).toEqual([free.sessionId]);
     expect(detail.modules[0]?.unlocked).toBeNull();
+
+    expect(detail.distinctDrills).toBe(free.drillIds.length);
 
     for (const slug of [draft.slug, "no-such-program"]) {
       const miss = await programRoute(as(athlete), params({ slug }));

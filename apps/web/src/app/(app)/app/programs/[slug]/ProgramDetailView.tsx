@@ -100,7 +100,10 @@ export function ProgramDetailView({
           </h2>
           <Card className="flex flex-col gap-2">
             {[
-              t("program.getDrills", { n: sessions[0]?.drillCount ?? 0 }),
+              t("program.getDrills", {
+                total: program.distinctDrills,
+                n: sessions[0]?.drillCount ?? 0,
+              }),
               t("program.getDays", { n: program.durationDays }),
               t("program.getScores"),
             ].map((line) => (
