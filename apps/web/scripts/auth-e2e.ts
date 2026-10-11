@@ -1,11 +1,12 @@
 /**
  * End-to-end sign-in check against a running app and a real Supabase Auth.
  *   pnpm --filter web auth:e2e            CI and local (Supabase local stack)
- *   pnpm --filter web auth:e2e --staging  staging: test number only, no limit exhaustion
+ *   pnpm --filter web auth:e2e --staging  staging: test numbers only, no SMS hook check
  *
- * Env: APP_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OTP_TEST_PHONE, OTP_TEST_CODE.
- * Local also: OTP_RATE_TEST_PHONE (a second test number) and OTP_HOOK_TEST_PHONE (a
- * number that is NOT a test number, so Supabase calls the Send SMS hook).
+ * Env: APP_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OTP_TEST_PHONE, OTP_TEST_CODE,
+ * OTP_RATE_TEST_PHONE (a second test number, spent on the OTP limit for the hour).
+ * Local also: OTP_HOOK_TEST_PHONE (a number that is NOT a test number, so Supabase calls
+ * the Send SMS hook). On staging, OTP_RATE_TEST_PHONE must be a Supabase test number too.
  */
 import { apiErrorSchema, meResponseSchema } from "@eyeq/api-contract";
 
@@ -106,20 +107,14 @@ async function main() {
   const forged = await app("/api/v1/me", { headers: { authorization: `Bearer ${KEY}` } });
   check(forged.status === 401, "the publishable key is not a session");
 
-  if (staging) return;
-
-  // 3. Bearer token, as the Expo client will send it (phase 8).
-  await auth("/otp", { phone: TEST_PHONE });
-  const tok = await auth("/verify", { type: "sms", phone: TEST_PHONE, token: TEST_CODE });
-  const session = (await tok.json()) as { access_token?: string };
-  check(Boolean(session.access_token), "Supabase Auth issues a token for the test number");
-  const meBearer = await app("/api/v1/me", {
-    headers: { authorization: `Bearer ${session.access_token}` },
-  });
-  check(meBearer.status === 200, "GET /api/v1/me with a bearer token");
-
-  // 4. The app's OTP limit: the sixth request for one phone in the hour is refused.
+  // 3. The app's OTP limit: the sixth request for one phone in the hour is refused. The
+  //    app counts a request before it calls Supabase, so on staging the requests are 61 s
+  //    apart, past Supabase's own minimum gap per number; otherwise Supabase's refusal
+  //    would stand in for ours. Use a test number no one signs in with: it is spent for
+  //    the hour.
   const ratePhone = need("OTP_RATE_TEST_PHONE");
+  const gap = staging ? 61_000 : 1100;
+  if (staging) console.log(`# OTP limit: six requests ${gap / 1000} s apart (about 5 minutes)`);
   const statuses: number[] = [];
   let sixth: Response | undefined;
   for (let i = 1; i <= 6; i++) {
@@ -129,7 +124,7 @@ async function main() {
     });
     statuses.push(r.status);
     if (i === 6) sixth = r;
-    await sleep(1100);
+    else await sleep(gap);
   }
   check(
     statuses.slice(0, 5).every((s) => s === 200),
@@ -145,6 +140,18 @@ async function main() {
     "the sixth OTP request is refused with 429 and Retry-After",
     statuses,
   );
+
+  if (staging) return;
+
+  // 4. Bearer token, as the Expo client will send it (phase 8).
+  await auth("/otp", { phone: TEST_PHONE });
+  const tok = await auth("/verify", { type: "sms", phone: TEST_PHONE, token: TEST_CODE });
+  const session = (await tok.json()) as { access_token?: string };
+  check(Boolean(session.access_token), "Supabase Auth issues a token for the test number");
+  const meBearer = await app("/api/v1/me", {
+    headers: { authorization: `Bearer ${session.access_token}` },
+  });
+  check(meBearer.status === 200, "GET /api/v1/me with a bearer token");
 
   // 5. The Send SMS hook: Supabase Auth calls the app, which sends (console) and enforces
   //    the same limit for clients that skip the app and call Supabase directly.
