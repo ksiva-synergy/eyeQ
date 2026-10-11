@@ -323,7 +323,8 @@ export function Tree({
                                 <span className="min-w-0 break-words">{d.title}</span>
                               </Row>
                             ))}
-                            <div className="pl-10">
+                            {/* py-1: room for the 36 px button's 44 px hit area between rows. */}
+                            <div className="py-1 pl-10">
                               <Button
                                 variant="ghost"
                                 size="s"

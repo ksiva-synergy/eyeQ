@@ -179,7 +179,7 @@ export function ProductsAdmin() {
                 name="kind"
                 value={kind}
                 onChange={(e) => setKind(e.target.value as Kind)}
-                className="min-h-10 rounded-control border border-border bg-surface-2 px-3 text-sm font-bold"
+                className="eyeq-hit-field bg-surface-2 px-3 text-sm font-bold"
               >
                 {productKinds.map((k) => (
                   <option key={k} value={k}>

@@ -1,6 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import pg from "pg";
 import sharp from "sharp";
+import { smallTargets } from "./touch-targets";
 
 /**
  * Phone OTP sign-in in a browser, against a real Supabase Auth with a test number.
@@ -84,6 +85,8 @@ test.describe("sign-in", () => {
     await page.goto("/admin/products");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Products");
     await page.getByRole("button", { name: "New product" }).click();
+    await expect(page.getByLabel("Kind")).toBeVisible();
+    expect(await smallTargets(page, "main")).toEqual([]);
     await page.getByLabel("Title").fill("E2E credit pack");
     await page.getByLabel("Kind").selectOption("credit_pack");
     await page.getByLabel("Price (₹, tax included)").fill("199");
@@ -136,13 +139,18 @@ test.describe("sign-in", () => {
         await page.getByLabel("Search name or phone").fill(phone.slice(-4));
         await expect(page.getByText(`+91 ••••• •${phone.slice(-4)}`).first()).toBeVisible();
         expect(await page.content()).not.toContain(phone);
+        expect(await smallTargets(page, "main")).toEqual([]);
 
         const before = await page.request.get(`/api/v1/programs/${slug}`);
         expect((await before.json()).hasAccess).toBe(false);
 
         await page.goto(`/admin/athletes/${me}`);
+        await expect(page.getByRole("button", { name: "Grant access" })).toBeVisible();
+        expect(await smallTargets(page, "main")).toEqual([]);
         await page.getByRole("button", { name: "Grant access" }).click();
         const sheet = page.getByRole("dialog", { name: "Manual grant" });
+        await expect(sheet).toBeVisible();
+        expect(await smallTargets(page, '[role="dialog"]')).toEqual([]);
         await sheet.getByRole("radio", { name: "Program" }).click();
         await sheet.getByLabel("Program, drill or challenge id").fill(programId);
         await sheet.getByLabel("Reason · kept in the audit log").fill("e2e comp");

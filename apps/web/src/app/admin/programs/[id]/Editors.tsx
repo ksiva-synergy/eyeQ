@@ -57,7 +57,7 @@ function Select({
         name={name}
         {...(value !== undefined ? { value } : { defaultValue })}
         onChange={(e) => onChange?.(e.target.value)}
-        className="min-h-10 w-full min-w-0 rounded-control border border-border bg-surface-2 px-3 text-sm font-bold"
+        className="eyeq-hit-field w-full min-w-0 bg-surface-2 px-3 text-sm font-bold"
       >
         {children}
       </select>

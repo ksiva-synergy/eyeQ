@@ -36,7 +36,8 @@ const VARIANT: Record<ButtonVariant, string> = {
 const SIZE: Record<ButtonSize, string> = {
   l: "min-h-[3.25rem] px-5 rounded-m type-button",
   m: "min-h-11 px-5 rounded-m type-button",
-  s: "min-h-9 px-3.5 rounded-control type-body-s font-extrabold",
+  // Drawn 36, with a 44 px hit area (.eyeq-hit, ground rule 13).
+  s: "eyeq-hit min-h-9 px-3.5 rounded-control type-body-s font-extrabold",
 };
 
 export function buttonClass({
