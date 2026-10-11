@@ -14,6 +14,7 @@ import {
   Chip,
   EmptyState,
   ErrorCard,
+  Pill,
   SkeletonRow,
   StreakFlame,
 } from "@eyeq/ui/web";
@@ -21,10 +22,11 @@ import { planChip, planKey } from "./plan";
 
 type Plan = (typeof athletePlans)[number];
 
-function query(search: string, plan: Plan | "", page?: number) {
+function query(search: string, plan: Plan | "", retired: boolean, page?: number) {
   const q = new URLSearchParams();
   if (search.trim()) q.set("search", search.trim());
   if (plan) q.set("plan", plan);
+  if (retired) q.set("retired", "1");
   if (page && page > 1) q.set("page", String(page));
   return q.toString();
 }
@@ -34,6 +36,8 @@ export function AthletesAdmin() {
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState<Plan | "">("");
   const [page, setPage] = useState(1);
+  // Demo athletes retired by `pnpm demo:refresh` are hidden unless the coach asks.
+  const [retired, setRetired] = useState(false);
   const [data, setData] = useState<AdminAthletesResponse | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -42,7 +46,7 @@ export function AthletesAdmin() {
   useEffect(() => {
     let live = true;
     const timer = setTimeout(() => {
-      fetch(`/api/admin/athletes?${query(search, plan, page)}`, { cache: "no-store" })
+      fetch(`/api/admin/athletes?${query(search, plan, retired, page)}`, { cache: "no-store" })
         .then(async (res) => {
           if (!live) return;
           if (!res.ok) return setFailed(true);
@@ -55,7 +59,7 @@ export function AthletesAdmin() {
       live = false;
       clearTimeout(timer);
     };
-  }, [search, plan, page, attempt]);
+  }, [search, plan, retired, page, attempt]);
 
   const from = data && data.total ? (data.page - 1) * data.pageSize + 1 : 0;
   const to = data ? from + data.athletes.length - (data.athletes.length ? 1 : 0) : 0;
@@ -99,10 +103,19 @@ export function AthletesAdmin() {
               </option>
             ))}
           </select>
+          <Pill
+            pressed={retired}
+            onClick={() => {
+              setRetired(!retired);
+              setPage(1);
+            }}
+          >
+            {t("admin.athletes.showRetired")}
+          </Pill>
           <Button
             variant="ghost"
             size="m"
-            href={`/api/admin/athletes/export?${query(search, plan)}`}
+            href={`/api/admin/athletes/export?${query(search, plan, retired)}`}
             download
           >
             {t("admin.athletes.export")}

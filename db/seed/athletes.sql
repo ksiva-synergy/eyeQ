@@ -45,11 +45,14 @@ with figures (n, total, week) as (values
   (2, 4320, 612), (3, 3360, 588), (4, 2740, 540), (5, 1980, 388), (6, 2290, 365), (7, 1200, 340), (8, 1500, 318),
   (9, 820, 290), (10, 1150, 276), (11, 900, 210), (12, 700, 180), (13, 1300, 160), (14, 640, 140), (15, 1900, 120), (16, 380, 95),
   (17, 560, 60), (18, 300, 40), (19, 4810, 604), (20, 2515, 455), (21, 3905, 571), (22, 3210, 498), (23, 760, 230), (24, 420, 80)),
-week as (select local_day_start(ist_week_start(now()), 'Asia/Kolkata') as t0)
+week as (select local_day_start(ist_week_start(now()), 'Asia/Kolkata') as t0),
+-- This week's XP lands between Monday 00:00 IST and now, whatever the weekday: on a Monday
+-- morning it is still this week's, and never stamped in the future.
+placed as (select f.*, week.t0 + (now() - week.t0) * (f.n / 30.0) as at from figures f, week)
 insert into xp_ledger (user_id, amount, requested_amount, reason, local_date, created_at)
 select pg_temp.uid(f.n), f.total - f.week, f.total - f.week, 'admin', (now() - interval '30 days')::date, now() - interval '30 days' from figures f where f.total - f.week > 0
 union all
-select pg_temp.uid(f.n), f.week, f.week, 'admin', (week.t0 at time zone 'Asia/Kolkata')::date, week.t0 + make_interval(mins => f.n) from figures f, week where f.week > 0;
+select pg_temp.uid(p.n), p.week, p.week, 'admin', local_date(p.at, 'Asia/Kolkata'), p.at from placed p where p.week > 0;
 
 -- Arjun: enrolled in Cricket Vision Foundations, 12 days done (days 1-12 on the last 12 days), an
 -- earlier 19-day run, 1 freeze held, 140 coins, six badges, a baseline rating, Pro subscription.
@@ -89,7 +92,8 @@ select grant_entitlement(pg_temp.uid(7), 'program', pg_temp.sid(3, 2), 'admin', 
 insert into enrollments (user_id, program_id, started_at, start_local_date, current_day, is_active)
 select pg_temp.uid(n), pg_temp.sid(3, 2), now() - interval '10 days', local_date(now(), 'Asia/Kolkata') - 10, 1, true from generate_series(2, 7) n;
 insert into session_completions (user_id, free_drill_id, local_date, completed_at)
-select pg_temp.uid(n), free_drill_of_day(local_date(now(), 'Asia/Kolkata')), local_date(now(), 'Asia/Kolkata'), now() - interval '1 hour'
+select pg_temp.uid(n), free_drill_of_day(local_date(now(), 'Asia/Kolkata')), local_date(now(), 'Asia/Kolkata'),
+       greatest(now() - interval '1 hour', local_day_start(local_date(now(), 'Asia/Kolkata'), 'Asia/Kolkata'))  -- today, even just after midnight
 from generate_series(8, 18) n;
 
 -- progress rows so the cards can say how many joined. A challenge that is already met pays
@@ -98,8 +102,9 @@ select update_challenge_progress(pg_temp.uid(n)) from generate_series(1, 24) n;
 insert into xp_ledger (user_id, amount, requested_amount, reason, local_date, created_at)
 values (pg_temp.uid(1), 2040 - 412, 2040 - 412, 'admin', (now() - interval '30 days')::date, now() - interval '30 days');
 insert into xp_ledger (user_id, amount, requested_amount, reason, local_date, created_at)
-select pg_temp.uid(1), 412 - w.earned, 412 - w.earned, 'admin', ist_week_start(now()), local_day_start(ist_week_start(now()), 'Asia/Kolkata') + interval '1 minute'
-from (select coalesce(sum(amount), 0)::integer as earned from xp_ledger where user_id = pg_temp.uid(1) and created_at >= local_day_start(ist_week_start(now()), 'Asia/Kolkata')) w
+select pg_temp.uid(1), 412 - w.earned, 412 - w.earned, 'admin', local_date(t.at, 'Asia/Kolkata'), t.at
+from (select coalesce(sum(amount), 0)::integer as earned from xp_ledger where user_id = pg_temp.uid(1) and created_at >= local_day_start(ist_week_start(now()), 'Asia/Kolkata')) w,
+     (select local_day_start(ist_week_start(now()), 'Asia/Kolkata') + (now() - local_day_start(ist_week_start(now()), 'Asia/Kolkata')) / 60 as at) t
 where 412 - w.earned > 0;
 insert into coin_ledger (user_id, amount, reason, created_at)
 select pg_temp.uid(1), 140 - coin_balance(pg_temp.uid(1)), 'admin', now() - interval '20 days' where coin_balance(pg_temp.uid(1)) <> 140;

@@ -37,6 +37,8 @@ export const adminAthletesQuerySchema = z.strictObject({
   search: z.string().trim().max(80).optional(),
   plan: z.enum(athletePlans).optional(),
   page: z.coerce.number().int().min(1).default(1),
+  /** "1" lists demo athletes retired by `pnpm demo:refresh`, hidden by default. */
+  retired: z.literal("1").optional(),
 });
 
 export const ADMIN_ATHLETES_PAGE_SIZE = 50;

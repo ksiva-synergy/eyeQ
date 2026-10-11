@@ -33,6 +33,7 @@ export function readAthletesQuery(req: Request) {
     ...(sp.get("search") ? { search: sp.get("search") } : {}),
     ...(sp.get("plan") ? { plan: sp.get("plan") } : {}),
     ...(sp.get("page") ? { page: sp.get("page") } : {}),
+    ...(sp.get("retired") ? { retired: sp.get("retired") } : {}),
   });
   if (!parsed.success) {
     throw new ApiError(400, "validation_failed", "The request is not valid.", {
@@ -48,7 +49,8 @@ type Query = ReturnType<typeof readAthletesQuery>;
 export async function listAthletes(tx: Tx, q: Query): Promise<AdminAthletesResponse> {
   const size = ADMIN_ATHLETES_PAGE_SIZE;
   const [row] = await tx.$queryRaw<{ v: unknown }[]>`
-    select admin_athletes_for(${q.search ?? null}, ${q.plan ?? null}, ${size}::int, ${(q.page - 1) * size}::int) as v`;
+    select admin_athletes_for(${q.search ?? null}, ${q.plan ?? null}, ${size}::int, ${(q.page - 1) * size}::int,
+      now(), ${q.retired === "1"}) as v`;
   const v = (row?.v ?? {}) as Record<string, unknown>;
   return shaped(adminAthletesResponseSchema, { ...v, page: q.page, page_size: size });
 }
@@ -65,7 +67,7 @@ const csvCell = (v: unknown) => {
  */
 export async function exportAthletesCsv(tx: Tx, q: Query, audit: Audit): Promise<string> {
   const [row] = await tx.$queryRaw<{ v: unknown }[]>`
-    select admin_athletes_for(${q.search ?? null}, ${q.plan ?? null}, 0, 0) as v`;
+    select admin_athletes_for(${q.search ?? null}, ${q.plan ?? null}, 0, 0, now(), ${q.retired === "1"}) as v`;
   const v = (row?.v ?? {}) as Record<string, unknown>;
   const { athletes } = shaped(adminAthletesResponseSchema, { ...v, page: 1, page_size: 0 });
   const header = [

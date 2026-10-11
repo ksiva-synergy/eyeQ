@@ -177,6 +177,12 @@ jobs:
           CI: "true"
           PW_REUSE_SERVER: "1"
 
+      - name: Demo refresh moves Arjun's sign-in to the new Arjun (last; it retires the demo cohort)
+        run: pnpm --filter web exec playwright test e2e/demo-refresh.spec.ts
+        env:
+          CI: "true"
+          PW_REUSE_SERVER: "1"
+
       - name: Web server log
         if: always()
         run: cat "$RUNNER_TEMP/web.log" || true

@@ -181,6 +181,19 @@ describeDb("/api/admin/athletes", () => {
     expect(row.plan).toBe("free");
   });
 
+  it("hides a retired demo athlete unless ?retired=1 asks for them", async () => {
+    const retired = await makeAthlete(admin, { name: `Retired demo · Old ${tag}` });
+    await admin.query("update profiles set retired_at = now() where id = $1", [retired]);
+    const names = async (q: string) => {
+      const res = await list(req(coach, `/api/admin/athletes?search=${tag}${q}`));
+      expect(res.status).toBe(200);
+      return adminAthletesResponseSchema.parse(await res.json()).athletes.map((a) => a.id);
+    };
+    expect(await names("")).not.toContain(retired);
+    expect(await names("&retired=1")).toContain(retired);
+    expect((await list(req(coach, "/api/admin/athletes?retired=yes"))).status).toBe(400);
+  });
+
   it("finds an athlete by the last digits of their phone", async () => {
     const res = await list(req(coach, `/api/admin/athletes?search=${digits.slice(-6)}`));
     const body = adminAthletesResponseSchema.parse(await res.json());
