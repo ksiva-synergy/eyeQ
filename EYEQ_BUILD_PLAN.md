@@ -558,8 +558,8 @@ Every screen in this phase is built phone-width first to match its board, then a
 - [x] Progress: sessions per week against a target, minutes, streak calendar, score trend per drill, baseline vs now; re-rate prompts on day 14 and day 21.
 - [x] Programs catalogue (filter by sport, measurement group and level) and program detail; enrol; locked states.
 - [x] Profile and account (`/app/account`, board 14): the stats header, purchases and entitlements, edit profile, notification settings, the leaderboard visibility toggle, sign out, help and enquiry links (WhatsApp) read from config.
-- [ ] "Preview as athlete" in the admin builder, now that the session view and player exist.
-- [ ] PostHog in the web client; server-side `drill_completed`, `session_completed` and `streak_extended` events emitted from the completion route, carrying the user id only.
+- [x] "Preview as athlete" in the admin builder, now that the session view and player exist.
+- [x] PostHog in the web client; server-side `drill_completed`, `session_completed` and `streak_extended` events emitted from the completion route, carrying the user id only.
 
 **Acceptance.** A Playwright run takes a new athlete from sign-in through onboarding and a four-drill session and sees +65 XP, a streak of 1 and the first badge, with ledger rows matching the screen. The seeded Arjun completes his session and sees +72 XP, streak 13, and 151 XP to level 8. A paid drill's video reference is absent from every payload until entitled. First load of `/app` is one API round trip. The same runs pass at 390 × 844 and at 1440 wide, and at 390 each screen matches its board.
 
