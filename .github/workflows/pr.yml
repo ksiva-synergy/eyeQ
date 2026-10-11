@@ -133,10 +133,10 @@ jobs:
       - name: The anon key and a signed-in user reach nothing through the Data API
         run: pnpm --filter web check:data-api
 
-      - name: Playwright sign-in in a browser
+      - name: Playwright sign-in, onboarding and the coach journeys in a browser
         run: |
           pnpm --filter web exec playwright install --with-deps chromium
-          pnpm --filter web exec playwright test e2e/auth.spec.ts
+          pnpm --filter web exec playwright test e2e/auth.spec.ts e2e/onboarding.spec.ts
         env:
           CI: "true"
           PW_REUSE_SERVER: "1"

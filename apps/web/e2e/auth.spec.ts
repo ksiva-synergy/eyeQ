@@ -16,8 +16,8 @@ async function signIn(page: Page, path: string) {
   await page.waitForURL(/\/sign-in/);
   await page.getByLabel("Phone number").fill(phone);
   await page.getByRole("button", { name: "Send code" }).click();
-  await page.getByLabel("6-digit code").fill(code);
-  await page.getByRole("button", { name: "Verify and sign in" }).click();
+  await page.getByLabel("Digit 1 of 6").fill(code);
+  await page.getByRole("button", { name: "Verify and continue" }).click();
 }
 
 test.describe("sign-in", () => {
@@ -37,19 +37,19 @@ test.describe("sign-in", () => {
 
     await page.getByLabel("Phone number").fill(phone);
     await page.getByRole("button", { name: "Send code" }).click();
-    await page.getByLabel("6-digit code").fill(code);
-    await page.getByRole("button", { name: "Verify and sign in" }).click();
+    await page.getByLabel("Digit 1 of 6").fill(code);
+    await page.getByRole("button", { name: "Verify and continue" }).click();
 
-    await page.waitForURL("**/app");
-    await expect(page.getByText("Signed in as")).toBeVisible();
-    await expect(page.getByText(/^\+91\d{10}$/)).toBeVisible();
+    // A new athlete is sent from /app to onboarding (board 1c).
+    await page.waitForURL("**/onboarding/profile");
+    await expect(page.getByRole("heading", { name: "Set up your athlete" })).toBeVisible();
 
     const me = await page.request.get("/api/v1/me");
     expect(me.status()).toBe(200);
     expect((await me.json()).phone).toMatch(/^\+91/);
 
-    await page.getByRole("button", { name: "Sign out" }).click();
-    await page.waitForURL("**/sign-in");
+    // The Sign out control lives on Account (board 14); the route it calls is this one.
+    expect((await page.request.post("/api/auth/sign-out")).status()).toBe(200);
     expect((await page.request.get("/api/v1/me")).status()).toBe(401);
   });
 
@@ -57,8 +57,8 @@ test.describe("sign-in", () => {
     await page.goto("/sign-in");
     await page.getByLabel("Phone number").fill(phone);
     await page.getByRole("button", { name: "Send code" }).click();
-    await page.getByLabel("6-digit code").fill(code === "000000" ? "111111" : "000000");
-    await page.getByRole("button", { name: "Verify and sign in" }).click();
+    await page.getByLabel("Digit 1 of 6").fill(code === "000000" ? "111111" : "000000");
+    await page.getByRole("button", { name: "Verify and continue" }).click();
     await expect(
       page.getByRole("alert").filter({ hasText: "That code is not right" }),
     ).toBeVisible();
