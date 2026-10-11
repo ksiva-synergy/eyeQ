@@ -234,9 +234,13 @@ export function Toggle({
 }) {
   return (
     <label
-      className={cx("flex min-h-11 cursor-pointer items-center justify-between gap-3", className)}
+      className={cx(
+        // Wraps the switch under its label when text is large, rather than overflowing.
+        "flex min-h-11 cursor-pointer flex-wrap items-center justify-between gap-x-3 gap-y-1",
+        className,
+      )}
     >
-      <span className="text-[0.9375rem] font-bold">{label}</span>
+      <span className="min-w-0 text-[0.9375rem] font-bold break-words">{label}</span>
       <span className="flex items-center gap-2">
         <span
           aria-hidden="true"
