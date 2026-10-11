@@ -1,7 +1,15 @@
 import type React from "react";
+import { Suspense } from "react";
+import { AthleteIdentity } from "@/components/analytics/AthleteIdentity";
 import { AthleteShell } from "@/components/shell/AthleteShell";
 
-// No session yet: sign-in lands in phase 2 and the shell renders without one.
 export default function AthleteLayout({ children }: { children: React.ReactNode }) {
-  return <AthleteShell>{children}</AthleteShell>;
+  return (
+    <AthleteShell>
+      {children}
+      <Suspense>
+        <AthleteIdentity />
+      </Suspense>
+    </AthleteShell>
+  );
 }
