@@ -70,6 +70,23 @@ jobs:
           path: apps/web/playwright-report
           retention-days: 7
 
+  clean-clone:
+    name: A fresh clone runs pnpm i && pnpm dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Clone, install, copy .env.example, pnpm dev, request pages
+        run: scripts/clean-clone-check.sh "$GITHUB_SHA"
+
   supabase:
     name: Supabase stack (Postgres, Auth, Data API), sign-in end to end, anon-key lockout
     runs-on: ubuntu-latest
