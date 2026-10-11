@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatCalendarDate,
   formatDate,
+  formatDateIn,
   formatNumber,
   formatRelativeDay,
   t,
@@ -47,5 +49,18 @@ describe("money", () => {
   it("formats integer paise as rupees", () => {
     expect(formatRupees(129900)).toBe("₹1,299");
     expect(formatRupees(9900)).toBe("₹99");
+  });
+});
+
+describe("dates in the athlete's zone", () => {
+  it("formatDateIn puts an instant on the profile zone's calendar, not the runtime's", () => {
+    // 20:30 UTC on 1 Oct is already 2 Oct in India and still 1 Oct in New York.
+    expect(formatDateIn("2026-10-01T20:30:00Z", "Asia/Kolkata")).toBe("2 Oct 2026");
+    expect(formatDateIn("2026-10-01T20:30:00Z", "America/New_York")).toBe("1 Oct 2026");
+  });
+
+  it("formatCalendarDate shows the server's local date as that day, in any zone", () => {
+    expect(formatCalendarDate("2026-10-02")).toBe("2 Oct 2026");
+    expect(formatCalendarDate("2026-01-01")).toBe("1 Jan 2026");
   });
 });

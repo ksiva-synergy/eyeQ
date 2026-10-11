@@ -1,5 +1,11 @@
 import type { ProgressResponse } from "@eyeq/api-contract";
-import { formatDate, formatNumber, formatShortWeekday, t, type MessageKey } from "@eyeq/i18n";
+import {
+  formatCalendarDate,
+  formatNumber,
+  formatShortWeekday,
+  t,
+  type MessageKey,
+} from "@eyeq/i18n";
 import { cx } from "@eyeq/ui/web";
 
 /**
@@ -152,7 +158,7 @@ export function Heatmap({ calendar }: { calendar: ProgressResponse["calendar"] }
                   key={c.date}
                   role="img"
                   aria-label={t("progress.calendarDay", {
-                    date: formatDate(c.date),
+                    date: formatCalendarDate(c.date),
                     minutes: c.minutes,
                     status: t(`progress.day.${c.status}` as MessageKey),
                   })}
@@ -217,9 +223,9 @@ export function Trend({ drill }: { drill: ProgressResponse["drills"][number] }) 
       aria-label={t("progress.trendAria", {
         drill: drill.title,
         first: formatNumber(first.score),
-        firstDate: formatDate(first.date),
+        firstDate: formatCalendarDate(first.date),
         last: formatNumber(last.score),
-        lastDate: formatDate(last.date),
+        lastDate: formatCalendarDate(last.date),
         best: formatNumber(drill.best ?? last.score),
       })}
     >
@@ -255,7 +261,7 @@ export function Trend({ drill }: { drill: ProgressResponse["drills"][number] }) 
       </text>
       <text x="0" y="104" fontSize="10" fontWeight="700" fill="var(--eyeq-text-muted)">
         {t("progress.trendStart", {
-          date: formatDate(first.date),
+          date: formatCalendarDate(first.date),
           score: formatNumber(first.score),
         })}
       </text>
@@ -267,7 +273,7 @@ export function Trend({ drill }: { drill: ProgressResponse["drills"][number] }) 
         fontWeight="700"
         fill="var(--eyeq-text-muted)"
       >
-        {formatDate(last.date)}
+        {formatCalendarDate(last.date)}
       </text>
     </svg>
   );

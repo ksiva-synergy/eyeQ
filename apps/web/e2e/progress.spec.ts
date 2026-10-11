@@ -76,3 +76,32 @@ for (const [width, height] of [
     });
   });
 }
+
+test.describe("Progress in a browser west of UTC", () => {
+  // The athlete's profile zone is Asia/Kolkata; the browser's is not. Every date must be
+  // the profile's, and the server's HTML must hydrate without a mismatch.
+  test.use({ viewport: { width: 390, height: 844 }, timezoneId: "America/New_York" });
+
+  test("shows every date in the profile's zone and hydrates cleanly", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+    });
+    await page.goto("/dev/progress?state=rated");
+    await expect(page.getByRole("heading", { name: "Progress" })).toBeVisible();
+    expect(await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone)).toBe(
+      "America/New_York",
+    );
+    // Score trend: first and last points are 2 and 10 Oct; New York's calendar would say 1 and 9.
+    await expect(page.getByText("2 Oct 2026 · 18")).toBeVisible();
+    await expect(page.getByText("10 Oct 2026", { exact: true })).toBeVisible();
+    await expect(page.getByText(/1 Oct 2026|9 Oct 2026/)).toHaveCount(0);
+    // The baseline instant, on the Kolkata calendar.
+    await expect(page.getByText("Baseline · 1 Sept 2026")).toBeVisible();
+    // The heatmap's day labels are the athlete's days too.
+    await expect(page.locator('[aria-label^="7 Sept 2026"]')).toHaveCount(1);
+    await settled(page);
+    expect(errors).toEqual([]);
+  });
+});

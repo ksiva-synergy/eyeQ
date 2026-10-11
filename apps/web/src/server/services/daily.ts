@@ -106,7 +106,10 @@ export async function postCompletions(
 /** GET /progress (board 8). */
 export async function getProgress(tx: Tx): Promise<ProgressResponse> {
   const v = await one(tx.$queryRaw`select progress_payload() as v`);
-  return shaped(progressResponseSchema, v, "progress");
+  // RLS limits profiles to the caller's own row.
+  const [p] = await tx.$queryRaw<{ timezone: string }[]>`
+    select timezone from profiles where id = app_user_id()`;
+  return shaped(progressResponseSchema, { ...(v as object), timezone: p?.timezone }, "progress");
 }
 
 /** POST /me/self-ratings: the three areas in one go (onboarding baseline, day 14, day 21). */

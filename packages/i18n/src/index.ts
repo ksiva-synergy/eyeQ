@@ -37,6 +37,24 @@ export function formatDate(iso: string | Date): string {
   return dateFormat.format(new Date(iso));
 }
 
+/** "10 Oct 2026" for an instant, on the calendar of `timeZone` (the athlete's profile zone). */
+export function formatDateIn(iso: string | Date, timeZone: string): string {
+  return new Intl.DateTimeFormat(LOCALE, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone,
+  }).format(new Date(iso));
+}
+
+/**
+ * "10 Oct 2026" for a calendar date ("2026-10-10") the server already worked out in the
+ * athlete's zone. Read as that day, never shifted into the browser's zone.
+ */
+export function formatCalendarDate(isoDate: string): string {
+  return formatDateIn(`${isoDate}T00:00:00Z`, "UTC");
+}
+
 /** "10 Oct, 6:30 pm". */
 export function formatDateTime(iso: string | Date): string {
   return dateTimeFormat.format(new Date(iso));

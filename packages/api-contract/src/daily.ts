@@ -356,6 +356,8 @@ const ratingsMap = z
 
 export const progressResponseSchema = z.object({
   localDate: date,
+  /** The athlete's profile time zone: every instant on the screen is shown in it. */
+  timezone: z.string(),
   streak: z.object({ current: z.number().int(), best: z.number().int() }),
   sessionsTotal: z.number().int(),
   minutesTotal: z.number().int(),
