@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import pg from "pg";
 import { smallTargets } from "./touch-targets";
-import { ARJUN, AUTH_READY, cloneArjun, signIn, withDb } from "./athletes";
+import { ARJUN, AUTH_READY, cloneArjun, code, signIn, withDb } from "./athletes";
 import { YT_STUB } from "./yt-stub";
 
 /**
