@@ -783,20 +783,32 @@ export function SessionEditor({
           <span className="type-label text-text-muted">
             {t("admin.builder.session", { day: s.dayNumber })}
           </span>
-          <Button
-            variant="ghost"
-            size="s"
-            onClick={() =>
-              void run(
-                "POST",
-                `/api/admin/sessions/${s.id}/duplicate`,
-                undefined,
-                t("admin.builder.saved"),
-              )
-            }
-          >
-            {t("admin.builder.duplicate")}
-          </Button>
+          <span className="flex flex-wrap gap-2">
+            {s.drills.length > 0 && (
+              <Button
+                variant="ghost"
+                size="s"
+                icon="eye"
+                href={`/admin-preview/${program.id}/${s.id}`}
+              >
+                {t("preview.button")}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="s"
+              onClick={() =>
+                void run(
+                  "POST",
+                  `/api/admin/sessions/${s.id}/duplicate`,
+                  undefined,
+                  t("admin.builder.saved"),
+                )
+              }
+            >
+              {t("admin.builder.duplicate")}
+            </Button>
+          </span>
         </div>
         <div className={grid}>
           <TextInput

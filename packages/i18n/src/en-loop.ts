@@ -392,4 +392,12 @@ export const loop = {
   "account.helpSub": "Questions about training or your account",
   "account.signOut": "Sign out",
   "account.footer": "EyeQ · Forge Your Peak · Training, not diagnosis",
+
+  // ---- Preview as athlete (admin builder)
+  "preview.button": "Preview as athlete",
+  "preview.banner": "Preview as athlete · nothing you do here is saved",
+  "preview.doneTitle": "Preview finished",
+  "preview.doneBody":
+    "That is the session as an athlete plays it. No XP, streak or completion was recorded.",
+  "preview.back": "Back to the builder",
 } as const;

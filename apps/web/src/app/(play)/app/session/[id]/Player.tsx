@@ -25,7 +25,8 @@ export type PlayData = {
   locked: boolean;
   programSlug: string | null;
   drills: SessionDrill[];
-  streakEndsAt: string;
+  /** The end of the athlete's streak day; null in a coach's preview. */
+  streakEndsAt: string | null;
   timezone: string;
   localDate: string;
   lateSyncHours: number;
@@ -42,7 +43,13 @@ const DEFAULT_THRESHOLD = 0.8;
  * while it is locked. Each completion goes to POST /completions; the summary (board 4)
  * shows what the server answered, never a sum of its own (ground rule 1).
  */
-export function Player({ data }: { data: PlayData }) {
+export type PlayerPreview = {
+  /** Media built from the builder's own links (the coach can see them anyway). */
+  media: Record<string, DrillMedia>;
+  backHref: string;
+};
+
+export function Player({ data, preview }: { data: PlayData; preview?: PlayerPreview }) {
   const drills = data.drills;
   const [done, setDone] = useState<Set<string>>(
     () => new Set(drills.filter((d) => d.doneToday).map((d) => d.id)),
@@ -71,16 +78,22 @@ export function Player({ data }: { data: PlayData }) {
 
   const loadMedia = useCallback(
     async (d: SessionDrill): Promise<DrillMedia | null> => {
+      if (preview) {
+        const m = preview.media[d.id] ?? null;
+        if (m) setThreshold((x) => ({ ...x, [d.id]: m.doneThreshold }));
+        return m;
+      }
       const q = data.sessionId ? `?session=${data.sessionId}` : "";
       const r = await v1<DrillMedia>("GET", `/drills/${d.id}/media${q}`);
       if (!r.ok) return null;
       setThreshold((m) => ({ ...m, [d.id]: r.data.doneThreshold }));
       return r.data;
     },
-    [data.sessionId],
+    [data.sessionId, preview],
   );
 
   if (data.locked) return <Locked data={data} />;
+  if (summary && preview) return <PreviewEnd backHref={preview.backHref} />;
   if (summary) return <Summary data={data} known={results} />;
   if (!drill) return <Locked data={data} />;
 
@@ -91,6 +104,15 @@ export function Player({ data }: { data: PlayData }) {
 
   async function markDone() {
     if (!drill) return;
+    if (preview) {
+      // Preview: nothing is sent; the player just moves on.
+      const nowDone = new Set(done).add(drill.id);
+      setDone(nowDone);
+      const next = drills.findIndex((d) => !nowDone.has(d.id) && !d.locked);
+      if (next === -1) setSummary(true);
+      else setIndex(next);
+      return;
+    }
     const raw = scores[drill.id];
     const score =
       drill.scoreType === "number" && raw && raw.trim() !== ""
@@ -152,9 +174,11 @@ export function Player({ data }: { data: PlayData }) {
         ? t("player.done")
         : t("player.markDone", { n: drill.xp });
 
-  const streakLine = t("player.streakSafe", {
-    time: formatTimeIn(new Date(new Date(data.streakEndsAt).getTime() - 60_000), data.timezone),
-  });
+  const streakLine = data.streakEndsAt
+    ? t("player.streakSafe", {
+        time: formatTimeIn(new Date(new Date(data.streakEndsAt).getTime() - 60_000), data.timezone),
+      })
+    : null;
 
   const actions = (
     <div className="flex flex-col gap-2">
@@ -176,18 +200,29 @@ export function Player({ data }: { data: PlayData }) {
       >
         {isDone || disabledReason ? t("player.markDoneRepeat") : actionLabel}
       </Button>
-      <p className="flex min-h-6 items-center justify-end type-caption font-bold text-text-muted tabular-nums">
-        {streakLine}
-      </p>
+      {streakLine && (
+        <p className="flex min-h-6 items-center justify-end type-caption font-bold text-text-muted tabular-nums">
+          {streakLine}
+        </p>
+      )}
     </div>
   );
 
   return (
     <div className="mx-auto flex w-full max-w-[73.75rem] flex-1 flex-col">
       <div className="flex flex-col gap-4 px-gutter pt-6 pb-44 md:px-8 md:pb-10">
+        {preview && (
+          <p
+            role="note"
+            className="flex items-center gap-2 rounded-m border border-primary-subtle-border bg-primary-subtle px-3.5 py-2.5 type-body-s text-primary-on-subtle"
+          >
+            <Icon name="eye" size={18} className="shrink-0" />
+            {t("preview.banner")}
+          </p>
+        )}
         <header className="flex items-center gap-3">
           <a
-            href="/app"
+            href={preview?.backHref ?? "/app"}
             aria-label={t("player.exit")}
             className="eyeq-press inline-flex size-11 shrink-0 items-center justify-center rounded-control border border-border bg-surface-1 text-text-primary"
           >
@@ -335,6 +370,23 @@ export function Player({ data }: { data: PlayData }) {
 
 function capitalise(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function PreviewEnd({ backHref }: { backHref: string }) {
+  return (
+    <div className="mx-auto flex w-full max-w-[28rem] flex-col gap-4 px-gutter pt-10">
+      <Card className="flex flex-col gap-3">
+        <span className="flex items-center gap-2 type-body-strong">
+          <Icon name="check" size={20} className="text-success-text" />
+          {t("preview.doneTitle")}
+        </span>
+        <p className="type-body-s text-text-secondary">{t("preview.doneBody")}</p>
+        <Button variant="primary" href={backHref}>
+          {t("preview.back")}
+        </Button>
+      </Card>
+    </div>
+  );
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

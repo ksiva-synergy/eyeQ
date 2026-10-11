@@ -264,6 +264,65 @@ test.describe("sign-in", () => {
       expect(programs.find((p) => p.id === id)?.title).toBe(title);
     });
 
+    test("previews a session as the athlete plays it, recording nothing", async () => {
+      // The newest program with a session that has drills: the one the builder test made.
+      const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
+      await db.connect();
+      let programId = "";
+      let sessionId = "";
+      let me = "";
+      const completions = async () =>
+        (
+          await db.query("select count(*)::int as n from drill_completions where user_id = $1", [
+            me,
+          ])
+        ).rows[0].n as number;
+      try {
+        const row = await db.query<{ program_id: string; id: string }>(
+          `select s.program_id, s.id from sessions s join programs p on p.id = s.program_id
+           where exists (select 1 from session_drills sd where sd.session_id = s.id)
+           order by p.created_at desc, s.day_number limit 1`,
+        );
+        programId = row.rows[0]!.program_id;
+        sessionId = row.rows[0]!.id;
+        me = (
+          await db.query<{ id: string }>("select id from auth.users where phone = $1", [
+            `91${phone}`,
+          ])
+        ).rows[0]!.id;
+        const before = await completions();
+
+        await page.route("https://www.youtube.com/iframe_api", (r) =>
+          r.fulfill({ contentType: "text/javascript", body: YT_STUB }),
+        );
+        await page.goto(`/admin/programs/${programId}`);
+        await page
+          .getByRole("button", { name: /^Day 1/ })
+          .first()
+          .click();
+        await page.getByRole("link", { name: "Preview as athlete" }).click();
+        await page.waitForURL(new RegExp(`/admin-preview/${programId}/${sessionId}$`));
+        await expect(page.getByText("nothing you do here is saved")).toBeVisible();
+        for (;;) {
+          await page.getByRole("button", { name: "Play drill video" }).click();
+          const done = page
+            .getByRole("button", { name: /^Mark done · \+\d+ XP$/ })
+            .filter({ visible: true });
+          await expect(done).toBeEnabled({ timeout: 10_000 });
+          await done.click();
+          if (await page.getByText("Preview finished").isVisible()) break;
+        }
+        await expect(page.getByRole("link", { name: "Back to the builder" })).toHaveAttribute(
+          "href",
+          `/admin/programs/${programId}`,
+        );
+        expect(await completions()).toBe(before);
+      } finally {
+        await page.unroute("https://www.youtube.com/iframe_api");
+        await db.end();
+      }
+    });
+
     test("uploads a cover image: resized by the server, served from Storage, saved on the program", async () => {
       const created = await page.request.post("/api/admin/programs", {
         headers: { "idempotency-key": crypto.randomUUID() },
