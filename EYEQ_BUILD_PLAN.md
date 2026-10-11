@@ -567,14 +567,14 @@ Every screen in this phase is built phone-width first to match its board, then a
 
 ### Phase 6: Compete, rewards and scheduled jobs
 
-- [ ] Endpoints and services for leaderboards, challenges, badges and rewards (section 7).
-- [ ] pg_cron schedules: `leaderboard-refresh` every 5 minutes; `daily-reminder`, `streak-at-risk` and `streak-close` every 15 minutes, each selecting athletes by local time; `challenge-ending` hourly; `rank-day-snapshot` at `30 18 * * *`; `week-rollover` at `30 18 * * 0`; `entitlement-expiry` hourly.
-- [ ] Dispatcher at `/api/cron/dispatch`, scheduled every 5 minutes in `vercel.json` and refusing any call without the cron secret: drain queued `notifications` in batches that fit the function's time limit, enforce the 2-a-day cap and toggles, send through a channel interface (email through Resend is wired now and first used for receipts in phase 7; push arrives in phase 9), mark results, retry with backoff. Two overlapping runs must not send the same row twice.
-- [ ] Coin spends: freeze and drill unlock (P0). Frames, vouchers and the real-world redemption queue are phase 10.
-- [ ] Web screens: Leaderboard and Challenges at `/app/compete` (boards 6, 7), Trophy case at `/app/trophies` (board 9), Rewards at `/app/rewards` (board 12) with freeze and drill-unlock spends, the rank-change moment, and the challenge and rank cards on Today.
-- [ ] In-app notification feed (`GET /notifications`) on web, so nothing depends on push alone.
-- [ ] Web push: service worker, opt-in prompt from Profile, subscriptions stored in `push_tokens` with a `web` kind, sent by the dispatcher through the same channel interface. iOS delivers web push only to a site added to the Home Screen; say so in the opt-in text.
-- [ ] Admin: weekly challenge editor (title, target, rewards, badge, schedule next week or repeat) and program challenges on the program page.
+- [x] Endpoints and services for leaderboards, challenges, badges and rewards (section 7).
+- [x] pg_cron schedules: `leaderboard-refresh` every 5 minutes; `daily-reminder`, `streak-at-risk` and `streak-close` every 15 minutes, each selecting athletes by local time; `challenge-ending` hourly; `rank-day-snapshot` at `30 18 * * *`; `week-rollover` at `30 18 * * 0`; `entitlement-expiry` hourly.
+- [x] Dispatcher at `/api/cron/dispatch`, scheduled every 5 minutes in `vercel.json` and refusing any call without the cron secret: drain queued `notifications` in batches that fit the function's time limit, enforce the 2-a-day cap and toggles, send through a channel interface (email through Resend is wired now and first used for receipts in phase 7; push arrives in phase 9), mark results, retry with backoff. Two overlapping runs must not send the same row twice.
+- [x] Coin spends: freeze and drill unlock (P0). Frames, vouchers and the real-world redemption queue are phase 10.
+- [x] Web screens: Leaderboard and Challenges at `/app/compete` (boards 6, 7), Trophy case at `/app/trophies` (board 9), Rewards at `/app/rewards` (board 12) with freeze and drill-unlock spends, the rank-change moment, and the challenge and rank cards on Today.
+- [x] In-app notification feed (`GET /notifications`) on web, so nothing depends on push alone.
+- [x] Web push: service worker, opt-in prompt from Profile, subscriptions stored in `push_tokens` with a `web` kind, sent by the dispatcher through the same channel interface. iOS delivers web push only to a site added to the Home Screen; say so in the opt-in text.
+- [x] Admin: weekly challenge editor (title, target, rewards, badge, schedule next week or repeat) and program challenges on the program page.
 
 **Acceptance.** With the clock moved in tests: a missed day with a freeze keeps the streak and consumes the freeze; without one it resets and keeps best; the at-risk notice is queued at 8 pm local for a qualifying athlete in two different timezones and not for one who trained; a third push in a day is skipped and recorded; a challenge-ending notice is queued 24 hours before the window closes for an athlete who has not finished it; rollover freezes last week's ranks, awards the weekly badges and opens the new challenge. The dispatcher runs on staging on schedule, a failed run is visible in Vercel's logs and reported to Sentry, and two runs started together send each notification once. A Playwright run at 390 × 844 opens the leaderboard, filters by sport, sees the pinned own row, buys a freeze with coins and sees the balance fall; a web push reaches a subscribed desktop browser.
 
