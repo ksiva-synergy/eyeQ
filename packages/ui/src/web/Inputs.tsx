@@ -6,13 +6,13 @@ import { cx } from "./cx.ts";
 import { Icon } from "./Icon.tsx";
 
 const fieldBase =
-  "w-full min-w-0 border bg-surface-2 px-3.5 text-base font-bold text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none disabled:text-text-disabled";
+  "w-full min-w-0 bg-surface-2 px-3.5 text-base font-bold text-text-primary placeholder:text-text-muted focus:outline-none disabled:text-text-disabled";
 
 export type TextInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   label: string;
   error?: string;
   hint?: string;
-  /** Admin inputs are 40 tall (size.input-admin). */
+  /** Admin inputs are drawn 40 tall (size.input-admin) inside a 44 px target (.eyeq-hit-field). */
   dense?: boolean;
 };
 
@@ -32,8 +32,12 @@ export function TextInput({ label, error, hint, dense, id, className, ...rest }:
         aria-describedby={error || hint ? msgId : undefined}
         className={cx(
           fieldBase,
-          dense ? "min-h-10 rounded-control text-sm" : "min-h-[3.25rem] rounded-m",
-          error ? "border-cta-text" : "border-border",
+          dense
+            ? "eyeq-hit-field text-sm"
+            : cx(
+                "min-h-[3.25rem] rounded-m border focus:border-primary",
+                error ? "border-cta-text" : "border-border",
+              ),
         )}
         {...rest}
       />
@@ -85,7 +89,7 @@ export function PhoneInput({
           aria-describedby={error ? msgId : undefined}
           className={cx(
             fieldBase,
-            "min-h-[3.25rem] rounded-m",
+            "min-h-[3.25rem] rounded-m border focus:border-primary",
             error ? "border-cta-text" : "border-border",
           )}
           {...rest}
@@ -204,7 +208,7 @@ export function SegmentedControl({
             onClick={() => onChange(o.value)}
             className={cx(
               // Wraps onto a second row at large text sizes rather than overflowing.
-              "min-h-10 min-w-fit flex-1 rounded-control px-2 type-body-strong",
+              "eyeq-hit min-h-10 min-w-fit flex-1 rounded-control px-2 type-body-strong",
               on ? "bg-primary text-on-primary" : "bg-transparent text-text-secondary",
             )}
           >
