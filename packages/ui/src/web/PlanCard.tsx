@@ -70,7 +70,7 @@ export function PlanGroup({ plans, value, onChange, label, name, className }: Pl
                 {p.sub}
               </span>
             </span>
-            <span className="ml-auto type-display-m">{p.price}</span>
+            <span className="ml-auto min-w-0 type-display-m break-words">{p.price}</span>
           </label>
         );
       })}

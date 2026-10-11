@@ -42,7 +42,7 @@ export function DrillCard({
     <Wrapper
       {...(Wrapper === "a" ? { href } : {})}
       className={cx(
-        "flex items-center gap-3 rounded-l border p-3.5 no-underline text-text-primary",
+        "flex flex-wrap items-center gap-3 rounded-l border p-3.5 no-underline text-text-primary",
         state === "pending" && "border-border bg-surface-1",
         state === "current" && "border-primary bg-surface-1",
         state === "done" && "border-success-border bg-surface-1",

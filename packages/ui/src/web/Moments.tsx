@@ -52,7 +52,7 @@ export function XPCountUp({ total, className }: { total: number; className?: str
   return (
     <span
       className={cx(
-        "eyeq-moment-xp inline-flex items-baseline gap-1 type-hero text-xp-text",
+        "eyeq-moment-xp inline-flex flex-wrap items-baseline justify-center gap-1 type-hero text-xp-text",
         className,
       )}
     >
@@ -68,7 +68,9 @@ export function XPCountUp({ total, className }: { total: number; className?: str
 /** 02 · Streak flame grows: spring 60 → 115 → 100 %, ember glow, count slides up. */
 export function StreakPlusOne({ days, className }: { days: number; className?: string }) {
   return (
-    <div className={cx("relative inline-flex items-center gap-3", className)}>
+    <div
+      className={cx("relative inline-flex flex-wrap items-center justify-center gap-3", className)}
+    >
       <span className="relative grid place-items-center">
         {/* Glow sits behind the flame only, so it never lowers the label's contrast. */}
         <span
@@ -80,7 +82,9 @@ export function StreakPlusOne({ days, className }: { days: number; className?: s
         </span>
       </span>
       <span className="eyeq-moment-count relative flex flex-col">
-        <span className="type-hero text-[4.5rem] text-streak-text">{formatNumber(days)}</span>
+        <span className="type-hero text-[min(4.5rem,108px)] text-streak-text">
+          {formatNumber(days)}
+        </span>
         <span className="type-label text-streak-text">{t("streak.dayStreak")}</span>
       </span>
     </div>

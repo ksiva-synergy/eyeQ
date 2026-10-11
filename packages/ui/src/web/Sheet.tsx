@@ -101,7 +101,9 @@ function SheetBody({
       </h2>
       {children && <div className="type-body text-text-secondary">{children}</div>}
       {actions && (
-        <div className="flex flex-wrap gap-2.5 [&>*]:min-w-[8rem] [&>*]:flex-1">{actions}</div>
+        <div className="flex flex-wrap gap-2.5 [&>*]:min-w-[min(100%,8rem)] [&>*]:flex-1">
+          {actions}
+        </div>
       )}
     </div>
   );

@@ -319,7 +319,7 @@ export function RatingInput({
 }) {
   return (
     <div className={cx("flex flex-col gap-1.5", className)}>
-      <div role="radiogroup" aria-label={label} className="flex gap-2">
+      <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
         {[1, 2, 3, 4, 5].map((n) => {
           const on = value === n;
           const below = value !== null && n < value;
@@ -332,7 +332,8 @@ export function RatingInput({
               aria-label={t("input.ratingValue", { n })}
               onClick={() => onChange(n)}
               className={cx(
-                "min-h-11 min-w-11 flex-1 rounded-control border font-display text-xl font-extrabold",
+                // The 44 px floor is a size, not text: at 200 % five 2.75rem buttons outgrow a phone.
+                "min-h-11 min-w-[44px] flex-1 rounded-control border font-display text-xl font-extrabold",
                 on
                   ? "border-primary bg-primary text-on-primary"
                   : below

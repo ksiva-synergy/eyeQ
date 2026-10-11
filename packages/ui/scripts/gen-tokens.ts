@@ -246,11 +246,17 @@ export function renderThemeCss(t: BuiltTokens): string {
   }
   lines.push(`@theme inline {\n${theme.join("\n")}\n}`);
 
+  // COMPONENTS, 200 % rule: hero and display-xl numerals grow to 1.5× and stop, as
+  // maxFontSizeMultiplier={1.5} does on native; at 200 % they outgrow a 390 px phone.
+  const capped: Record<string, number> = { hero: 1.5, "display-xl": 1.5 };
   for (const [k, ty] of Object.entries(t.typography)) {
+    const size = capped[k]
+      ? `min(${rem(ty.fontSize)}, ${ty.fontSize * capped[k]}px)`
+      : rem(ty.fontSize);
     const decl = [
       `  font-family: var(--font-${ty.family});`,
       `  font-weight: ${ty.weight};`,
-      `  font-size: ${rem(ty.fontSize)};`,
+      `  font-size: ${size};`,
       `  line-height: ${ty.lineHeight};`,
       `  letter-spacing: ${ty.letterSpacing === 0 ? "0" : `${+(ty.letterSpacing / ty.fontSize).toFixed(4)}em`};`,
     ];
