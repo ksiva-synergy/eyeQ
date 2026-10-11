@@ -1,3 +1,4 @@
+import { readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import levels from "../vectors/levels.json";
 import xp from "../vectors/xp.json";
@@ -68,5 +69,16 @@ describe("streak (vectors/streak.json)", () => {
     expect(currentStreak(days, c.today)).toBe(c.current);
     expect(bestStreak(days)).toBe(c.best);
     expect(streakBefore(days, c.today)).toBe(c.before);
+  });
+});
+
+describe("vector files", () => {
+  // SQL loads every vectors/*.json (packages/db/src/pgtest.ts); a file added there without a
+  // runner here would be checked on one side only (ground rule 9).
+  it("every vector file has a TypeScript runner", () => {
+    const files = readdirSync(new URL("../vectors/", import.meta.url)).filter((f) =>
+      f.endsWith(".json"),
+    );
+    expect(files.sort()).toEqual(["cap.json", "levels.json", "streak.json", "xp.json"]);
   });
 });
