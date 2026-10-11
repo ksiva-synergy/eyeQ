@@ -556,7 +556,7 @@ Every screen in this phase is built phone-width first to match its board, then a
 - [x] Score entry: number or 1 to 5 self-rating, per drill.
 - [x] Session summary driven by the `complete_drill` result: XP count-up with breakdown, streak, level progress, challenge progress, badges. Level-up and badge moments as full-screen overlays (boards 5a, 5b). A failed submission retries with the same `client_event_id`.
 - [x] Progress: sessions per week against a target, minutes, streak calendar, score trend per drill, baseline vs now; re-rate prompts on day 14 and day 21.
-- [ ] Programs catalogue (filter by sport, measurement group and level) and program detail; enrol; locked states.
+- [x] Programs catalogue (filter by sport, measurement group and level) and program detail; enrol; locked states.
 - [ ] Profile and account (`/app/account`, board 14): the stats header, purchases and entitlements, edit profile, notification settings, the leaderboard visibility toggle, sign out, help and enquiry links (WhatsApp) read from config.
 - [ ] "Preview as athlete" in the admin builder, now that the session view and player exist.
 - [ ] PostHog in the web client; server-side `drill_completed`, `session_completed` and `streak_extended` events emitted from the completion route, carrying the user id only.
