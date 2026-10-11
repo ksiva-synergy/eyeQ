@@ -8,6 +8,7 @@ import { NextLink } from "@/components/shell/NextLink";
 import { ProgramArt } from "@/components/programs/ProgramArt";
 import { sportKey } from "@/app/onboarding/options";
 import { v1 } from "@/lib/athlete-api";
+import { clientId } from "@/lib/client-id";
 
 /**
  * Board 10b. The action follows the athlete's state from the payload: start (open, not
@@ -216,7 +217,7 @@ function Actions({
 }) {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
-  const key = useRef(crypto.randomUUID());
+  const key = useRef(clientId());
   const e = program.enrollment;
 
   async function enroll() {

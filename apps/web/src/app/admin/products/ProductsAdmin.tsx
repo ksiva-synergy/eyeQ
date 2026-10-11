@@ -17,6 +17,7 @@ import {
   Toast,
   Toggle,
 } from "@eyeq/ui/web";
+import { clientId } from "@/lib/client-id";
 
 type Kind = (typeof productKinds)[number];
 
@@ -127,7 +128,7 @@ export function ProductsAdmin() {
       editing === "new" ? "/api/admin/products" : `/api/admin/products/${editing.id}`,
       {
         method: editing === "new" ? "POST" : "PATCH",
-        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+        headers: { "content-type": "application/json", "idempotency-key": clientId() },
         body: JSON.stringify(editing === "new" ? { kind, ...body } : body),
       },
     );

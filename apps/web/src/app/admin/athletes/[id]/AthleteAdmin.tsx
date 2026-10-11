@@ -32,6 +32,7 @@ import {
   Toast,
 } from "@eyeq/ui/web";
 import { planChip, planKey } from "../plan";
+import { clientId } from "@/lib/client-id";
 
 type Scope = (typeof entitlementScopes)[number];
 
@@ -158,7 +159,7 @@ export function AthleteAdmin({ id }: { id: string }) {
     setError(null);
     const res = await fetch(url, {
       method: "POST",
-      headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+      headers: { "content-type": "application/json", "idempotency-key": clientId() },
       body: JSON.stringify(body),
     });
     setBusy(false);
