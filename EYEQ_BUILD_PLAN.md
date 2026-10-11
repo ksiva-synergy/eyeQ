@@ -550,11 +550,11 @@ Build:
 
 Every screen in this phase is built phone-width first to match its board, then adapted to desktop per section 8.2.
 
-- [ ] Onboarding in four steps (boards 1b to 1e): sign in, profile (display name, sport, playing level, date of birth, goal, session length), self-rated baseline, starter program; the first session starts from the last step. Board 1c has no name field: add one, since the PRD collects a name and the boards need a display name. Avatars are initials (D22).
-- [ ] Today (`/app`) from `GET /home`, including the at-risk, frozen and lost states.
-- [ ] `DrillPlayer` with a provider interface (`youtube`, `drive`, room for `mux`). YouTube through the IFrame Player API, tracking distinct seconds watched so seeking does not count. Drive through the preview iframe with a minimum on-screen time (default 80% of the drill's duration). "Mark done" unlocks at 80% and says why while disabled. Captions on by default.
-- [ ] Score entry: number or 1 to 5 self-rating, per drill.
-- [ ] Session summary driven by the `complete_drill` result: XP count-up with breakdown, streak, level progress, challenge progress, badges. Level-up and badge moments as full-screen overlays (boards 5a, 5b). A failed submission retries with the same `client_event_id`.
+- [x] Onboarding in four steps (boards 1b to 1e): sign in, profile (display name, sport, playing level, date of birth, goal, session length), self-rated baseline, starter program; the first session starts from the last step. Board 1c has no name field: add one, since the PRD collects a name and the boards need a display name. Avatars are initials (D22).
+- [x] Today (`/app`) from `GET /home`, including the at-risk, frozen and lost states.
+- [x] `DrillPlayer` with a provider interface (`youtube`, `drive`, room for `mux`). YouTube through the IFrame Player API, tracking distinct seconds watched so seeking does not count. Drive through the preview iframe with a minimum on-screen time (default 80% of the drill's duration). "Mark done" unlocks at 80% and says why while disabled. Captions on by default.
+- [x] Score entry: number or 1 to 5 self-rating, per drill.
+- [x] Session summary driven by the `complete_drill` result: XP count-up with breakdown, streak, level progress, challenge progress, badges. Level-up and badge moments as full-screen overlays (boards 5a, 5b). A failed submission retries with the same `client_event_id`.
 - [ ] Progress: sessions per week against a target, minutes, streak calendar, score trend per drill, baseline vs now; re-rate prompts on day 14 and day 21.
 - [ ] Programs catalogue (filter by sport, measurement group and level) and program detail; enrol; locked states.
 - [ ] Profile and account (`/app/account`, board 14): the stats header, purchases and entitlements, edit profile, notification settings, the leaderboard visibility toggle, sign out, help and enquiry links (WhatsApp) read from config.
