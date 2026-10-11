@@ -139,6 +139,8 @@ declare
   n1 uuid; n2 uuid; n3 uuid; n4 uuid; n5 uuid; claimed jsonb; again jsonb;
   ids uuid[];
 begin
+  -- This test owns the queue: anything already queued (seed, live pg_cron) is parked; rolled back.
+  update notifications set status = 'skipped', last_error = 'parked by test' where status = 'queued';
   insert into push_tokens (user_id, token, platform) values (q, 'https://push.example/web-' || q, 'web');
   insert into notifications (user_id, kind, dedupe_key, local_date, data) values (q, 'daily_reminder', 'd1-' || q, '2026-11-30', '{}') returning id into n1;
   insert into notifications (user_id, kind, dedupe_key, local_date, data) values (q, 'streak_at_risk', 'd2-' || q, '2026-11-30', '{"streak":5}') returning id into n2;
