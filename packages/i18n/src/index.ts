@@ -70,6 +70,13 @@ export function hourIn(iso: string | Date, timeZone: string): number {
   return Number(h);
 }
 
+/** An instant as a clock time in a time zone: "11:59 pm". */
+export function formatTimeIn(iso: string | Date, timeZone: string): string {
+  return new Intl.DateTimeFormat(LOCALE, { hour: "numeric", minute: "2-digit", timeZone }).format(
+    new Date(iso),
+  );
+}
+
 /** "today", "yesterday", "3 days ago", "2 weeks ago"; a date past eight weeks. */
 export function formatRelativeDay(iso: string | Date, now: Date = new Date()): string {
   const day = (d: Date) => Math.floor((d.getTime() - d.getTimezoneOffset() * 60_000) / 86_400_000);

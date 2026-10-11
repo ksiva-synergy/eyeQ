@@ -46,10 +46,9 @@ export function StarterActions({
       return;
     }
     // A full navigation, not router.push: the router still holds the redirect to onboarding
-    // that /app answered right after sign-in. The player arrives in the next slice; until
-    // then both go to Today.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- see above
-    window.location.assign("/app");
+    // that /app answered right after sign-in. The first session starts from here (plan
+    // phase 5); "Go to Home instead" goes to Today.
+    window.location.assign(to === "start" && programId ? "/app/session/today" : "/app");
   }
 
   return (
