@@ -31,6 +31,11 @@ export const env = {
   sentryDsn: () => str("SENTRY_DSN"),
   /** YouTube Data and Drive APIs, for the admin link check (phase 4). */
   googleApiKey: () => str("GOOGLE_API_KEY"),
+  /** Help and enquiry links (plan phase 5: read from config, not written into pages). */
+  supportWhatsappUrl: () => {
+    const v = str("SUPPORT_WHATSAPP_URL");
+    return v && /^https:\/\/(wa\.me|api\.whatsapp\.com)\//.test(v) ? v : undefined;
+  },
   /**
    * The /dev/components gallery: always on under `next dev`; in a production build only
    * with DEV_GALLERY=1 (staging, CI). Read at build time, since the page is prerendered.
