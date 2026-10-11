@@ -321,7 +321,7 @@ export const loop = {
   "program.module.lockedDay": "Opens on day {n}",
   "program.module.done": "Done",
   "program.whatYouGet": "What you get",
-  "program.getDrills": "Coach-led video drills, {n} a day",
+  "program.getDrills": "{total} coach-led video drills, {n} a day",
   "program.getDays": "{n} days, one session a day",
   "program.getScores": "Score tracking on the drills that take a score",
   "program.disclaimer": "Training content for athletes. Not a substitute for an eye examination.",

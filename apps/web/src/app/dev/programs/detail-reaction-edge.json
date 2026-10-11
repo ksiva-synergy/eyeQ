@@ -333,5 +333,6 @@
     "simple-reaction-speed",
     "stereopsis"
   ],
-  "measurementGroups": ["cognition", "reaction", "vision"]
+  "measurementGroups": ["cognition", "reaction", "vision"],
+  "distinctDrills": 13
 }
