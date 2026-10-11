@@ -1,0 +1,85 @@
+/**
+ * Phase 5 copy: the athlete daily loop (onboarding, Today, player, summary, Progress,
+ * Programs, Account). Same rules as en.ts: training language, never diagnosis (ground
+ * rule 10), and no rule values written into copy (ground rule 8): numbers that come from
+ * game_config arrive as {placeholders}.
+ */
+export const loop = {
+  // ---- sign-in (board 1b)
+  "auth.step": "Step 1 of 4",
+  "auth.code.title": "Enter the code",
+  "auth.code.sent": "Sent to {phone}",
+  "auth.code.resend": "Resend code",
+  "auth.code.resendIn": "Resend in {s}",
+  "auth.code.didntGet": "Didn't get it?",
+  "auth.minor":
+    "Under 18? Your profile starts hidden from leaderboards. You can change that later.",
+
+  // ---- onboarding (boards 1c to 1e)
+  "onb.step": "Step {n} of 4",
+  "onb.profile.title": "Set up your athlete",
+  "onb.profile.body": "This picks your drills and who you compete against.",
+  "onb.profile.name": "Your name",
+  "onb.profile.nameHint": "Shown on leaderboards. A first name and an initial works.",
+  "onb.profile.sport": "Your sport",
+  "onb.profile.level": "Playing level",
+  "onb.profile.dob": "Date of birth",
+  "onb.profile.dobPlaceholder": "DD / MM / YYYY",
+  "onb.profile.dobHint": "Under-18 profiles start hidden from leaderboards.",
+  "onb.profile.dobInvalid": "Enter your date of birth as DD / MM / YYYY.",
+  "onb.profile.goal": "Main goal",
+  "onb.profile.length": "Session length",
+  "onb.profile.lengthHint": "Before or after practice works best. You can change this any time.",
+  "onb.profile.missing": "Add your name, sport, playing level and date of birth to continue.",
+  "onb.baseline.title": "Rate yourself today",
+  "onb.baseline.body":
+    "Be honest: this is your starting line, not a test. You'll rate again after {days} days and see the gap.",
+  "onb.baseline.rating": "{area} rating",
+  "onb.baseline.outOf": "/5",
+  "onb.baseline.disclaimer":
+    "Self-ratings track your training, nothing more. If you have concerns about your eyesight, see an optometrist.",
+  "onb.baseline.save": "Save baseline",
+  "onb.baseline.missing": "Rate all three to continue.",
+  "onb.starter.eyebrow": "Recommended for {sport}",
+  "onb.starter.eyebrowGeneric": "Recommended for you",
+  "onb.starter.title": "Your starter program",
+  "onb.starter.days": "{n} days",
+  "onb.starter.minutes": "{n} min a day",
+  "onb.starter.drillsPerDay": "{n} drills / day",
+  "onb.starter.xpPerDay": "+{n} XP / day",
+  "onb.starter.modules": "{n} modules",
+  "onb.starter.module": "1 module",
+  "onb.starter.free": "Free",
+  "onb.starter.included": "Included in Pro",
+  "onb.starter.lighter": "Or start lighter",
+  "onb.starter.whenReady": "When you're ready",
+  "onb.starter.streakNote":
+    "Finish today's session and your streak starts at Day 1. Train {days} days straight for a +{pct} % XP multiplier.",
+  "onb.starter.start": "Start your first session · {n} min",
+  "onb.starter.home": "Go to Home instead",
+  "onb.starter.none": "No program is open to you yet. Today's free drill is waiting on Home.",
+  "onb.error": "That didn't save. Check your connection and try again.",
+
+  // ---- profile vocabulary (onboarding and Account)
+  "sport.cricket": "Cricket",
+  "sport.badminton": "Badminton",
+  "sport.tennis": "Tennis",
+  "sport.football": "Football",
+  "sport.other": "Other",
+  "playingLevel.school": "School",
+  "playingLevel.club": "Club",
+  "playingLevel.district": "District",
+  "playingLevel.state": "State",
+  "playingLevel.national": "National",
+  "goal.reaction": "Reaction speed",
+  "goal.focus": "Focus under pressure",
+  "goal.tracking": "Tracking the ball",
+  "goal.decisions": "Decision-making",
+  "sessionLength.n": "{n} min",
+  "area.focus": "Focus",
+  "area.focusHint": "Staying locked in through a long over or rally",
+  "area.reaction": "Reaction",
+  "area.reactionHint": "First move after the ball leaves the hand or racquet",
+  "area.tracking": "Tracking",
+  "area.trackingHint": "Keeping a fast ball in clear view to contact",
+} as const;

@@ -3,7 +3,9 @@
  * filled by t(). Numbers passed as numbers are formatted for en-IN.
  * Copy follows ground rule 10: training language, never diagnosis.
  */
-export const en = {
+import { loop } from "./en-loop.ts";
+
+const core = {
   "app.name": "EyeQ",
   "app.tagline": "Train your eyes. Every day.",
   "app.description": "Daily vision training for athletes.",
@@ -21,13 +23,13 @@ export const en = {
   "common.skipToContent": "Skip to content",
 
   "auth.title": "Sign in",
-  "auth.subtitle": "Use your phone number or Google account.",
+  "auth.subtitle": "We'll text you a 6-digit code. No password to remember.",
   "auth.phone.label": "Phone number",
   "auth.phone.hint": "Indian numbers can skip the +91.",
   "auth.phone.send": "Send code",
   "auth.code.label": "6-digit code",
   "auth.code.sentTo": "We sent a code to",
-  "auth.code.verify": "Verify and sign in",
+  "auth.code.verify": "Verify and continue",
   "auth.code.change": "Use a different number",
   "auth.google": "Continue with Google",
   "auth.or": "or",
@@ -513,3 +515,6 @@ export const en = {
   "shell.admin.soonBody":
     "The coach admin is built in phase 4. The layout and navigation are in place.",
 } as const;
+
+/** Phase 5 onwards keeps its copy in its own files, merged here. */
+export const en = { ...core, ...loop } as const;
