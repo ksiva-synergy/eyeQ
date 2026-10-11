@@ -10,16 +10,34 @@ import { smallTargets } from "./touch-targets";
  * onboarding journey (phase 5) is at the end of this file because that job runs this file.
  * E2E_AUTH_PHONE is a test number whose code is always E2E_AUTH_CODE.
  */
+// One test number per sign-in journey. The app allows 5 codes per number per hour (phase 2),
+// so a journey that shared a number with another could be refused by the other's use of it
+// (the cause of the old "wrong code" flake, made worse when a retry re-ran a serial group).
 const phone = process.env["E2E_AUTH_PHONE"] ?? "9000000003";
+const wrongCodePhone = process.env["E2E_WRONG_CODE_PHONE"] ?? "9000000008";
+const coachPhone = process.env["E2E_COACH_PHONE"] ?? "9000000009";
 const code = process.env["E2E_AUTH_CODE"] ?? "123456";
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
   await page.waitForURL(/\/sign-in/);
-  await page.getByLabel("Phone number").fill(phone);
+  await page.getByLabel("Phone number").fill(coachPhone);
   await page.getByRole("button", { name: "Send code" }).click();
+  await codeScreen(page);
   await page.getByLabel("Digit 1 of 6").fill(code);
   await page.getByRole("button", { name: "Verify and continue" }).click();
+}
+
+/** The code screen, or a failure that says why the code was refused (not a 30 s wait). */
+async function codeScreen(page: Page) {
+  // The form's own alert (it carries an icon), not Next.js's route announcer.
+  const refused = page.getByRole("alert").filter({ has: page.locator("svg") });
+  await expect(
+    page.getByRole("heading", { name: "Enter the code" }).or(refused.first()),
+  ).toBeVisible();
+  if (!(await page.getByRole("heading", { name: "Enter the code" }).isVisible())) {
+    throw new Error(`the code was refused: ${(await refused.first().textContent())?.trim()}`);
+  }
 }
 
 test.describe("sign-in", () => {
@@ -39,6 +57,7 @@ test.describe("sign-in", () => {
 
     await page.getByLabel("Phone number").fill(phone);
     await page.getByRole("button", { name: "Send code" }).click();
+    await codeScreen(page);
     await page.getByLabel("Digit 1 of 6").fill(code);
     await page.getByRole("button", { name: "Verify and continue" }).click();
 
@@ -57,8 +76,9 @@ test.describe("sign-in", () => {
 
   test("a wrong code is refused with a message", async ({ page }) => {
     await page.goto("/sign-in");
-    await page.getByLabel("Phone number").fill(phone);
+    await page.getByLabel("Phone number").fill(wrongCodePhone);
     await page.getByRole("button", { name: "Send code" }).click();
+    await codeScreen(page);
     await page.getByLabel("Digit 1 of 6").fill(code === "000000" ? "111111" : "000000");
     await page.getByRole("button", { name: "Verify and continue" }).click();
     await expect(
@@ -77,7 +97,7 @@ test.describe("sign-in", () => {
     await db.connect();
     try {
       const u = await db.query<{ id: string }>("select id from auth.users where phone = $1", [
-        `91${phone}`,
+        `91${coachPhone}`,
       ]);
       await db.query("select grant_admin_for($1, 'coach', 'script', null)", [u.rows[0]!.id]);
     } finally {
@@ -133,14 +153,14 @@ test.describe("sign-in", () => {
         );
         const programId = prog.rows[0]!.id;
         const u = await db.query<{ id: string }>("select id from auth.users where phone = $1", [
-          `91${phone}`,
+          `91${coachPhone}`,
         ]);
         const me = u.rows[0]!.id;
 
         await page.goto("/admin/athletes");
-        await page.getByLabel("Search name or phone").fill(phone.slice(-4));
-        await expect(page.getByText(`+91 ••••• •${phone.slice(-4)}`).first()).toBeVisible();
-        expect(await page.content()).not.toContain(phone);
+        await page.getByLabel("Search name or phone").fill(coachPhone.slice(-4));
+        await expect(page.getByText(`+91 ••••• •${coachPhone.slice(-4)}`).first()).toBeVisible();
+        expect(await page.content()).not.toContain(coachPhone);
         expect(await smallTargets(page, "main")).toEqual([]);
 
         const before = await page.request.get(`/api/v1/programs/${slug}`);
@@ -285,7 +305,7 @@ test.describe("sign-in", () => {
         sessionId = row.rows[0]!.id;
         me = (
           await db.query<{ id: string }>("select id from auth.users where phone = $1", [
-            `91${phone}`,
+            `91${coachPhone}`,
           ])
         ).rows[0]!.id;
         const before = await completions();
