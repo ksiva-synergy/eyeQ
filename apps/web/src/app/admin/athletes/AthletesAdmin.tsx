@@ -7,6 +7,7 @@ import {
   type AdminAthletesResponse,
 } from "@eyeq/api-contract";
 import { formatRelativeDay, t } from "@eyeq/i18n";
+import { useAdminTimeZone } from "../time-zone";
 import {
   Avatar,
   Button,
@@ -29,6 +30,7 @@ function query(search: string, plan: Plan | "", page?: number) {
 }
 
 export function AthletesAdmin() {
+  const tz = useAdminTimeZone();
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState<Plan | "">("");
   const [page, setPage] = useState(1);
@@ -169,7 +171,7 @@ export function AthletesAdmin() {
                     </td>
                     <td className="px-4 py-2 text-text-secondary">
                       {a.lastActiveAt
-                        ? formatRelativeDay(a.lastActiveAt)
+                        ? formatRelativeDay(a.lastActiveAt, tz)
                         : t("admin.athletes.never")}
                     </td>
                     <td className="px-4 py-2">

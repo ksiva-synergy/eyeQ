@@ -19,26 +19,16 @@ export function formatNumber(n: number): string {
   return numberFormat.format(n);
 }
 
-const dateFormat = new Intl.DateTimeFormat(LOCALE, {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-const dateTimeFormat = new Intl.DateTimeFormat(LOCALE, {
-  day: "numeric",
-  month: "short",
-  hour: "numeric",
-  minute: "2-digit",
-});
 const relativeFormat = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
 
-/** "10 Oct 2026". */
-export function formatDate(iso: string | Date): string {
-  return dateFormat.format(new Date(iso));
-}
+/*
+ * Every instant is formatted in a time zone the caller names: the athlete's profile zone
+ * on athlete screens, the coach's profile zone in admin. Never the runtime's own zone, so
+ * the server render and the browser's hydration print the same text wherever either runs.
+ */
 
-/** "10 Oct 2026" for an instant, on the calendar of `timeZone` (the athlete's profile zone). */
-export function formatDateIn(iso: string | Date, timeZone: string): string {
+/** "10 Oct 2026" for an instant, on the calendar of `timeZone`. */
+export function formatDate(iso: string | Date, timeZone: string): string {
   return new Intl.DateTimeFormat(LOCALE, {
     day: "numeric",
     month: "short",
@@ -52,12 +42,18 @@ export function formatDateIn(iso: string | Date, timeZone: string): string {
  * athlete's zone. Read as that day, never shifted into the browser's zone.
  */
 export function formatCalendarDate(isoDate: string): string {
-  return formatDateIn(`${isoDate}T00:00:00Z`, "UTC");
+  return formatDate(`${isoDate}T00:00:00Z`, "UTC");
 }
 
-/** "10 Oct, 6:30 pm". */
-export function formatDateTime(iso: string | Date): string {
-  return dateTimeFormat.format(new Date(iso));
+/** "10 Oct, 6:30 pm" for an instant, in `timeZone`. */
+export function formatDateTime(iso: string | Date, timeZone: string): string {
+  return new Intl.DateTimeFormat(LOCALE, {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone,
+  }).format(new Date(iso));
 }
 
 const weekdayFormat = new Intl.DateTimeFormat(LOCALE, {
@@ -106,13 +102,21 @@ export function formatTimeIn(iso: string | Date, timeZone: string): string {
   );
 }
 
-/** "today", "yesterday", "3 days ago", "2 weeks ago"; a date past eight weeks. */
-export function formatRelativeDay(iso: string | Date, now: Date = new Date()): string {
-  const day = (d: Date) => Math.floor((d.getTime() - d.getTimezoneOffset() * 60_000) / 86_400_000);
+/**
+ * "today", "yesterday", "3 days ago", "2 weeks ago"; a date past eight weeks. Days are
+ * counted on the calendar of `timeZone`.
+ */
+export function formatRelativeDay(
+  iso: string | Date,
+  timeZone: string,
+  now: Date = new Date(),
+): string {
+  const ymd = new Intl.DateTimeFormat("en-CA", { timeZone });
+  const day = (d: Date) => Date.parse(`${ymd.format(d)}T00:00:00Z`) / 86_400_000;
   const days = day(new Date(iso)) - day(now);
   if (days > -14) return relativeFormat.format(days, "day");
   if (days > -56) return relativeFormat.format(Math.round(days / 7), "week");
-  return formatDate(iso);
+  return formatDate(iso, timeZone);
 }
 
 export function t(key: MessageKey, vars?: MessageVars): string {

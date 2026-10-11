@@ -8,10 +8,12 @@ import {
   type AdminProgramListItem,
 } from "@eyeq/api-contract";
 import { formatRelativeDay, t } from "@eyeq/i18n";
+import { useAdminTimeZone } from "../time-zone";
 import { Button, Chip, EmptyState, ErrorCard, SkeletonRow, TextInput } from "@eyeq/ui/web";
 import { api } from "./api";
 
 export function ProgramsAdmin() {
+  const tz = useAdminTimeZone();
   const router = useRouter();
   const [programs, setPrograms] = useState<AdminProgramListItem[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -157,7 +159,7 @@ export function ProgramsAdmin() {
                     })}
                   </td>
                   <td className="px-4 py-2 text-text-secondary">
-                    {formatRelativeDay(p.updatedAt)}
+                    {formatRelativeDay(p.updatedAt, tz)}
                   </td>
                 </tr>
               ))}

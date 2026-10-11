@@ -18,3 +18,12 @@ export async function requireAdmin(next = "/admin"): Promise<AdminIdentity> {
   if (!row) notFound();
   return { session, role: row.role as AdminIdentity["role"] };
 }
+
+/** The coach's profile time zone; admin dates are shown in it on server and browser alike. */
+export async function adminTimeZone(userId: string): Promise<string> {
+  const p = await serviceDb().profiles.findUnique({
+    where: { id: userId },
+    select: { timezone: true },
+  });
+  return p?.timezone ?? "Asia/Kolkata";
+}

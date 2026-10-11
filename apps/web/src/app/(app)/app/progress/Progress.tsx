@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProgressResponse } from "@eyeq/api-contract";
-import { formatDateIn, formatNumber, t } from "@eyeq/i18n";
+import { formatDate, formatNumber, t } from "@eyeq/i18n";
 import { Button, Card, Chip, Icon, Pill, RatingInput, Sheet, cx } from "@eyeq/ui/web";
 import { v1 } from "@/lib/athlete-api";
 import { AREAS, Heatmap, Radar, Trend, WeekBars } from "./charts";
@@ -231,7 +231,7 @@ function RadarCard({ data }: { data: ProgressResponse }) {
                 className="h-0 w-5 border-t-2 border-dashed border-text-muted"
               />
               {t("progress.baselineOn", {
-                date: r.baselineAt ? formatDateIn(r.baselineAt, data.timezone) : "",
+                date: r.baselineAt ? formatDate(r.baselineAt, data.timezone) : "",
               })}
             </span>
             <span className="flex items-center gap-2 type-caption text-text-secondary">

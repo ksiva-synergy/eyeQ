@@ -69,3 +69,28 @@ for (const [width, height] of [
     });
   });
 }
+
+test.describe("Account in a browser west of UTC", () => {
+  // The athlete's profile zone is Asia/Kolkata; the browser's is not. The Pro end date is
+  // the profile's day, and the server's HTML must hydrate without a mismatch.
+  test.use({ viewport: { width: 390, height: 844 }, timezoneId: "America/New_York" });
+
+  test("shows the Pro end date in the profile's zone and hydrates cleanly", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+    });
+    await page.goto("/dev/account");
+    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+    expect(await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone)).toBe(
+      "America/New_York",
+    );
+    const purchases = page.getByRole("region", { name: "Purchases & entitlements" });
+    // 02:00 UTC on 1 Nov: 1 Nov in Kolkata, 31 Oct on New York's calendar.
+    await expect(purchases.getByText("Active until 1 Nov 2026")).toBeVisible();
+    await expect(page.getByText(/31 Oct 2026/)).toHaveCount(0);
+    await settled(page);
+    expect(errors).toEqual([]);
+  });
+});

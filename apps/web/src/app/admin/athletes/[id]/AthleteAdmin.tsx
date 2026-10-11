@@ -33,6 +33,7 @@ import {
 } from "@eyeq/ui/web";
 import { planChip, planKey } from "../plan";
 import { clientId } from "@/lib/client-id";
+import { useAdminTimeZone } from "../../time-zone";
 
 type Scope = (typeof entitlementScopes)[number];
 
@@ -96,6 +97,7 @@ function EntitlementRow({
   e: AdminEntitlement;
   onRevoke: (e: AdminEntitlement) => void;
 }) {
+  const tz = useAdminTimeZone();
   const statusKey = e.active ? e.status : e.status === "ended" ? "ended" : "expired";
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border py-3 last:border-b-0">
@@ -106,9 +108,9 @@ function EntitlementRow({
         <span className="type-caption text-text-secondary">
           {[
             sourceLabel(e.source),
-            t("admin.athletes.since", { date: formatDate(e.startsAt) }),
+            t("admin.athletes.since", { date: formatDate(e.startsAt, tz) }),
             e.endsAt
-              ? t("admin.athletes.until", { date: formatDate(e.endsAt) })
+              ? t("admin.athletes.until", { date: formatDate(e.endsAt, tz) })
               : t("admin.athletes.lifetime"),
           ].join(" · ")}
         </span>
@@ -129,6 +131,7 @@ function EntitlementRow({
 }
 
 export function AthleteAdmin({ id }: { id: string }) {
+  const tz = useAdminTimeZone();
   const [athlete, setAthlete] = useState<AdminAthleteDetail | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -247,7 +250,7 @@ export function AthleteAdmin({ id }: { id: string }) {
             {[
               a.phoneMasked ?? t("admin.athletes.noPhone"),
               [a.sport, a.playingLevel].filter(Boolean).join(" · "),
-              t("admin.athletes.joined", { date: formatDate(a.joinedAt) }),
+              t("admin.athletes.joined", { date: formatDate(a.joinedAt, tz) }),
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -277,7 +280,7 @@ export function AthleteAdmin({ id }: { id: string }) {
         <Stat label={t("admin.athletes.stats.freezes")} value={formatNumber(a.freezesHeld ?? 0)} />
         <Stat
           label={t("admin.athletes.columns.lastActive")}
-          value={a.lastActiveAt ? formatRelativeDay(a.lastActiveAt) : t("admin.athletes.never")}
+          value={a.lastActiveAt ? formatRelativeDay(a.lastActiveAt, tz) : t("admin.athletes.never")}
         />
       </Card>
 
@@ -317,7 +320,7 @@ export function AthleteAdmin({ id }: { id: string }) {
                       <span className="font-extrabold">{en.title}</span>
                       <span className="type-caption text-text-secondary">
                         {t("admin.athletes.enrolmentLine", {
-                          date: formatDate(en.startedAt),
+                          date: formatDate(en.startedAt, tz),
                           day: en.currentDay,
                           days: en.durationDays,
                         })}
@@ -359,7 +362,7 @@ export function AthleteAdmin({ id }: { id: string }) {
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-sm">{timelineLine(i)}</span>
                     <span className="type-caption text-text-muted tabular-nums">
-                      {formatDateTime(i.at)}
+                      {formatDateTime(i.at, tz)}
                     </span>
                   </span>
                 </li>
