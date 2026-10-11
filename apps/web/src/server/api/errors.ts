@@ -45,7 +45,18 @@ export function toApiError(e: unknown): ApiError {
   if (e && typeof e === "object" && (e as { code?: unknown }).code === "P2025") {
     return new ApiError(404, "not_found", "Not found.");
   }
+  // Unique and foreign-key conflicts: a taken slug, or deleting content athletes have used.
+  if (
+    e &&
+    typeof e === "object" &&
+    ["P2002", "P2003"].includes(String((e as { code?: unknown }).code))
+  ) {
+    return new ApiError(409, "validation_failed", "This conflicts with existing data.");
+  }
   switch (sqlState(e)) {
+    case "23503":
+    case "23505":
+      return new ApiError(409, "validation_failed", "This conflicts with existing data.");
     case "28000":
       return new ApiError(401, "unauthenticated", "Sign in to continue.");
     case "42501":
