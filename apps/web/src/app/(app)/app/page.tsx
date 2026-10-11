@@ -30,6 +30,8 @@ async function Me() {
     await tx.$queryRaw`select ensure_my_profile(${session.name})`;
     return getMe(tx, session);
   });
+  // Onboarding (boards 1c to 1e) comes before Today.
+  if (!me.onboardedAt) redirect("/onboarding/profile");
   const stats = [
     { label: t("home.level"), value: me.stats.level },
     { label: t("home.xp"), value: me.stats.totalXp },
