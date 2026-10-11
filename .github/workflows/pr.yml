@@ -186,3 +186,7 @@ jobs:
       - name: Web server log
         if: always()
         run: cat "$RUNNER_TEMP/web.log" || true
+
+      - name: Supabase Auth log (on failure)
+        if: failure()
+        run: docker logs supabase_auth_eyeq --tail 200 2>&1 | grep -v '"level":"info"' || true
