@@ -236,6 +236,9 @@ describeDb("demo:refresh", () => {
     const newArjun = r.athletes[0]!;
     const owner = await c.query("select id, email from auth.users where phone = $1", [phone]);
     expect(owner.rows).toEqual([{ id: newArjun, email }]);
+    // Supabase Auth cannot read a user without a creation time (the seed inserts ids only).
+    const created = await c.query("select created_at from auth.users where id = $1", [newArjun]);
+    expect(created.rows[0].created_at).not.toBeNull();
     const old = await c.query("select phone, email from auth.users where id = $1", [oldArjun]);
     expect(old.rows[0]).toEqual({ phone: null, email: null });
     if (identities) {

@@ -134,8 +134,10 @@ export async function refreshDemo(client: pg.Client): Promise<RefreshResult> {
 
 /**
  * A retired athlete that can sign in (a phone or an email on its auth user) hands that
- * sign-in to its new copy: every column of its auth.users row except the id and creation
- * time (on Supabase that includes the confirmation and audience fields sign-in needs), and
+ * sign-in to its new copy: every column of its auth.users row except the id (on Supabase
+ * that includes the confirmation, audience and creation fields sign-in needs; the demo
+ * users are inserted with an id only, and Supabase Auth cannot read a user whose
+ * created_at is null), and
  * its identities. The old user keeps neither phone nor email, so it can no longer sign in.
  * Runs as the admin role; auth belongs to it, not to eyeq_owner.
  */
@@ -166,7 +168,7 @@ async function moveSignIns(
   const { rows: cols } = await client.query<{ c: string }>(
     `select column_name as c from information_schema.columns
      where table_schema = 'auth' and table_name = 'users'
-       and column_name not in ('id', 'created_at') and is_generated = 'NEVER' and is_identity = 'NO'
+       and column_name <> 'id' and is_generated = 'NEVER' and is_identity = 'NO'
      order by ordinal_position`,
   );
   // Pending one-time codes are not part of a sign-in: they are left empty on both users
