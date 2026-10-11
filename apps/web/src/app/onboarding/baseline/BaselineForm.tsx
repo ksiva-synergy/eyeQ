@@ -7,6 +7,7 @@ import { t, type MessageKey } from "@eyeq/i18n";
 import { Button, Card, Icon, RatingInput } from "@eyeq/ui/web";
 import { FlowHeading, FlowScreen } from "@/components/flow/FlowScreen";
 import { v1 } from "@/lib/athlete-api";
+import { clientId } from "@/lib/client-id";
 
 type Area = (typeof ratingAreas)[number];
 
@@ -29,7 +30,7 @@ export function BaselineForm({ rerateDay }: { rerateDay: number }) {
     }
     const body = { kind: "baseline", ratings };
     const json = JSON.stringify(body);
-    if (attempt.current?.body !== json) attempt.current = { key: crypto.randomUUID(), body: json };
+    if (attempt.current?.body !== json) attempt.current = { key: clientId(), body: json };
     setBusy(true);
     setError(null);
     const r = await v1("POST", "/me/self-ratings", body, { idempotencyKey: attempt.current.key });

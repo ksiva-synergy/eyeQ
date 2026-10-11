@@ -18,6 +18,7 @@ import { parseVideoLink } from "@/lib/video-link";
 import { api } from "../api";
 import { clock, reasonText } from "./issues";
 import { LinkGlyph, sessionLabel } from "./Tree";
+import { clientId } from "@/lib/client-id";
 
 /** Runs a mutation; resolves true when it succeeded (the builder refreshes and toasts). */
 export type Run = (
@@ -179,7 +180,7 @@ function ImageField({
     try {
       const res = await fetch("/api/admin/uploads", {
         method: "POST",
-        headers: { "idempotency-key": crypto.randomUUID() },
+        headers: { "idempotency-key": clientId() },
         body: form,
       });
       const json = (await res.json().catch(() => null)) as unknown;

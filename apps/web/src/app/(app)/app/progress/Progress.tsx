@@ -7,6 +7,7 @@ import { formatDate, formatNumber, t } from "@eyeq/i18n";
 import { Button, Card, Chip, Icon, Pill, RatingInput, Sheet, cx } from "@eyeq/ui/web";
 import { v1 } from "@/lib/athlete-api";
 import { AREAS, Heatmap, Radar, Trend, WeekBars } from "./charts";
+import { clientId } from "@/lib/client-id";
 
 /**
  * Board 8 (and board 16's Progress from 768 px): totals, sessions per week against the
@@ -195,7 +196,7 @@ function RadarCard({ data }: { data: ProgressResponse }) {
     reaction: null,
     tracking: null,
   });
-  const key = useRef(crypto.randomUUID());
+  const key = useRef(clientId());
   const dueDay = r.due ? Number(r.due.slice(3)) : null;
   const nextDay = r.day < 14 ? 14 : r.day < 21 ? 21 : null;
 

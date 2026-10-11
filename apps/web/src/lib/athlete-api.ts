@@ -1,4 +1,5 @@
 import type { ErrorCode } from "@eyeq/api-contract";
+import { clientId } from "./client-id";
 
 /**
  * /api/v1 from the athlete's browser: JSON in and out, the session travels as the cookie.
@@ -27,9 +28,7 @@ export async function v1<T>(
       cache: "no-store",
       headers: {
         ...(body !== undefined ? { "content-type": "application/json" } : {}),
-        ...(method !== "GET"
-          ? { "idempotency-key": opts.idempotencyKey ?? crypto.randomUUID() }
-          : {}),
+        ...(method !== "GET" ? { "idempotency-key": opts.idempotencyKey ?? clientId() } : {}),
       },
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });

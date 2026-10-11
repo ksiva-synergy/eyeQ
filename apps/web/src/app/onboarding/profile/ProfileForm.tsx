@@ -8,6 +8,7 @@ import { Button, Icon, Pill, SegmentedControl, TextInput } from "@eyeq/ui/web";
 import { FlowHeading, FlowScreen } from "@/components/flow/FlowScreen";
 import { v1 } from "@/lib/athlete-api";
 import { GOALS, SPORTS, parseDob } from "../options";
+import { clientId } from "@/lib/client-id";
 
 type Initial = {
   displayName: string;
@@ -53,7 +54,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
       sessionMinutes: Number(minutes),
     };
     const json = JSON.stringify(body);
-    if (attempt.current?.body !== json) attempt.current = { key: crypto.randomUUID(), body: json };
+    if (attempt.current?.body !== json) attempt.current = { key: clientId(), body: json };
     setBusy(true);
     setError(null);
     const r = await v1("PATCH", "/me", body, { idempotencyKey: attempt.current.key });

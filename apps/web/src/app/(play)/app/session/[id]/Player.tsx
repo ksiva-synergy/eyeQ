@@ -15,6 +15,7 @@ import { keepEvent } from "@/components/player/events";
 import type { WatchProgress } from "@/components/player/provider";
 import { retryable, v1 } from "@/lib/athlete-api";
 import { Summary } from "./Summary";
+import { clientId } from "@/lib/client-id";
 
 export type PlayData = {
   kind: "program" | "free";
@@ -121,7 +122,7 @@ export function Player({ data, preview }: { data: PlayData; preview?: PlayerPrev
           ? (ratings[drill.id] ?? null)
           : null;
     const event = keepEvent(data.localDate, {
-      clientEventId: crypto.randomUUID(),
+      clientEventId: clientId(),
       drillId: drill.id,
       sessionId: data.sessionId,
       completedAt: new Date().toISOString(),

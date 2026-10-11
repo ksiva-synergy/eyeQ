@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { t } from "@eyeq/i18n";
 import { Button, Icon } from "@eyeq/ui/web";
 import { v1 } from "@/lib/athlete-api";
+import { clientId } from "@/lib/client-id";
 
 /**
  * Board 1e's two actions. Both enrol in the starter (the athlete has accepted it) and
@@ -19,7 +20,7 @@ export function StarterActions({
 }) {
   const [busy, setBusy] = useState<"start" | "home" | null>(null);
   const [failed, setFailed] = useState(false);
-  const keys = useRef({ enroll: crypto.randomUUID(), onboarded: crypto.randomUUID() });
+  const keys = useRef({ enroll: clientId(), onboarded: clientId() });
 
   async function finish(to: "start" | "home") {
     setBusy(to);

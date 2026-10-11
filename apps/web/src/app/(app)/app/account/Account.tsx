@@ -29,6 +29,7 @@ import { NextLink } from "@/components/shell/NextLink";
 import { SignOutButton } from "@/components/shell/SignOutButton";
 import { GOALS, SPORTS, sportKey } from "@/app/onboarding/options";
 import { v1 } from "@/lib/athlete-api";
+import { clientId } from "@/lib/client-id";
 
 type Props = {
   me: MeResponse;
@@ -442,7 +443,7 @@ function EditSheet({
       sessionMinutes: Number(minutes) as 10 | 15 | 20,
     };
     const json = JSON.stringify(body);
-    if (key.current.body !== json) key.current = { body: json, id: crypto.randomUUID() };
+    if (key.current.body !== json) key.current = { body: json, id: clientId() };
     setBusy(true);
     setFailed(false);
     const r = await v1<MeResponse>("PATCH", "/me", body, { idempotencyKey: key.current.id });

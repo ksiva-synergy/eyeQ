@@ -1,4 +1,5 @@
 import { t } from "@eyeq/i18n";
+import { clientId } from "@/lib/client-id";
 
 /** The admin API from the browser: JSON in and out, a fresh Idempotency-Key per mutation. */
 export type ApiResult<T> =
@@ -16,7 +17,7 @@ export async function api<T>(
       cache: "no-store",
       headers: {
         ...(body !== undefined ? { "content-type": "application/json" } : {}),
-        ...(method !== "GET" ? { "idempotency-key": crypto.randomUUID() } : {}),
+        ...(method !== "GET" ? { "idempotency-key": clientId() } : {}),
       },
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
