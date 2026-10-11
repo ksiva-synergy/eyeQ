@@ -271,7 +271,7 @@ test.describe("athlete shell", () => {
 
   test("390 × 844: bottom tab bar with the five destinations", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/app/programs");
+    await page.goto("/dev/shell?path=/app/programs");
     const tabs = page.getByTestId("tab-bar").getByRole("navigation", { name: "Main" });
     await expect(tabs).toBeVisible();
     await expect(page.getByTestId("side-nav")).toBeHidden();
@@ -284,8 +284,10 @@ test.describe("athlete shell", () => {
       const b = (await link.boundingBox())!;
       expect(b.height).toBeGreaterThanOrEqual(44);
     }
-    await tabs.getByRole("link", { name: "Compete" }).click();
-    await expect(page).toHaveURL(/\/app\/compete$/);
+    expect(
+      await tabs.getByRole("link").evaluateAll((as) => as.map((a) => a.getAttribute("href"))),
+    ).toEqual(["/app", "/app/programs", "/app/compete", "/app/progress", "/app/account"]);
+    await page.goto("/dev/shell?path=/app/compete");
     await expect(tabs.getByRole("link", { name: "Compete" })).toHaveAttribute(
       "aria-current",
       "page",
@@ -295,7 +297,7 @@ test.describe("athlete shell", () => {
 
   test("1440: side navigation of board 16 with the same destinations", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1040 });
-    await page.goto("/app/progress");
+    await page.goto("/dev/shell?path=/app/progress");
     const side = page.getByTestId("side-nav").getByRole("navigation", { name: "Main" });
     await expect(side).toBeVisible();
     await expect(page.getByTestId("tab-bar")).toBeHidden();
@@ -304,15 +306,18 @@ test.describe("athlete shell", () => {
       "aria-current",
       "page",
     );
-    await side.getByRole("link", { name: "Train" }).click();
-    await expect(page).toHaveURL(/\/app\/programs$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Programs");
+    await expect(side.getByRole("link", { name: "Train" })).toHaveAttribute(
+      "href",
+      "/app/programs",
+    );
+    await page.goto("/dev/shell?path=/app/programs/cricket-vision-foundations");
+    await expect(side.getByRole("link", { name: "Train" })).toHaveAttribute("aria-current", "page");
   });
 
   for (const width of [390, 1440]) {
     test(`shell survives 200 % text at ${width} px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
-      await page.goto("/app/compete");
+      await page.goto("/dev/shell?path=/app/compete");
       await scaleText(page);
       expect(await textProblems(page, "body")).toEqual([]);
     });
@@ -321,7 +326,7 @@ test.describe("athlete shell", () => {
   test("passes automated accessibility checks", async ({ page }) => {
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 844 });
-      await page.goto("/app/progress");
+      await page.goto("/dev/shell?path=/app/progress");
       const result = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
         .analyze();

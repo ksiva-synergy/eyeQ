@@ -12,9 +12,17 @@ import { activeHref, athleteNav } from "./nav";
  * bar; from 768 px it is board 16, side navigation with the same five
  * destinations and a centred content column. One tree serves both widths.
  */
-export function AthleteShell({ children }: { children: React.ReactNode }) {
+export function AthleteShell({
+  children,
+  activePath,
+}: {
+  children: React.ReactNode;
+  /** For previews (/dev/shell): the path whose destination is marked current. */
+  activePath?: string;
+}) {
   const items = athleteNav();
-  const active = activeHref(items, usePathname() ?? "/app");
+  const pathname = usePathname();
+  const active = activeHref(items, activePath ?? pathname ?? "/app");
   return (
     <div className="min-h-dvh bg-ground text-text-primary md:flex">
       <SkipLink />

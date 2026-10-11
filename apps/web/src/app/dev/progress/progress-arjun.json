@@ -1,0 +1,330 @@
+{
+  "level": {
+    "level": 7,
+    "title": "Prospect",
+    "toNext": 223,
+    "totalXp": 2040,
+    "xpInLevel": 188,
+    "xpForLevel": 411,
+    "nextThreshold": 2263
+  },
+  "weeks": [
+    {
+      "minutes": 0,
+      "sessions": 0,
+      "weekStart": "2026-08-17"
+    },
+    {
+      "minutes": 0,
+      "sessions": 0,
+      "weekStart": "2026-08-24"
+    },
+    {
+      "minutes": 20,
+      "sessions": 4,
+      "weekStart": "2026-08-31"
+    },
+    {
+      "minutes": 0,
+      "sessions": 7,
+      "weekStart": "2026-09-07"
+    },
+    {
+      "minutes": 0,
+      "sessions": 7,
+      "weekStart": "2026-09-14"
+    },
+    {
+      "minutes": 0,
+      "sessions": 1,
+      "weekStart": "2026-09-21"
+    },
+    {
+      "minutes": 77,
+      "sessions": 6,
+      "weekStart": "2026-09-28"
+    },
+    {
+      "minutes": 78,
+      "sessions": 6,
+      "weekStart": "2026-10-05"
+    }
+  ],
+  "drills": [
+    {
+      "drillId": "00000006-0000-4000-a000-000000000001",
+      "title": "Near–Far Focus Shifts",
+      "unit": "shifts",
+      "direction": "higher",
+      "best": 27,
+      "points": [
+        {
+          "date": "2026-10-02",
+          "score": 18
+        },
+        {
+          "date": "2026-10-03",
+          "score": 19
+        },
+        {
+          "date": "2026-10-04",
+          "score": 21
+        },
+        {
+          "date": "2026-10-05",
+          "score": 20
+        },
+        {
+          "date": "2026-10-06",
+          "score": 22
+        },
+        {
+          "date": "2026-10-07",
+          "score": 24
+        },
+        {
+          "date": "2026-10-08",
+          "score": 23
+        },
+        {
+          "date": "2026-10-09",
+          "score": 25
+        },
+        {
+          "date": "2026-10-10",
+          "score": 27
+        }
+      ]
+    },
+    {
+      "drillId": "00000006-0000-4000-a000-000000000004",
+      "title": "Number Recall Sprint",
+      "unit": "digits",
+      "direction": "higher",
+      "best": 8,
+      "points": [
+        {
+          "date": "2026-10-06",
+          "score": 6
+        },
+        {
+          "date": "2026-10-07",
+          "score": 6
+        },
+        {
+          "date": "2026-10-08",
+          "score": 7
+        },
+        {
+          "date": "2026-10-09",
+          "score": 7
+        },
+        {
+          "date": "2026-10-10",
+          "score": 8
+        }
+      ]
+    }
+  ],
+  "streak": {
+    "best": 19,
+    "current": 12
+  },
+  "ratings": {
+    "day": 41,
+    "due": "day21",
+    "latest": {
+      "focus": 4,
+      "reaction": 4,
+      "tracking": 4
+    },
+    "baseline": {
+      "focus": 2,
+      "reaction": 3,
+      "tracking": 2
+    },
+    "latestAt": "2026-09-01T08:06:38.048716+00:00",
+    "baselineAt": "2026-09-01T08:06:38.048716+00:00"
+  },
+  "calendar": [
+    {
+      "date": "2026-09-07",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-08",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-09",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-10",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-11",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-12",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-13",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-14",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-15",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-16",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-17",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-18",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-19",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-20",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-21",
+      "status": "done",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-22",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-23",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-24",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-25",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-26",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-27",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-28",
+      "status": "missed",
+      "minutes": 0
+    },
+    {
+      "date": "2026-09-29",
+      "status": "done",
+      "minutes": 13
+    },
+    {
+      "date": "2026-09-30",
+      "status": "done",
+      "minutes": 13
+    },
+    {
+      "date": "2026-10-01",
+      "status": "done",
+      "minutes": 12
+    },
+    {
+      "date": "2026-10-02",
+      "status": "done",
+      "minutes": 14
+    },
+    {
+      "date": "2026-10-03",
+      "status": "done",
+      "minutes": 12
+    },
+    {
+      "date": "2026-10-04",
+      "status": "done",
+      "minutes": 13
+    },
+    {
+      "date": "2026-10-05",
+      "status": "done",
+      "minutes": 14
+    },
+    {
+      "date": "2026-10-06",
+      "status": "done",
+      "minutes": 12
+    },
+    {
+      "date": "2026-10-07",
+      "status": "done",
+      "minutes": 13
+    },
+    {
+      "date": "2026-10-08",
+      "status": "done",
+      "minutes": 14
+    },
+    {
+      "date": "2026-10-09",
+      "status": "done",
+      "minutes": 12
+    },
+    {
+      "date": "2026-10-10",
+      "status": "done",
+      "minutes": 13
+    },
+    {
+      "date": "2026-10-11",
+      "status": "today",
+      "minutes": 0
+    }
+  ],
+  "localDate": "2026-10-11",
+  "minutesTotal": 175,
+  "weeklyTarget": 4,
+  "sessionsTotal": 31
+}
