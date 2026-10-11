@@ -4,6 +4,9 @@ const port = Number(process.env.PORT ?? 3000);
 // Set PLAYWRIGHT_CHROMIUM_EXECUTABLE to use a Chromium other than the one
 // `playwright install` downloads (for example a preinstalled one).
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
+// scripts/visual.sh: the browser runs in the official Playwright Linux image, so the
+// screenshot baselines are the same pixels here and in CI.
+const wsEndpoint = process.env.PW_WS_ENDPOINT;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -12,10 +15,13 @@ export default defineConfig({
   // No retries: a flaky test must fail and be fixed at its cause, not pass on a second go.
   retries: 0,
   reporter: process.env.CI ? "github" : "list",
+  // No platform suffix: baselines are only ever rendered by that one Linux image.
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
   use: {
-    baseURL: `http://localhost:${port}`,
+    baseURL: process.env.PW_BASE_URL ?? `http://localhost:${port}`,
     trace: "on-first-retry",
     ...(executablePath ? { launchOptions: { executablePath } } : {}),
+    ...(wsEndpoint ? { connectOptions: { wsEndpoint } } : {}),
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
