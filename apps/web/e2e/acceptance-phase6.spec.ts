@@ -99,7 +99,7 @@ test.describe("phase 6 acceptance", () => {
       // A notice for the feed, as the at-risk job would queue it.
       await db.query(
         `insert into notifications (user_id, kind, dedupe_key, local_date, data)
-         values ($1, 'streak_at_risk', 'e2e-feed-' || $1 || '-' || extract(epoch from now()), current_date,
+         values ($1::uuid, 'streak_at_risk', 'e2e-feed-' || $1::text || '-' || extract(epoch from now()), current_date,
                  jsonb_build_object('streak', 12, 'ends_at', local_day_start(current_date + 1, 'Asia/Kolkata')))`,
         [ATHLETE],
       );
