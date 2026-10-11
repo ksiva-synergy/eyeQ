@@ -43,15 +43,47 @@ test.describe("Web push on a desktop browser", () => {
     const cdp = await context.newCDPSession(page);
     await cdp.send("ServiceWorker.enable");
     let registrationId: string | null = null;
+    const activated = new Set<string>();
     cdp.on("ServiceWorker.workerRegistrationUpdated", (e) => {
       for (const r of e.registrations)
         if (!r.isDeleted && r.scopeURL.startsWith(origin)) registrationId = r.registrationId;
     });
-    await page.evaluate(async () => {
-      await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      await navigator.serviceWorker.ready;
+    cdp.on("ServiceWorker.workerVersionUpdated", (e) => {
+      for (const v of e.versions) if (v.status === "activated") activated.add(v.registrationId);
     });
-    await expect.poll(() => registrationId).not.toBeNull();
+    // Open tabs hear about each push (the worker posts to them); a push delivered before the
+    // worker is activated is dropped, so wait for activation.
+    await page.evaluate(async () => {
+      const w = window as unknown as { pushes: unknown[] };
+      w.pushes = [];
+      navigator.serviceWorker.addEventListener("message", (e) => w.pushes.push(e.data));
+      await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      const worker = (await navigator.serviceWorker.ready).active!;
+      if (worker.state !== "activated")
+        await new Promise<void>((done) =>
+          worker.addEventListener("statechange", () => worker.state === "activated" && done()),
+        );
+    });
+    await expect.poll(() => registrationId !== null && activated.has(registrationId)).toBe(true);
+
+    // Record what the worker asks the system to show. (Chromium's own store of shown
+    // notifications, getNotifications(), drops entries when several browsers run at once,
+    // so the call is what is checked; it still goes through to the real showNotification.)
+    const sw =
+      context.serviceWorkers().find((w) => w.url().endsWith("/sw.js")) ??
+      (await context.waitForEvent("serviceworker"));
+    await sw.evaluate(() => {
+      const g = self as unknown as {
+        shown: unknown[];
+        registration: ServiceWorkerRegistration;
+      };
+      g.shown = [];
+      const show = g.registration.showNotification.bind(g.registration);
+      g.registration.showNotification = (title: string, options?: NotificationOptions) => {
+        g.shown.push({ title, body: options?.body, url: (options?.data as { url: string }).url });
+        return show(title, options);
+      };
+    });
 
     // The payload the dispatcher sends for a 12-day streak at risk (lib/notification-text).
     const text = notificationText(
@@ -65,15 +97,7 @@ test.describe("Web push on a desktop browser", () => {
       data: JSON.stringify({ ...text, id: "e2e-push" }),
     });
     await expect
-      .poll(() =>
-        page.evaluate(async () =>
-          (await (await navigator.serviceWorker.ready).getNotifications()).map((n) => ({
-            title: n.title,
-            body: n.body,
-            url: (n.data as { url: string }).url,
-          })),
-        ),
-      )
+      .poll(() => sw.evaluate(() => (self as unknown as { shown: unknown[] }).shown))
       .toEqual([
         {
           title: "Your 12-day streak is at risk",
@@ -81,6 +105,9 @@ test.describe("Web push on a desktop browser", () => {
           url: "/app",
         },
       ]);
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { pushes: unknown[] }).pushes))
+      .toEqual([{ type: "eyeq:push", id: "e2e-push" }]);
   });
 
   test("Profile offers browser notifications and says iPhone needs the Home Screen first", async ({

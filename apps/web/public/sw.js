@@ -15,12 +15,18 @@ self.addEventListener("push", (event) => {
   }
   const title = data.title || "EyeQ";
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: data.body || "",
-      tag: data.id || undefined,
-      icon: "/favicon.ico",
-      data: { url: data.url || "/app" },
-    }),
+    Promise.all([
+      self.registration.showNotification(title, {
+        body: data.body || "",
+        tag: data.id || undefined,
+        icon: "/favicon.ico",
+        data: { url: data.url || "/app" },
+      }),
+      // Open tabs refresh their unread count.
+      self.clients
+        .matchAll({ type: "window" })
+        .then((wins) => wins.forEach((w) => w.postMessage({ type: "eyeq:push", id: data.id }))),
+    ]).catch((e) => console.error("push not shown", e && e.message)),
   );
 });
 
