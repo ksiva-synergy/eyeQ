@@ -42,6 +42,34 @@ export function formatDateTime(iso: string | Date): string {
   return dateTimeFormat.format(new Date(iso));
 }
 
+const weekdayFormat = new Intl.DateTimeFormat(LOCALE, {
+  weekday: "long",
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+const shortWeekdayFormat = new Intl.DateTimeFormat(LOCALE, { weekday: "short", timeZone: "UTC" });
+
+/** A local calendar date ("2026-10-10") as "Friday, 10 Oct" without shifting zones. */
+export function formatWeekdayDate(isoDate: string): string {
+  return weekdayFormat.format(new Date(`${isoDate}T00:00:00Z`)).replace(",", "");
+}
+
+/** A local calendar date as "Fri". */
+export function formatShortWeekday(isoDate: string): string {
+  return shortWeekdayFormat.format(new Date(`${isoDate}T00:00:00Z`));
+}
+
+/** The hour (0 to 23) of an instant in a time zone. */
+export function hourIn(iso: string | Date, timeZone: string): number {
+  const h = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  }).format(new Date(iso));
+  return Number(h);
+}
+
 /** "today", "yesterday", "3 days ago", "2 weeks ago"; a date past eight weeks. */
 export function formatRelativeDay(iso: string | Date, now: Date = new Date()): string {
   const day = (d: Date) => Math.floor((d.getTime() - d.getTimezoneOffset() * 60_000) / 86_400_000);
