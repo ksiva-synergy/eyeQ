@@ -341,6 +341,12 @@ describeDb("daily loop", () => {
     const prog = progressResponseSchema.parse(await (await progressRoute(req(athlete))).json());
     expect(prog.sessionsTotal).toBe(1);
     expect(prog.ratings.baseline).toEqual({ focus: 3, reaction: 2, tracking: 3 });
+    // Dates on Progress are shown in the profile's zone, which the payload carries.
+    const tz = await admin.query<{ timezone: string }>(
+      "select timezone from profiles where id = $1",
+      [athlete],
+    );
+    expect(prog.timezone).toBe(tz.rows[0]!.timezone);
   });
 
   it("GET /me/entitlements is empty for a free athlete", async () => {

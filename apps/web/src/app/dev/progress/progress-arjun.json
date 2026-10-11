@@ -1,4 +1,6 @@
 {
+  "localDate": "2026-10-11",
+  "timezone": "Asia/Kolkata",
   "level": {
     "level": 7,
     "title": "Prospect",
@@ -323,7 +325,6 @@
       "minutes": 0
     }
   ],
-  "localDate": "2026-10-11",
   "minutesTotal": 175,
   "weeklyTarget": 4,
   "sessionsTotal": 31
