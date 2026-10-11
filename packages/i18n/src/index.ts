@@ -69,6 +69,11 @@ export function formatWeekdayDate(isoDate: string): string {
   return weekdayFormat.format(new Date(`${isoDate}T00:00:00Z`)).replace(",", "");
 }
 
+/** The weekday of an instant in a time zone: "Mon". */
+export function formatShortWeekdayIn(iso: string | Date, timeZone: string): string {
+  return new Intl.DateTimeFormat(LOCALE, { weekday: "short", timeZone }).format(new Date(iso));
+}
+
 /** A local calendar date as "Fri". */
 export function formatShortWeekday(isoDate: string): string {
   return shortWeekdayFormat.format(new Date(`${isoDate}T00:00:00Z`));

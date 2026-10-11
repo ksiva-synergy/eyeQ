@@ -115,6 +115,21 @@ describe("web components", () => {
     );
     expect(out).toContain("text-rank-text");
     expect(out).not.toMatch(/text-cta/);
+    // The gap line claims today's session passes them only when the caller says so.
+    expect(out).toContain("56 XP to Meera D.");
+    expect(out).not.toContain("today&#x27;s session passes");
+    const passes = html(
+      <RankRow
+        rank={4}
+        name="Arjun R."
+        initials="AR"
+        xp={412}
+        isMe
+        gapAbove={{ xp: 56, name: "Meera D.", passesToday: true }}
+      />,
+    );
+    expect(passes).toMatch(/today(&#x27;|')s session passes Meera D\./);
+    expect(passes).not.toContain("level");
   });
 
   it("a locked drill says how to unlock", () => {

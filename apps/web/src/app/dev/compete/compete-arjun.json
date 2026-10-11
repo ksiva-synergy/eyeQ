@@ -1,0 +1,923 @@
+{
+  "boards": {
+    "week-global": {
+      "period": "week",
+      "scope": "global",
+      "scopeValue": "",
+      "weekStart": "2026-10-05",
+      "resetsAt": "2026-10-11T18:30:00+00:00",
+      "count": 19,
+      "rows": [
+        {
+          "rank": 1,
+          "displayName": "Rohan S.",
+          "initials": "RS",
+          "level": 12,
+          "xp": 612,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 2,
+          "displayName": "Ananya B.",
+          "initials": "AB",
+          "level": 13,
+          "xp": 604,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 3,
+          "displayName": "Ishaan V.",
+          "initials": "IV",
+          "level": 10,
+          "xp": 588,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 4,
+          "displayName": "Dev M.",
+          "initials": "DM",
+          "level": 11,
+          "xp": 571,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 5,
+          "displayName": "Meera D.",
+          "initials": "MD",
+          "level": 9,
+          "xp": 540,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 6,
+          "displayName": "Zara F.",
+          "initials": "ZF",
+          "level": 10,
+          "xp": 498,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 7,
+          "displayName": "Nikhil T.",
+          "initials": "NT",
+          "level": 8,
+          "xp": 455,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 8,
+          "displayName": "Arjun R.",
+          "initials": "AR",
+          "level": 7,
+          "xp": 412,
+          "delta": 4,
+          "isMe": true
+        },
+        {
+          "rank": 9,
+          "displayName": "Priya M.",
+          "initials": "PM",
+          "level": 7,
+          "xp": 388,
+          "delta": -1,
+          "isMe": false
+        },
+        {
+          "rank": 10,
+          "displayName": "Kabir N.",
+          "initials": "KN",
+          "level": 8,
+          "xp": 365,
+          "delta": -1,
+          "isMe": false
+        }
+      ],
+      "me": {
+        "rank": 8,
+        "xp": 412,
+        "delta": 4,
+        "isPublic": true,
+        "displayName": "Arjun R.",
+        "initials": "AR",
+        "level": 7,
+        "sport": "cricket",
+        "gapAbove": {
+          "xp": 43,
+          "rank": 7,
+          "displayName": "Nikhil T."
+        },
+        "gapBelow": {
+          "xp": 24,
+          "rank": 9,
+          "displayName": "Priya M."
+        }
+      }
+    },
+    "week-sport": {
+      "period": "week",
+      "scope": "sport",
+      "scopeValue": "cricket",
+      "weekStart": "2026-10-05",
+      "resetsAt": "2026-10-11T18:30:00+00:00",
+      "count": 14,
+      "rows": [
+        {
+          "rank": 1,
+          "displayName": "Rohan S.",
+          "initials": "RS",
+          "level": 12,
+          "xp": 612,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 2,
+          "displayName": "Ishaan V.",
+          "initials": "IV",
+          "level": 10,
+          "xp": 588,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 3,
+          "displayName": "Meera D.",
+          "initials": "MD",
+          "level": 9,
+          "xp": 540,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 4,
+          "displayName": "Arjun R.",
+          "initials": "AR",
+          "level": 7,
+          "xp": 412,
+          "delta": 4,
+          "isMe": true
+        },
+        {
+          "rank": 5,
+          "displayName": "Priya M.",
+          "initials": "PM",
+          "level": 7,
+          "xp": 388,
+          "delta": -1,
+          "isMe": false
+        },
+        {
+          "rank": 6,
+          "displayName": "Kabir N.",
+          "initials": "KN",
+          "level": 8,
+          "xp": 365,
+          "delta": -1,
+          "isMe": false
+        },
+        {
+          "rank": 7,
+          "displayName": "Sneha K.",
+          "initials": "SK",
+          "level": 6,
+          "xp": 318,
+          "delta": -1,
+          "isMe": false
+        },
+        {
+          "rank": 8,
+          "displayName": "Tanvi R.",
+          "initials": "TR",
+          "level": 5,
+          "xp": 276,
+          "delta": -1,
+          "isMe": false
+        },
+        {
+          "rank": 9,
+          "displayName": "Yash B.",
+          "initials": "YB",
+          "level": 4,
+          "xp": 210,
+          "delta": 0,
+          "isMe": false
+        },
+        {
+          "rank": 10,
+          "displayName": "Harsh T.",
+          "initials": "HT",
+          "level": 5,
+          "xp": 160,
+          "delta": 0,
+          "isMe": false
+        }
+      ],
+      "me": {
+        "rank": 4,
+        "xp": 412,
+        "delta": 4,
+        "isPublic": true,
+        "displayName": "Arjun R.",
+        "initials": "AR",
+        "level": 7,
+        "sport": "cricket",
+        "gapAbove": {
+          "xp": 128,
+          "rank": 3,
+          "displayName": "Meera D."
+        },
+        "gapBelow": {
+          "xp": 24,
+          "rank": 5,
+          "displayName": "Priya M."
+        }
+      }
+    },
+    "all-global": {
+      "period": "all",
+      "scope": "global",
+      "scopeValue": "",
+      "weekStart": null,
+      "resetsAt": "2026-10-11T18:30:00+00:00",
+      "count": 19,
+      "rows": [
+        {
+          "rank": 1,
+          "displayName": "Ananya B.",
+          "initials": "AB",
+          "level": 13,
+          "xp": 4810,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 2,
+          "displayName": "Rohan S.",
+          "initials": "RS",
+          "level": 12,
+          "xp": 4320,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 3,
+          "displayName": "Dev M.",
+          "initials": "DM",
+          "level": 11,
+          "xp": 3905,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 4,
+          "displayName": "Ishaan V.",
+          "initials": "IV",
+          "level": 10,
+          "xp": 3360,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 5,
+          "displayName": "Zara F.",
+          "initials": "ZF",
+          "level": 10,
+          "xp": 3210,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 6,
+          "displayName": "Meera D.",
+          "initials": "MD",
+          "level": 9,
+          "xp": 2740,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 7,
+          "displayName": "Nikhil T.",
+          "initials": "NT",
+          "level": 8,
+          "xp": 2515,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 8,
+          "displayName": "Kabir N.",
+          "initials": "KN",
+          "level": 8,
+          "xp": 2290,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 9,
+          "displayName": "Arjun R.",
+          "initials": "AR",
+          "level": 7,
+          "xp": 2040,
+          "delta": null,
+          "isMe": true
+        },
+        {
+          "rank": 10,
+          "displayName": "Priya M.",
+          "initials": "PM",
+          "level": 7,
+          "xp": 1980,
+          "delta": null,
+          "isMe": false
+        }
+      ],
+      "me": {
+        "rank": 9,
+        "xp": 2040,
+        "delta": null,
+        "isPublic": true,
+        "displayName": "Arjun R.",
+        "initials": "AR",
+        "level": 7,
+        "sport": "cricket",
+        "gapAbove": {
+          "xp": 250,
+          "rank": 8,
+          "displayName": "Kabir N."
+        },
+        "gapBelow": {
+          "xp": 60,
+          "rank": 10,
+          "displayName": "Priya M."
+        }
+      }
+    },
+    "all-sport": {
+      "period": "all",
+      "scope": "sport",
+      "scopeValue": "cricket",
+      "weekStart": null,
+      "resetsAt": "2026-10-11T18:30:00+00:00",
+      "count": 14,
+      "rows": [
+        {
+          "rank": 1,
+          "displayName": "Rohan S.",
+          "initials": "RS",
+          "level": 12,
+          "xp": 4320,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 2,
+          "displayName": "Ishaan V.",
+          "initials": "IV",
+          "level": 10,
+          "xp": 3360,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 3,
+          "displayName": "Meera D.",
+          "initials": "MD",
+          "level": 9,
+          "xp": 2740,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 4,
+          "displayName": "Kabir N.",
+          "initials": "KN",
+          "level": 8,
+          "xp": 2290,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 5,
+          "displayName": "Arjun R.",
+          "initials": "AR",
+          "level": 7,
+          "xp": 2040,
+          "delta": null,
+          "isMe": true
+        },
+        {
+          "rank": 6,
+          "displayName": "Priya M.",
+          "initials": "PM",
+          "level": 7,
+          "xp": 1980,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 7,
+          "displayName": "Karan J.",
+          "initials": "KJ",
+          "level": 7,
+          "xp": 1900,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 8,
+          "displayName": "Sneha K.",
+          "initials": "SK",
+          "level": 6,
+          "xp": 1500,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 9,
+          "displayName": "Harsh T.",
+          "initials": "HT",
+          "level": 5,
+          "xp": 1300,
+          "delta": null,
+          "isMe": false
+        },
+        {
+          "rank": 10,
+          "displayName": "Tanvi R.",
+          "initials": "TR",
+          "level": 5,
+          "xp": 1150,
+          "delta": null,
+          "isMe": false
+        }
+      ],
+      "me": {
+        "rank": 5,
+        "xp": 2040,
+        "delta": null,
+        "isPublic": true,
+        "displayName": "Arjun R.",
+        "initials": "AR",
+        "level": 7,
+        "sport": "cricket",
+        "gapAbove": {
+          "xp": 250,
+          "rank": 4,
+          "displayName": "Kabir N."
+        },
+        "gapBelow": {
+          "xp": 60,
+          "rank": 6,
+          "displayName": "Priya M."
+        }
+      }
+    }
+  },
+  "challenges": {
+    "active": [
+      {
+        "id": "00000008-0000-4000-a000-000000000003",
+        "type": "program",
+        "title": "Score 25+ clean shifts on Near\u2013Far",
+        "description": "Log a best set of 25 or more on Near\u2013Far Focus Shifts.",
+        "windowStart": "2026-09-11T13:05:03.045896+00:00",
+        "windowEnd": "2026-12-10T13:05:03.045896+00:00",
+        "programId": "00000003-0000-4000-a000-000000000002",
+        "reward": {
+          "xp": 40,
+          "coins": 0,
+          "badgeId": null,
+          "badge": null
+        },
+        "progress": 0,
+        "target": 25,
+        "completed": false,
+        "completedAt": null,
+        "joined": 0,
+        "state": "active"
+      },
+      {
+        "id": "00000008-0000-4000-a000-000000000002",
+        "type": "program",
+        "title": "Finish Module 2 by Sunday",
+        "description": "Complete every session of Track It Clean this week.",
+        "windowStart": "2026-10-04T18:30:00+00:00",
+        "windowEnd": "2026-10-11T18:30:00+00:00",
+        "programId": "00000003-0000-4000-a000-000000000002",
+        "reward": {
+          "xp": 60,
+          "coins": 0,
+          "badgeId": null,
+          "badge": null
+        },
+        "progress": 5,
+        "target": 7,
+        "completed": false,
+        "completedAt": null,
+        "joined": 1,
+        "state": "active"
+      },
+      {
+        "id": "00000008-0000-4000-a000-000000000001",
+        "type": "weekly",
+        "title": "5 sessions this week",
+        "description": "Complete five sessions between Monday and Sunday.",
+        "windowStart": "2026-10-04T18:30:00+00:00",
+        "windowEnd": "2026-10-11T18:30:00+00:00",
+        "programId": null,
+        "reward": {
+          "xp": 150,
+          "coins": 40,
+          "badgeId": "00000007-0000-4000-a000-000000000016",
+          "badge": "Five-a-Week"
+        },
+        "progress": 6,
+        "target": 5,
+        "completed": true,
+        "completedAt": "2026-10-11T13:05:03.045896+00:00",
+        "joined": 12,
+        "state": "complete"
+      }
+    ],
+    "completed": [
+      {
+        "id": "00000008-0000-4000-a000-000000000001",
+        "type": "weekly",
+        "title": "5 sessions this week",
+        "description": "Complete five sessions between Monday and Sunday.",
+        "windowStart": "2026-10-04T18:30:00+00:00",
+        "windowEnd": "2026-10-11T18:30:00+00:00",
+        "programId": null,
+        "reward": {
+          "xp": 150,
+          "coins": 40,
+          "badgeId": "00000007-0000-4000-a000-000000000016",
+          "badge": "Five-a-Week"
+        },
+        "progress": 6,
+        "target": 5,
+        "completed": true,
+        "completedAt": "2026-10-11T13:05:03.045896+00:00",
+        "joined": 12,
+        "state": "complete"
+      }
+    ],
+    "missed": []
+  },
+  "badges": {
+    "badges": [
+      {
+        "id": "00000007-0000-4000-a000-000000000001",
+        "slug": "first-rep",
+        "name": "First Rep",
+        "description": "Finish your first session",
+        "family": "consistency",
+        "coins": 10,
+        "icon": "check",
+        "earned": true,
+        "awardedAt": "2026-09-03T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000002",
+        "slug": "streak-3",
+        "name": "Three Days In",
+        "description": "Reach a 3-day streak",
+        "family": "consistency",
+        "coins": 10,
+        "icon": "flame",
+        "earned": true,
+        "awardedAt": "2026-09-05T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000003",
+        "slug": "week-one",
+        "name": "Week One",
+        "description": "Reach a 7-day streak",
+        "family": "consistency",
+        "coins": 20,
+        "icon": "flame",
+        "earned": true,
+        "awardedAt": "2026-09-09T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000004",
+        "slug": "two-week-flame",
+        "name": "Two-Week Flame",
+        "description": "Reach a 14-day streak",
+        "family": "consistency",
+        "coins": 30,
+        "icon": "flame",
+        "earned": true,
+        "awardedAt": "2026-09-16T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000005",
+        "slug": "three-week-flame",
+        "name": "Three-Week Flame",
+        "description": "Reach a 21-day streak",
+        "family": "consistency",
+        "coins": 40,
+        "icon": "flame",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 12,
+          "target": 21
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000006",
+        "slug": "streak-30",
+        "name": "Thirty Strong",
+        "description": "Reach a 30-day streak",
+        "family": "consistency",
+        "coins": 60,
+        "icon": "flame",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 12,
+          "target": 30
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000007",
+        "slug": "streak-60",
+        "name": "Sixty Days",
+        "description": "Reach a 60-day streak",
+        "family": "consistency",
+        "coins": 100,
+        "icon": "flame",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 12,
+          "target": 60
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000008",
+        "slug": "streak-100",
+        "name": "Century",
+        "description": "Reach a 100-day streak",
+        "family": "consistency",
+        "coins": 150,
+        "icon": "flame",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 12,
+          "target": 100
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000009",
+        "slug": "streak-365",
+        "name": "Full Year",
+        "description": "Reach a 365-day streak",
+        "family": "consistency",
+        "coins": 500,
+        "icon": "flame",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 12,
+          "target": 365
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000010",
+        "slug": "early-bird",
+        "name": "Early Bird",
+        "description": "Finish 5 sessions before 8 am",
+        "family": "consistency",
+        "coins": 20,
+        "icon": "sun",
+        "earned": true,
+        "awardedAt": "2026-09-15T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000011",
+        "slug": "scan-master-1",
+        "name": "Scan Master I",
+        "description": "Complete 10 Executive Scan drills",
+        "family": "volume",
+        "coins": 25,
+        "icon": "scan",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 9,
+          "target": 10
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000012",
+        "slug": "scan-master-2",
+        "name": "Scan Master II",
+        "description": "Complete 25 Executive Scan drills",
+        "family": "volume",
+        "coins": 50,
+        "icon": "scan",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 9,
+          "target": 25
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000013",
+        "slug": "module-clear",
+        "name": "Module Clear",
+        "description": "Finish a full module",
+        "family": "volume",
+        "coins": 20,
+        "icon": "star",
+        "earned": true,
+        "awardedAt": "2026-10-05T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000014",
+        "slug": "program-done",
+        "name": "Program Done",
+        "description": "Complete a full program",
+        "family": "volume",
+        "coins": 100,
+        "icon": "trophy",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 0,
+          "target": 1
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000015",
+        "slug": "sharp-eye",
+        "name": "Sharp Eye",
+        "description": "Score 25+ clean shifts on Near\u2013Far Focus Shifts",
+        "family": "mastery",
+        "coins": 20,
+        "icon": "eye",
+        "earned": false,
+        "awardedAt": null,
+        "progress": {
+          "value": 0,
+          "target": 25
+        }
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000016",
+        "slug": "five-a-week",
+        "name": "Five-a-Week",
+        "description": "Win a weekly challenge",
+        "family": "community",
+        "coins": 20,
+        "icon": "trophy",
+        "earned": true,
+        "awardedAt": "2026-10-02T13:05:03.045896+00:00",
+        "progress": null
+      },
+      {
+        "id": "00000007-0000-4000-a000-000000000017",
+        "slug": "top-3",
+        "name": "Top 3",
+        "description": "Finish a week on the podium",
+        "family": "community",
+        "coins": 30,
+        "icon": "trophy",
+        "earned": false,
+        "awardedAt": null,
+        "progress": null
+      }
+    ],
+    "earned": 7,
+    "total": 17,
+    "level": 7,
+    "titles": [
+      {
+        "title": "Rookie",
+        "fromLevel": 1,
+        "toLevel": 4
+      },
+      {
+        "title": "Prospect",
+        "fromLevel": 5,
+        "toLevel": 9
+      },
+      {
+        "title": "Contender",
+        "fromLevel": 10,
+        "toLevel": 14
+      },
+      {
+        "title": "Elite",
+        "fromLevel": 15,
+        "toLevel": 19
+      },
+      {
+        "title": "Peak",
+        "fromLevel": 20,
+        "toLevel": null
+      }
+    ]
+  },
+  "rewards": {
+    "coins": 140,
+    "coinsThisWeek": 40,
+    "freezesHeld": 1,
+    "freezeMax": 2,
+    "items": [
+      {
+        "id": "00000009-0000-4000-a000-000000000001",
+        "slug": "streak-freeze",
+        "kind": "freeze",
+        "title": "Streak freeze",
+        "description": "Protects one missed day",
+        "coinPrice": 50,
+        "perUserLimit": null,
+        "perUserPeriod": null,
+        "available": true,
+        "affordable": true
+      },
+      {
+        "id": "00000009-0000-4000-a000-000000000002",
+        "slug": "drill-unlock",
+        "kind": "drill_unlock",
+        "title": "Unlock a single drill",
+        "description": "Any locked drill, forever",
+        "coinPrice": 30,
+        "perUserLimit": null,
+        "perUserPeriod": null,
+        "available": true,
+        "affordable": true
+      },
+      {
+        "id": "00000009-0000-4000-a000-000000000003",
+        "slug": "profile-frame",
+        "kind": "frame",
+        "title": "Profile frames",
+        "description": "Ember, Volt, Peak gold \u00b7 shows on boards",
+        "coinPrice": 80,
+        "perUserLimit": null,
+        "perUserPeriod": null,
+        "available": false,
+        "affordable": true
+      },
+      {
+        "id": "00000009-0000-4000-a000-000000000004",
+        "slug": "program-voucher",
+        "kind": "voucher",
+        "title": "Program discount",
+        "description": "Off any one-time program",
+        "coinPrice": 200,
+        "perUserLimit": null,
+        "perUserPeriod": null,
+        "available": false,
+        "affordable": false
+      },
+      {
+        "id": "00000009-0000-4000-a000-000000000005",
+        "slug": "coach-call",
+        "kind": "real_world",
+        "title": "20-min call with the coach",
+        "description": "Review your scores",
+        "coinPrice": 500,
+        "perUserLimit": 1,
+        "perUserPeriod": "month",
+        "available": false,
+        "affordable": false
+      },
+      {
+        "id": "00000009-0000-4000-a000-000000000006",
+        "slug": "training-tee",
+        "kind": "real_world",
+        "title": "EyeQ training tee",
+        "description": "Ships in 7\u201310 days",
+        "coinPrice": 800,
+        "perUserLimit": 1,
+        "perUserPeriod": "lifetime",
+        "available": false,
+        "affordable": false
+      }
+    ],
+    "unlockableDrills": [],
+    "redemptions": []
+  },
+  "now": "2026-10-11T13:06:05.438Z"
+}

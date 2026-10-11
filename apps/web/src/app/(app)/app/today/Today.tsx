@@ -2,6 +2,7 @@ import type { HomeResponse, Today as TodaySession } from "@eyeq/api-contract";
 import {
   formatNumber,
   formatShortWeekday,
+  formatShortWeekdayIn,
   formatWeekdayDate,
   hourIn,
   t,
@@ -84,7 +85,13 @@ export function Today({
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <CoinChip coins={home.coins} />
+          <NextLink
+            href="/app/rewards"
+            aria-label={t("today.coinsLink", { n: home.coins })}
+            className="inline-flex min-h-11 items-center rounded-full no-underline"
+          >
+            <CoinChip coins={home.coins} />
+          </NextLink>
           <NextLink
             href="/app/account"
             aria-label={t("today.profile")}
@@ -453,7 +460,7 @@ function ChallengeTile({ home }: { home: HomeResponse }) {
   const shown = Math.min(c.progress, c.target);
   return (
     <NextLink
-      href="/app/compete"
+      href="/app/compete?tab=challenges"
       className="flex min-h-11 flex-col gap-2 rounded-l border border-border bg-surface-1 p-3.5 text-text-primary no-underline"
     >
       <span className="type-label text-primary-text">{t("today.challenge")}</span>
@@ -466,7 +473,7 @@ function ChallengeTile({ home }: { home: HomeResponse }) {
         </span>
       </span>
       <span className="type-caption text-text-muted">
-        {t("today.resets", { when: formatShortWeekday(resets.slice(0, 10)) })}
+        {t("today.resets", { when: formatShortWeekdayIn(resets, home.timezone) })}
       </span>
     </NextLink>
   );
