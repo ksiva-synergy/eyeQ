@@ -41,8 +41,11 @@ describeDb("claim_notifications across connections", () => {
       [userId],
     );
     await admin.query(
-      `insert into notifications (user_id, kind, dedupe_key, local_date)
-       select $1::uuid, 'daily_reminder', 'race-' || $1::text || '-' || g, date '2026-12-01' + g
+      // Due a day ago, so they are claimed before anything the live pg_cron jobs queued
+      // (claims take the oldest send_after first).
+      `insert into notifications (user_id, kind, dedupe_key, local_date, send_after)
+       select $1::uuid, 'daily_reminder', 'race-' || $1::text || '-' || g, date '2026-12-01' + g,
+              now() - interval '1 day' + make_interval(secs => g)
        from generate_series(1, 40) g`,
       [userId],
     );

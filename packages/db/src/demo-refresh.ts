@@ -176,12 +176,13 @@ async function moveSignIns(
     );
     if (identities.rows[0]?.ok)
       await client.query(
-        `update auth.identities set user_id = $2,
-           provider_id = case when provider_id = $1::text then $2::text else provider_id end,
-           identity_data = case when identity_data->>'sub' = $1::text
-                                then jsonb_set(identity_data, '{sub}', to_jsonb($2::text)) else identity_data end
-         where user_id = $1`,
-        [from, to],
+        // $1/$2 are the ids as uuids, $3/$4 the same ids as text: one type per parameter.
+        `update auth.identities set user_id = $2::uuid,
+           provider_id = case when provider_id = $3::text then $4::text else provider_id end,
+           identity_data = case when identity_data->>'sub' = $3::text
+                                then jsonb_set(identity_data, '{sub}', to_jsonb($4::text)) else identity_data end
+         where user_id = $1::uuid`,
+        [from, to, from, to],
       );
     moved++;
   }
