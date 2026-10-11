@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { scaleText, textProblems } from "./text-scale";
+import { settled } from "./settle";
 import { smallTargets } from "./touch-targets";
 
 /**
@@ -50,6 +51,7 @@ for (const [width, height] of [
       expect(await smallTargets(page, "main")).toEqual([]);
       await axe(page);
       await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+      await settled(page);
       await axe(page);
     });
 

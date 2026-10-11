@@ -544,5 +544,29 @@ test.describe("onboarding", () => {
         name: /^Sessions per week for the last 8 weeks: (0, ){7}1, this week so far$/,
       }),
     ).toBeVisible();
+
+    // Programs (board 10a, 10b), signed in as a free athlete after day 1 of the Reset.
+    await page.getByRole("link", { name: "Train" }).first().click();
+    await page.waitForURL(/\/app\/programs$/);
+    await expect(
+      page
+        .getByRole("region", { name: "In progress" })
+        .getByRole("link", { name: /3-Day Eye Health Reset/ }),
+    ).toContainText("Day 2/3");
+    const cvf = page
+      .getByRole("region", { name: /Catalog/ })
+      .getByRole("link", { name: /Cricket Vision Foundations/ });
+    await expect(cvf).toContainText("Pro · or ₹");
+    await cvf.click();
+    await page.waitForURL(/\/app\/programs\/cricket-vision-foundations$/);
+    await expect(
+      page
+        .getByRole("button", { name: /Unlock program · payments open/ })
+        .filter({ visible: true }),
+    ).toBeDisabled();
+    await page.goto("/app/programs/eye-health-reset");
+    await expect(
+      page.getByRole("link", { name: "Continue · day 2" }).filter({ visible: true }),
+    ).toBeVisible();
   });
 });
