@@ -363,7 +363,9 @@ export const progressResponseSchema = z.object({
   weeks: z.array(
     z.object({ weekStart: date, sessions: z.number().int(), minutes: z.number().int() }),
   ),
-  calendar: z.array(z.object({ date, status: z.enum(streakDayStatuses) })),
+  calendar: z.array(
+    z.object({ date, status: z.enum(streakDayStatuses), minutes: z.number().int() }),
+  ),
   drills: z.array(
     z.object({
       drillId: z.uuid(),
@@ -377,9 +379,12 @@ export const progressResponseSchema = z.object({
   ratings: z.object({
     baseline: ratingsMap,
     latest: ratingsMap,
+    baselineAt: timestamp.nullable(),
+    latestAt: timestamp.nullable(),
     due: z.enum(["day14", "day21"]).nullable(),
     day: z.number().int(),
   }),
+  level: levelProgressSchema,
 });
 export type ProgressResponse = z.infer<typeof progressResponseSchema>;
 
