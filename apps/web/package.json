@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
-    "start:standalone": "node scripts/start-standalone.mjs",
     "test:integration": "node --env-file-if-exists=../../.env --import tsx node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts",
     "auth:e2e": "node --env-file-if-exists=../../.env --import tsx scripts/auth-e2e.ts",
+    "concurrency:check": "node --env-file-if-exists=../../.env --import tsx scripts/concurrency-check.ts",
     "check:data-api": "node --env-file-if-exists=../../.env --import tsx scripts/check-data-api.ts"
   },
   "dependencies": {

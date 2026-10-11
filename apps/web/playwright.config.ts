@@ -18,9 +18,9 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    // CI runs the production standalone server (same entry as the Docker image);
+    // CI runs the production build with `next start` (Vercel serves the same build);
     // locally the dev server is reused if already running.
-    command: process.env.CI ? "pnpm start:standalone" : `pnpm dev -p ${port}`,
+    command: process.env.CI ? "pnpm start" : `pnpm dev -p ${port}`,
     url: `http://localhost:${port}/api/health`,
     // PW_REUSE_SERVER=1: CI's Supabase job starts the server itself, with Auth's env.
     reuseExistingServer: !process.env.CI || process.env.PW_REUSE_SERVER === "1",
