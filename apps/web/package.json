@@ -16,6 +16,9 @@
     "check:data-api": "node --env-file-if-exists=../../.env --import tsx scripts/check-data-api.ts"
   },
   "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
     "@eyeq/api-contract": "workspace:*",
     "@eyeq/config": "workspace:*",
     "@eyeq/db": "workspace:*",

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import pg from "pg";
 
 /**
@@ -92,58 +92,163 @@ test.describe("sign-in", () => {
     await expect(page.getByRole("cell", { name: "4 credits" }).first()).toBeVisible();
   });
 
-  test("a coach finds an athlete, grants a program by hand, and it unlocks and is audited", async ({
-    page,
-  }) => {
-    // Runs after the product test, so this account is already a coach. It is also the
-    // athlete here: the only phone this job can sign in with.
-    const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
-    await db.connect();
-    try {
-      const tag = crypto.randomUUID().slice(0, 8);
-      const slug = `e2e-grant-${tag}`;
-      const prog = await db.query<{ id: string }>(
-        `insert into programs (slug, title, duration_days, is_free, in_subscription, status)
-         values ($1, $2, 7, false, false, 'published') returning id`,
-        [slug, `E2E grant ${tag}`],
-      );
-      const programId = prog.rows[0]!.id;
-      const u = await db.query<{ id: string }>("select id from auth.users where phone = $1", [
-        `91${phone}`,
-      ]);
-      const me = u.rows[0]!.id;
+  // The coach journeys share one signed-in browser: every sign-in sends a code, and
+  // the app allows only a few codes per phone in a window (phase 2).
+  test.describe("as the coach", () => {
+    let context: BrowserContext;
+    let page: Page;
 
+    test.beforeAll(async ({ browser }) => {
+      // Runs after the product test, so this account is already a coach.
+      await new Promise((r) => setTimeout(r, 1_100));
+      context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      page = await context.newPage();
       // The admin gate sends a signed-out visit to sign-in with next=/admin.
-      await signIn(page, "/admin/athletes");
+      await signIn(page, "/admin/programs");
       await page.waitForURL(/\/admin\/programs$/);
-      await page.goto("/admin/athletes");
-      await page.getByLabel("Search name or phone").fill(phone.slice(-4));
-      await expect(page.getByText(`+91 ••••• •${phone.slice(-4)}`).first()).toBeVisible();
-      expect(await page.content()).not.toContain(phone);
+    });
 
-      const before = await page.request.get(`/api/v1/programs/${slug}`);
-      expect((await before.json()).hasAccess).toBe(false);
+    test.afterAll(async () => {
+      await context.close();
+    });
 
-      await page.goto(`/admin/athletes/${me}`);
-      await page.getByRole("button", { name: "Grant access" }).click();
-      const sheet = page.getByRole("dialog", { name: "Manual grant" });
-      await sheet.getByRole("radio", { name: "Program" }).click();
-      await sheet.getByLabel("Program, drill or challenge id").fill(programId);
-      await sheet.getByLabel("Reason · kept in the audit log").fill("e2e comp");
-      await sheet.getByRole("button", { name: "Grant", exact: true }).click();
-      await expect(page.getByText(`Program · E2E grant ${tag}`)).toBeVisible();
-      await expect(page.getByText("Manual grant · From", { exact: false }).first()).toBeVisible();
+    test("a coach finds an athlete, grants a program by hand, and it unlocks and is audited", async () => {
+      // Runs after the product test, so this account is already a coach. It is also the
+      // athlete here: the only phone this job can sign in with.
+      const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
+      await db.connect();
+      try {
+        const tag = crypto.randomUUID().slice(0, 8);
+        const slug = `e2e-grant-${tag}`;
+        const prog = await db.query<{ id: string }>(
+          `insert into programs (slug, title, duration_days, is_free, in_subscription, status)
+           values ($1, $2, 7, false, false, 'published') returning id`,
+          [slug, `E2E grant ${tag}`],
+        );
+        const programId = prog.rows[0]!.id;
+        const u = await db.query<{ id: string }>("select id from auth.users where phone = $1", [
+          `91${phone}`,
+        ]);
+        const me = u.rows[0]!.id;
 
-      const after = await page.request.get(`/api/v1/programs/${slug}`);
-      expect((await after.json()).hasAccess).toBe(true);
-      const audit = await db.query(
-        `select a.actor_id from audit_log a join entitlements e on e.id::text = a.target_id
-         where a.action = 'entitlement.grant' and e.scope_id = $1 and e.source = 'admin'`,
-        [programId],
+        await page.goto("/admin/athletes");
+        await page.getByLabel("Search name or phone").fill(phone.slice(-4));
+        await expect(page.getByText(`+91 ••••• •${phone.slice(-4)}`).first()).toBeVisible();
+        expect(await page.content()).not.toContain(phone);
+
+        const before = await page.request.get(`/api/v1/programs/${slug}`);
+        expect((await before.json()).hasAccess).toBe(false);
+
+        await page.goto(`/admin/athletes/${me}`);
+        await page.getByRole("button", { name: "Grant access" }).click();
+        const sheet = page.getByRole("dialog", { name: "Manual grant" });
+        await sheet.getByRole("radio", { name: "Program" }).click();
+        await sheet.getByLabel("Program, drill or challenge id").fill(programId);
+        await sheet.getByLabel("Reason · kept in the audit log").fill("e2e comp");
+        await sheet.getByRole("button", { name: "Grant", exact: true }).click();
+        await expect(page.getByText(`Program · E2E grant ${tag}`)).toBeVisible();
+        await expect(page.getByText("Manual grant · From", { exact: false }).first()).toBeVisible();
+
+        const after = await page.request.get(`/api/v1/programs/${slug}`);
+        expect((await after.json()).hasAccess).toBe(true);
+        const audit = await db.query(
+          `select a.actor_id from audit_log a join entitlements e on e.id::text = a.target_id
+           where a.action = 'entitlement.grant' and e.scope_id = $1 and e.source = 'admin'`,
+          [programId],
+        );
+        expect(audit.rows).toEqual([{ actor_id: me }]);
+      } finally {
+        await db.end();
+      }
+    });
+
+    test("builds a program from pasted links, reorders, is refused with the reason, then publishes", async () => {
+      // Phase 4 acceptance. Links go through the offline stub checker (APP_ENV=test):
+      // references starting "dead" are missing videos.
+      test.setTimeout(120_000);
+      const title = `E2E Builder ${crypto.randomUUID().slice(0, 8)}`;
+      await page.goto("/admin/programs");
+      await page.getByRole("button", { name: "New program" }).click();
+      await page.getByLabel("Program title").fill(title);
+      await page.getByLabel("Length (days)").fill("3");
+      await page.getByRole("button", { name: "Create program" }).click();
+      await page.waitForURL(/\/admin\/programs\/[0-9a-f-]{36}$/);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+      const id = page.url().split("/").at(-1)!;
+
+      const tree = page.getByTestId("tree-module").or(page.getByTestId("tree-session"));
+      await page.getByRole("button", { name: "Module", exact: true }).click();
+      await expect(page.getByTestId("tree-module")).toHaveCount(1);
+      await page.getByRole("button", { name: "Module", exact: true }).click();
+      await expect(page.getByTestId("tree-module")).toHaveCount(2);
+
+      const addSession = async (module: string) => {
+        await page.getByRole("button", { name: new RegExp(`^${module} · New module`) }).click();
+        await page.getByRole("button", { name: "Session", exact: true }).click();
+      };
+      await addSession("Module 1");
+      await expect(page.getByTestId("tree-session")).toHaveCount(1);
+      await addSession("Module 1");
+      await expect(page.getByTestId("tree-session")).toHaveCount(2);
+      await addSession("Module 2");
+      await expect(page.getByTestId("tree-session")).toHaveCount(3);
+      await expect(tree).toHaveCount(5);
+
+      const paste = async (day: number, links: string[]) => {
+        await page.getByRole("button", { name: new RegExp(`^Day ${day} \\d+ drills?`) }).click();
+        await page.getByLabel("One YouTube or Google Drive link per line").fill(links.join("\n"));
+        await page.getByRole("button", { name: `Add ${links.length} drills` }).click();
+        await expect(
+          page.getByRole("button", { name: new RegExp(`^Day ${day} ${links.length} drills?`) }),
+        ).toBeVisible();
+      };
+      await paste(1, [
+        "https://youtu.be/e2eVideo001",
+        "https://youtu.be/e2eVideo002",
+        "https://youtu.be/deadVideo01",
+      ]);
+      await paste(2, ["https://www.youtube.com/watch?v=e2eVideo003"]);
+      await paste(3, ["https://youtu.be/e2eVideo004"]);
+
+      // Reorder without a mouse: Day 1's third drill moves up one.
+      await page.getByRole("button", { name: /^Day 1 3 drills/ }).click();
+      await page.getByRole("button", { name: /^Drill 3/ }).focus();
+      await page.keyboard.press("Alt+ArrowUp");
+      await expect(page.getByTestId("tree-drill").nth(1)).toContainText("Drill 3");
+
+      // Refused, with the reason shown.
+      const problems = page.getByTestId("publish-problems");
+      await expect(problems).toContainText("Day 1 · Drill 3: No video at this link.");
+      await expect(problems).toContainText("A paid program needs an active product");
+      await expect(page.getByRole("button", { name: /^Publish/ })).toContainText(
+        "fix 2 problems first",
       );
-      expect(audit.rows).toEqual([{ actor_id: me }]);
-    } finally {
-      await db.end();
-    }
+      const refused = await page.request.post(`/api/admin/programs/${id}/publish`, {
+        headers: { "idempotency-key": crypto.randomUUID() },
+      });
+      expect(refused.status()).toBe(409);
+      expect(JSON.stringify(await refused.json())).toContain('"reason":"not_found"');
+
+      // Fix the link in the drill editor, make the program free, publish.
+      await page.getByRole("button", { name: /^Drill 3/ }).click();
+      await page
+        .getByLabel("Video · paste a YouTube or Google Drive link")
+        .fill("https://youtu.be/e2eVideo005");
+      await page.getByRole("button", { name: "Save drill" }).click();
+      await expect(problems).not.toContainText("No video at this link");
+      await page.getByRole("button", { name: "Program settings" }).click();
+      await page.getByRole("switch", { name: "Free program" }).check({ force: true });
+      await page.getByRole("button", { name: "Save settings" }).click();
+      await expect(page.getByText("Ready to publish")).toBeVisible();
+      await page.getByRole("button", { name: "Publish", exact: true }).click();
+      await expect(page.getByText("Published", { exact: true }).first()).toBeVisible();
+
+      const catalogue = await page.request.get("/api/v1/programs");
+      expect(catalogue.status()).toBe(200);
+      const { programs } = (await catalogue.json()) as {
+        programs: { id: string; title: string }[];
+      };
+      expect(programs.find((p) => p.id === id)?.title).toBe(title);
+    });
   });
 });
