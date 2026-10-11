@@ -89,7 +89,7 @@ The principles from the architecture document all hold: Postgres is the game eng
 | Timed work that calls out        | `/api/cron/dispatch`, invoked by Vercel Cron every 5 minutes                                             | Drains the outbox and sends push and email. Needs the Vercel Pro plan: on Hobby a cron can run only once a day [2]. Fallback if that ever changes: pg_cron with pg_net calling the same route |
 | Files                            | Supabase Storage, buckets `public` and `private`                                                         | Images are resized to fixed widths at upload with `sharp`. Supabase's own image transformation is metered per image and is not used                                                           |
 | Secrets                          | Vercel environment variables marked sensitive; GitHub Actions secrets for migrations                     | Never in the repo or a client bundle                                                                                                                                                          |
-| Types                            | Kysely with `kysely-codegen`                                                                             | Generated from the migrated database                                                                                                                                                          |
+| Types                            | Prisma 7, client only (`prisma db pull` into `schema.prisma`, CI checks drift)                           | Generated from the migrated database; Prisma never migrates (DECISIONS, 2026-10-10)                                                                                                           |
 | Local development                | Supabase CLI stack (Postgres, Auth, Storage)                                                             | The existing migration runner and pgTAP tests stay                                                                                                                                            |
 | Not used                         | Supabase Realtime, Edge Functions, the Data API                                                          | Clients refetch on focus and after a completion                                                                                                                                               |
 
@@ -162,7 +162,7 @@ eyeq/
   packages/
     ui/             tokens.ts (from docs/design/tokens.json), icon paths, web components, native components
     game/           pure TypeScript rules: XP, levels, streak maths; vectors/*.json shared with SQL tests
-    db/             Kysely client, generated types, typed wrappers for SQL functions
+    db/             Prisma client (introspected schema), asAthlete(), migration runner and seed
     api-contract/   zod schemas and types for every /api/v1 and /api/admin request and response; typed fetch client
     i18n/           English message catalogue, typed keys (Tamil and Hindi slot in later)
     config/         eslint, tsconfig, shared constants
@@ -184,7 +184,7 @@ eyeq/
 | Native styling        | React Native `StyleSheet` reading the same `tokens.ts`                                                        |
 | Data fetching         | TanStack Query on web client components and mobile                                                            |
 | Validation            | zod, in `packages/api-contract`                                                                               |
-| Database access       | `pg` + Kysely; SQL functions called through typed wrappers                                                    |
+| Database access       | Prisma 7 with the `pg` driver adapter; SQL functions called with `$queryRaw`                                  |
 | Migrations            | Plain SQL files with a small runner (dbmate or equivalent)                                                    |
 | Tests                 | Vitest (unit), pgTAP (database), Playwright (web end to end), Maestro (mobile flows)                          |
 | Drag and drop (admin) | dnd-kit                                                                                                       |
@@ -192,7 +192,7 @@ eyeq/
 | Mobile animation      | Reanimated; no Lottie file over 60 KB                                                                         |
 | Mobile storage        | SecureStore for the session, MMKV or SQLite for the offline queue                                             |
 
-Left over from the Azure version and safe to delete: `infra/`, `Dockerfile.web`, `Dockerfile.worker`, Azurite in the compose file, and the `standalone` output setting.
+Left over from the Azure version and deleted on 2026-10-11: `infra/`, `apps/worker`, `Dockerfile.web`, `Dockerfile.worker`, Azurite in the compose file, and the `standalone` output setting. CI serves the production build with `next start`.
 
 Components are implemented once for web and once for native against the same token file and the same component list. Do not introduce react-native-web to share them; with about twenty components, two implementations cost less than one cross-platform abstraction.
 
@@ -469,7 +469,7 @@ Every phase ends the same way: run its acceptance checks, report, and stop for a
 
 ### Phase 0: Monorepo and local stack
 
-Reported complete. The Dockerfile and Azurite items below were written for Azure and are no longer needed.
+Reported complete. The Dockerfile and Azurite items below were written for Azure; they were deleted on 2026-10-11 (section 3), and the Docker image acceptance no longer applies.
 
 - [x] Inspect the boilerplate. Record the Next.js version, router, TypeScript and lint setup in `DECISIONS.md`. If it uses the Pages Router or JavaScript, convert to App Router and strict TypeScript now.
 - [x] Convert to pnpm workspaces and Turborepo. Move the app to `apps/web`. Create the packages in section 3 as empty, typed, building shells.

@@ -9,12 +9,12 @@ process.env["LOG_SILENT"] = "1";
 const raw = randomBytes(32).toString("base64");
 const secret = `v1,whsec_${raw}`;
 
-function signed(body: unknown, key = raw): Request {
+function signed(body: unknown, key = raw, url = "http://test/api/auth/sms-hook"): Request {
   const payload = JSON.stringify(body);
   const id = `msg_${randomBytes(6).toString("hex")}`;
   const ts = new Date();
   const sig = new Webhook(key).sign(id, ts, payload);
-  return new Request("http://test/api/auth/sms-hook", {
+  return new Request(url, {
     method: "POST",
     body: payload,
     headers: {
@@ -41,6 +41,20 @@ describe("Send SMS hook", () => {
     const res = await handleSendSmsHook(signed(event), { secret, sender: s, db: db(true) });
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({});
+    expect(s.sent).toEqual(["+919876543210:123456"]);
+  });
+
+  it("verifies when the URL carries Vercel's protection-bypass parameter (staging)", async () => {
+    // Supabase cannot send custom headers, so the hook URL on a protected deployment ends
+    // in ?x-vercel-protection-bypass=…; the signature covers the body, not the URL.
+    const s = sender();
+    const req = signed(
+      event,
+      raw,
+      "http://test/api/auth/sms-hook?x-vercel-protection-bypass=bypass-secret",
+    );
+    const res = await handleSendSmsHook(req, { secret, sender: s, db: db(true) });
+    expect(res.status).toBe(200);
     expect(s.sent).toEqual(["+919876543210:123456"]);
   });
 
