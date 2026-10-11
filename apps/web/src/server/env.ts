@@ -41,6 +41,16 @@ export const env = {
    * with DEV_GALLERY=1 (staging, CI). Read at build time, since the page is prerendered.
    */
   devGallery: () => process.env.NODE_ENV !== "production" || str("DEV_GALLERY") === "1",
+  /**
+   * The QA master login (/qa): switch into any athlete for navigation and QA. On only when
+   * both values are set and APP_ENV is not production. Remove before public launch.
+   */
+  qaMaster: () => {
+    const login = str("QA_MASTER_LOGIN");
+    const password = str("QA_MASTER_PASSWORD");
+    if (!login || !password || str("APP_ENV") === "production") return undefined;
+    return { login, password };
+  },
   posthog: () => {
     const key = str("POSTHOG_API_KEY");
     return key ? { key, host: str("POSTHOG_HOST") ?? "https://eu.i.posthog.com" } : undefined;
