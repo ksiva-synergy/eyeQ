@@ -68,6 +68,8 @@ export const patchMeRequestSchema = z
     timezone: z.string().refine(isTimeZone, "an IANA time zone"),
     visibility: z.enum(["public", "private"]),
     reminderTime: timeOfDay,
+    /** The last onboarding step: sets onboardedAt once; later calls leave it as it was. */
+    onboarded: z.literal(true),
     notifications: z
       .strictObject({
         daily: z.boolean(),

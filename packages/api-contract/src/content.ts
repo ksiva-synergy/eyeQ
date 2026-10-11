@@ -102,6 +102,8 @@ export const sessionDrillSchema = z.strictObject({
   coinPrice: z.number().int(),
   ppvProductId: z.uuid().nullable(),
   locked: z.boolean(),
+  /** Completed by the caller on their current local day (a session resumes there). */
+  doneToday: z.boolean(),
 });
 export type SessionDrill = z.infer<typeof sessionDrillSchema>;
 

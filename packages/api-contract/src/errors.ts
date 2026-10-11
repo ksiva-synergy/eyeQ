@@ -14,6 +14,10 @@ export const errorCodes = [
   "rate_limited",
   "otp_send_failed",
   "otp_invalid",
+  /** Content the athlete has no entitlement for (details.reason: program_locked, drill_locked). */
+  "locked",
+  /** The action does not fit the current state (details.reason: freeze_cap_reached, ...). */
+  "conflict",
   "internal",
 ] as const;
 export const errorCodeSchema = z.enum(errorCodes);
