@@ -171,6 +171,12 @@ jobs:
           CI: "true"
           PW_REUSE_SERVER: "1"
 
+      - name: Phase 6 acceptance (leaderboard, sport filter, pinned row, freeze bought, feed) at 390
+        run: pnpm --filter web exec playwright test e2e/acceptance-phase6.spec.ts
+        env:
+          CI: "true"
+          PW_REUSE_SERVER: "1"
+
       - name: Web server log
         if: always()
         run: cat "$RUNNER_TEMP/web.log" || true
