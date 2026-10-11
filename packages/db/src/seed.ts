@@ -1,6 +1,8 @@
 /**
  * Seeds game_config from db/seed/game_config.json (the same file packages/game reads),
- * then runs db/seed/seed.sql: demo content and athletes reproducing the prototype.
+ * then runs db/seed/seed.sql (demo content) and db/seed/athletes.sql (the demo athletes
+ * and their activity) reproducing the prototype. `pnpm demo:refresh` lays the athletes
+ * down again under fresh ids (demo-refresh.ts).
  * Local and staging only.
  *   pnpm db:seed            config + demo data
  *   pnpm db:seed config     config only
@@ -47,8 +49,12 @@ async function main() {
     const n = await seedConfig(client);
     console.log(`game_config: ${n} keys`);
     if (only !== "config") {
-      const sql = await readFile(path.join(SEED_DIR, "seed.sql"), "utf8");
-      await client.query(sql);
+      await client.query(await readFile(path.join(SEED_DIR, "seed.sql"), "utf8"));
+      // The seed's cohort keeps its fixed ids: athlete n is sid(1, n).
+      await client.query(
+        "create or replace function pg_temp.uid(n integer) returns uuid language sql immutable as $$ select pg_temp.sid(1, n) $$",
+      );
+      await client.query(await readFile(path.join(SEED_DIR, "athletes.sql"), "utf8"));
       console.log("demo content and athletes seeded");
     }
     await client.query("commit");
