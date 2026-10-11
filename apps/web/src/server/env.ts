@@ -23,6 +23,8 @@ export const env = {
   smsProvider: () => (str("SMS_PROVIDER") ?? "console") as "console" | "test" | "msg91",
   otpTestPhone: () => str("OTP_TEST_PHONE"),
   sentryDsn: () => str("SENTRY_DSN"),
+  /** YouTube Data and Drive APIs, for the admin link check (phase 4). */
+  googleApiKey: () => str("GOOGLE_API_KEY"),
   /**
    * The /dev/components gallery: always on under `next dev`; in a production build only
    * with DEV_GALLERY=1 (staging, CI). Read at build time, since the page is prerendered.

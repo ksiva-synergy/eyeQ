@@ -168,34 +168,39 @@ model drill_completions {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model drills {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title               String
-  video_provider      String
-  video_ref           String
-  thumbnail_url       String?
-  instructions        String[]              @default([])
-  target_type         String                @default("none")
-  target_value        Int?
-  target_label        String?
-  rest_seconds        Int?
-  duration_minutes    Int                   @default(3)
-  score_type          String                @default("none")
-  score_direction     String                @default("higher")
-  score_unit          String?
-  xp                  Int?
-  measurement_tag     String?
-  access              String                @default("included")
-  ppv_product_id      String?               @db.Uuid
-  coin_price          Int?
-  min_level           Int                   @default(1)
-  status              String                @default("published")
-  created_at          DateTime              @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime              @default(now()) @db.Timestamptz(6)
-  drill_completions   drill_completions[]
-  measurement_tags    measurement_tags?     @relation(fields: [measurement_tag], references: [slug], onDelete: NoAction, onUpdate: NoAction)
-  products            products?             @relation(fields: [ppv_product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  session_completions session_completions[]
-  session_drills      session_drills[]
+  id                     String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                  String
+  video_provider         String
+  video_ref              String
+  thumbnail_url          String?
+  instructions           String[]              @default([])
+  target_type            String                @default("none")
+  target_value           Int?
+  target_label           String?
+  rest_seconds           Int?
+  duration_minutes       Int                   @default(3)
+  score_type             String                @default("none")
+  score_direction        String                @default("higher")
+  score_unit             String?
+  xp                     Int?
+  measurement_tag        String?
+  access                 String                @default("included")
+  ppv_product_id         String?               @db.Uuid
+  coin_price             Int?
+  min_level              Int                   @default(1)
+  status                 String                @default("published")
+  created_at             DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime              @default(now()) @db.Timestamptz(6)
+  link_status            String                @default("unchecked")
+  link_reason            String?
+  link_checked_at        DateTime?             @db.Timestamptz(6)
+  video_duration_seconds Int?
+  video_privacy          String?
+  drill_completions      drill_completions[]
+  measurement_tags       measurement_tags?     @relation(fields: [measurement_tag], references: [slug], onDelete: NoAction, onUpdate: NoAction)
+  products               products?             @relation(fields: [ppv_product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session_completions    session_completions[]
+  session_drills         session_drills[]
 
   @@schema("public")
 }

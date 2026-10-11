@@ -10,6 +10,7 @@ export * from "./auth.ts";
 export * from "./content.ts";
 export * from "./admin-products.ts";
 export * from "./admin-athletes.ts";
+export * from "./admin-builder.ts";
 
 export const healthResponseSchema = z.object({
   ok: z.literal(true),
