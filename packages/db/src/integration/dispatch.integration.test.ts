@@ -6,6 +6,7 @@
  */
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { seedConfig } from "../seed.ts";
 import { targetFor } from "../target.js";
 
 const url =
@@ -29,6 +30,7 @@ describeDb("claim_notifications across connections", () => {
 
   beforeAll(async () => {
     await Promise.all([admin.connect(), runA.connect(), runB.connect()]);
+    await seedConfig(admin); // the claim reads the daily push cap from game_config
     for (const c of [runA, runB]) await c.query("set role eyeq_service");
     const u = await admin.query<{ id: string }>(
       "insert into auth.users (id) values (gen_random_uuid()) returning id",
