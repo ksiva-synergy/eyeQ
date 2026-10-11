@@ -12,6 +12,7 @@ import { Button, Chip, ErrorCard, Icon, SkeletonRow, Toast } from "@eyeq/ui/web"
 import { api } from "../api";
 import { DrillEditor, ModuleEditor, ProgramSettings, SessionEditor, type Run } from "./Editors";
 import { issueText } from "./issues";
+import { ProgramChallenges } from "./ProgramChallenges";
 import { moveDrill, moveSession, orderOf, type Order } from "./order";
 import { Tree, type Selection } from "./Tree";
 
@@ -294,6 +295,8 @@ export function Builder({ id }: { id: string }) {
           )}
         </div>
       </div>
+
+      <ProgramChallenges program={p} />
 
       {toast && (
         <Toast

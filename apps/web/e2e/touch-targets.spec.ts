@@ -63,6 +63,9 @@ test.describe("touch targets reach 44 px", () => {
         }),
       );
       await page.route("**/api/admin/drills*", (r) => r.fulfill({ json: { drills: [] } }));
+      await page.route("**/api/admin/programs/*/challenges", (r) =>
+        r.fulfill({ json: { challenges: [], badges: [] } }),
+      );
     });
 
     for (const width of [390, 1440]) {
