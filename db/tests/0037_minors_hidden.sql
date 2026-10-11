@@ -2,7 +2,7 @@
 -- order the profile and the date of birth arrive in. Hidden means absent from the board's
 -- rows, not only a flag: each case is ranked through leaderboard_refresh and read through
 -- leaderboard_for as another athlete sees it.
-select plan(9);
+select plan(14);
 create function pg_temp.t() returns setof text language plpgsql as $$
 declare
   w date := '2025-03-10';
@@ -13,6 +13,9 @@ declare
   with_dob uuid := gen_random_uuid();                                      -- profile and dob together
   dob_later uuid := gen_random_uuid();                                     -- profile first, dob after (onboarding)
   chose uuid := gen_random_uuid();                                         -- a minor who chooses to show
+  corrected uuid := pg_temp.fx_user('Corrected');                          -- adult, date corrected to a minor's
+  grown uuid := gen_random_uuid();                                         -- minor, date corrected to an adult's
+  together uuid := pg_temp.fx_user('Both');                                  -- adult, dob and visibility in one update
   lb jsonb;
   listed text[];
 begin
@@ -26,8 +29,25 @@ begin
   update profiles set dob = minor where id = chose;
   update profiles set visibility = 'public' where id = chose;
 
+  -- Corrections after onboarding (0020).
+  update profiles set dob = minor where id = corrected;
+  perform pg_temp.fx_auth_user(grown);
+  insert into profiles (id, display_name, dob) values (grown, 'Grown', minor);
+  update profiles set visibility = 'public' where id = grown;
+  update profiles set dob = '2000-01-01' where id = grown;
+
   return next is((select visibility from profiles where id = with_dob), 'private', 'profile created with a minor''s date of birth: private');
   return next is((select visibility from profiles where id = dob_later), 'private', 'date of birth set after the profile: private');
+  return next is((select visibility from profiles where id = corrected), 'private', 'an adult''s date of birth corrected to a minor''s: private');
+  return next is((select visibility from profiles where id = grown), 'public', 'a minor''s date of birth corrected to an adult''s: visibility left alone');
+  update profiles set visibility = 'private' where id = grown;
+  update profiles set dob = '1999-01-01' where id = grown;
+  return next is((select visibility from profiles where id = grown), 'private', 'an adult''s correction leaves a private profile private too');
+  update profiles set dob = (current_date - interval '16 years')::date where id = chose;
+  return next is((select visibility from profiles where id = chose), 'public', 'a minor who chose to show keeps it when their minor date is corrected');
+  update profiles set visibility = 'private' where id = together;
+  update profiles set dob = minor, visibility = 'public' where id = together;
+  return next is((select visibility from profiles where id = together), 'public', 'a visibility chosen in the same update as the correction is respected');
 
   insert into xp_ledger (user_id, amount, requested_amount, reason, local_date, created_at)
   select u, 500, 500, 'admin', w, t0 + interval '1 hour' from unnest(array[adult, with_dob, dob_later, chose]) u;
