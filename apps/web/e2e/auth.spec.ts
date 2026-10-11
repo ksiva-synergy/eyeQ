@@ -568,5 +568,34 @@ test.describe("onboarding", () => {
     await expect(
       page.getByRole("link", { name: "Continue · day 2" }).filter({ visible: true }),
     ).toBeVisible();
+
+    // Profile and account (board 14), signed in: settings save through PATCH /me.
+    await page.goto("/app/account");
+    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+    await expect(
+      page
+        .getByRole("region", { name: "Purchases & entitlements" })
+        .getByRole("link", { name: /3-Day Eye Health Reset/ }),
+    ).toContainText("Free · Day 2 of 3");
+    const rank = page.getByRole("switch", { name: "Rank changes" });
+    const rankWas = await rank.isChecked();
+    await page.getByText("Rank changes", { exact: true }).click();
+    await expect(rank).toBeChecked({ checked: !rankWas });
+    await page.getByText("Show me on leaderboards", { exact: true }).click();
+    await expect
+      .poll(async () => (await (await page.request.get("/api/v1/me")).json()).visibility)
+      .toBe("private");
+    await page.reload();
+    await expect(page.getByRole("switch", { name: "Rank changes" })).toBeChecked({
+      checked: !rankWas,
+    });
+    await page.getByRole("button", { name: "Edit" }).first().click();
+    const sheet = page.getByRole("dialog", { name: "Edit profile" });
+    await sheet.getByLabel("Your name").fill("Meera Kumar");
+    await sheet.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Meera Kumar", { exact: true }).first()).toBeVisible();
+    await page.getByRole("button", { name: "Sign out" }).click();
+    await page.waitForURL(/\/sign-in(\?|$)/);
+    expect((await page.request.get("/api/v1/me")).status()).toBe(401);
   });
 });
