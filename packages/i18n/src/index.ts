@@ -70,6 +70,17 @@ export function hourIn(iso: string | Date, timeZone: string): number {
   return Number(h);
 }
 
+const rupees = new Intl.NumberFormat(LOCALE, {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+
+/** Money is integer paise (plan section 5): 129900 → "₹1,299". */
+export function formatRupees(paise: number): string {
+  return rupees.format(Math.round(paise) / 100);
+}
+
 /** An instant as a clock time in a time zone: "11:59 pm". */
 export function formatTimeIn(iso: string | Date, timeZone: string): string {
   return new Intl.DateTimeFormat(LOCALE, { hour: "numeric", minute: "2-digit", timeZone }).format(

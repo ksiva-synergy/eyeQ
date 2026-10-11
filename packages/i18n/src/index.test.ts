@@ -7,6 +7,7 @@ import {
   formatShortWeekday,
   formatWeekdayDate,
   hourIn,
+  formatRupees,
 } from "./index.ts";
 
 describe("i18n", () => {
@@ -39,5 +40,12 @@ describe("day labels", () => {
   it("gives the hour in the athlete's time zone", () => {
     expect(hourIn("2026-10-11T13:00:00Z", "Asia/Kolkata")).toBe(18);
     expect(hourIn("2026-10-11T13:00:00Z", "America/New_York")).toBe(9);
+  });
+});
+
+describe("money", () => {
+  it("formats integer paise as rupees", () => {
+    expect(formatRupees(129900)).toBe("₹1,299");
+    expect(formatRupees(9900)).toBe("₹99");
   });
 });
