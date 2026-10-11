@@ -1,0 +1,337 @@
+{
+  "id": "00000003-0000-4000-a000-000000000003",
+  "slug": "reaction-edge",
+  "level": "intermediate",
+  "title": "Reaction Edge",
+  "isFree": false,
+  "modules": [
+    {
+      "id": "00000004-0000-4000-a000-000000000031",
+      "order": 1,
+      "title": "Simple Reaction Base",
+      "sessions": [
+        {
+          "id": "00000005-0000-4000-a000-000000000301",
+          "xp": 40,
+          "title": "Day 1",
+          "completed": false,
+          "dayNumber": 1,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000302",
+          "xp": 40,
+          "title": "Day 2",
+          "completed": false,
+          "dayNumber": 2,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000303",
+          "xp": 40,
+          "title": "Day 3",
+          "completed": false,
+          "dayNumber": 3,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000304",
+          "xp": 40,
+          "title": "Day 4",
+          "completed": false,
+          "dayNumber": 4,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000305",
+          "xp": 40,
+          "title": "Day 5",
+          "completed": false,
+          "dayNumber": 5,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000306",
+          "xp": 40,
+          "title": "Day 6",
+          "completed": false,
+          "dayNumber": 6,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000307",
+          "xp": 40,
+          "title": "Day 7",
+          "completed": false,
+          "dayNumber": 7,
+          "drillCount": 4,
+          "estMinutes": 14
+        }
+      ],
+      "unlocked": null,
+      "unlockDay": null,
+      "description": null,
+      "unlockRule": "immediate"
+    },
+    {
+      "id": "00000004-0000-4000-a000-000000000032",
+      "order": 2,
+      "title": "Choice Under Load",
+      "sessions": [
+        {
+          "id": "00000005-0000-4000-a000-000000000308",
+          "xp": 40,
+          "title": "Day 8",
+          "completed": false,
+          "dayNumber": 8,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000309",
+          "xp": 40,
+          "title": "Day 9",
+          "completed": false,
+          "dayNumber": 9,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000310",
+          "xp": 40,
+          "title": "Day 10",
+          "completed": false,
+          "dayNumber": 10,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000311",
+          "xp": 40,
+          "title": "Day 11",
+          "completed": false,
+          "dayNumber": 11,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000312",
+          "xp": 40,
+          "title": "Day 12",
+          "completed": false,
+          "dayNumber": 12,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000313",
+          "xp": 40,
+          "title": "Day 13",
+          "completed": false,
+          "dayNumber": 13,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000314",
+          "xp": 40,
+          "title": "Day 14",
+          "completed": false,
+          "dayNumber": 14,
+          "drillCount": 4,
+          "estMinutes": 14
+        }
+      ],
+      "unlocked": null,
+      "unlockDay": null,
+      "description": null,
+      "unlockRule": "after_previous"
+    },
+    {
+      "id": "00000004-0000-4000-a000-000000000033",
+      "order": 3,
+      "title": "Read the Cue",
+      "sessions": [
+        {
+          "id": "00000005-0000-4000-a000-000000000315",
+          "xp": 40,
+          "title": "Day 15",
+          "completed": false,
+          "dayNumber": 15,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000316",
+          "xp": 40,
+          "title": "Day 16",
+          "completed": false,
+          "dayNumber": 16,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000317",
+          "xp": 40,
+          "title": "Day 17",
+          "completed": false,
+          "dayNumber": 17,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000318",
+          "xp": 40,
+          "title": "Day 18",
+          "completed": false,
+          "dayNumber": 18,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000319",
+          "xp": 40,
+          "title": "Day 19",
+          "completed": false,
+          "dayNumber": 19,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000320",
+          "xp": 40,
+          "title": "Day 20",
+          "completed": false,
+          "dayNumber": 20,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000321",
+          "xp": 40,
+          "title": "Day 21",
+          "completed": false,
+          "dayNumber": 21,
+          "drillCount": 4,
+          "estMinutes": 14
+        }
+      ],
+      "unlocked": null,
+      "unlockDay": null,
+      "description": null,
+      "unlockRule": "after_previous"
+    },
+    {
+      "id": "00000004-0000-4000-a000-000000000034",
+      "order": 4,
+      "title": "Match Tempo",
+      "sessions": [
+        {
+          "id": "00000005-0000-4000-a000-000000000322",
+          "xp": 40,
+          "title": "Day 22",
+          "completed": false,
+          "dayNumber": 22,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000323",
+          "xp": 40,
+          "title": "Day 23",
+          "completed": false,
+          "dayNumber": 23,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000324",
+          "xp": 40,
+          "title": "Day 24",
+          "completed": false,
+          "dayNumber": 24,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000325",
+          "xp": 40,
+          "title": "Day 25",
+          "completed": false,
+          "dayNumber": 25,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000326",
+          "xp": 40,
+          "title": "Day 26",
+          "completed": false,
+          "dayNumber": 26,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000327",
+          "xp": 40,
+          "title": "Day 27",
+          "completed": false,
+          "dayNumber": 27,
+          "drillCount": 4,
+          "estMinutes": 14
+        },
+        {
+          "id": "00000005-0000-4000-a000-000000000328",
+          "xp": 40,
+          "title": "Day 28",
+          "completed": false,
+          "dayNumber": 28,
+          "drillCount": 4,
+          "estMinutes": 14
+        }
+      ],
+      "unlocked": null,
+      "unlockDay": null,
+      "description": null,
+      "unlockRule": "after_previous"
+    }
+  ],
+  "product": {
+    "id": "00000002-0000-4000-a000-000000000012",
+    "currency": "INR",
+    "pricePaise": 129900
+  },
+  "coverUrl": null,
+  "minLevel": 1,
+  "coachLine": "Coach Vevek · Forge Your Peak",
+  "enrollment": null,
+  "hasAccess": true,
+  "sportTags": ["cricket", "badminton", "tennis"],
+  "description": "Four weeks on the three reaction measurements: simple reaction speed, complex reaction speed and anticipation. Built for the first half-second after release.",
+  "drillCount": 112,
+  "moduleCount": 4,
+  "durationDays": 28,
+  "sessionCount": 28,
+  "inSubscription": true,
+  "measurementTags": [
+    "anticipation",
+    "binocular-acuity",
+    "colour-perception",
+    "complex-reaction-speed",
+    "contrast-sensitivity",
+    "digit-span",
+    "dynamic-visual-acuity",
+    "executive-scan",
+    "hand-eye-coordination",
+    "short-term-visual-memory",
+    "simple-reaction-speed",
+    "stereopsis"
+  ],
+  "measurementGroups": ["cognition", "reaction", "vision"]
+}
