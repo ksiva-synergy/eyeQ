@@ -23,6 +23,7 @@
     "db:test": "pnpm --filter @eyeq/db test:pg",
     "db:types": "pnpm --filter @eyeq/db codegen",
     "db:seed": "pnpm --filter @eyeq/db seed",
+    "demo:refresh": "pnpm --filter @eyeq/db demo:refresh",
     "db:test:integration": "pnpm --filter @eyeq/db test:integration && pnpm --filter web test:integration",
     "supabase:up": "node scripts/supabase-env.mjs && supabase start --exclude postgres-meta,imgproxy",
     "supabase:down": "supabase stop --no-backup",
