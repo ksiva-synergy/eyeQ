@@ -539,7 +539,7 @@ Build:
 - [x] `/admin` gated by `admins`; every mutation writes `audit_log`.
 - [x] Program builder per board 17: tree of modules, sessions and drills with drag to reorder; drill editor with all fields from 5.2; a drill reused across sessions shows where it is used; duplicate session; bulk paste of video links; publish with validation (every drill has a working video; a paid program has a priced product). Warn, without blocking, when a paid drill uses a Drive link: the PRD wants YouTube unlisted for anything paid because Drive files can be downloaded.
 - [x] Link check on save: YouTube video exists and is embeddable, returning duration and privacy; Drive file is shared to anyone with the link. Needs a server-side Google API key.
-- [ ] Cover and badge image upload to Supabase Storage with fixed-width variants, written by the server. Drill thumbnails come from YouTube; Drive drills take an uploaded one.
+- [x] Cover and badge image upload to Supabase Storage with fixed-width variants, written by the server. Drill thumbnails come from YouTube; Drive drills take an uploaded one.
 - [x] Athletes: list with search and plan filter, streak, last active, plan and program, masked phone, CSV export; athlete page with activity timeline, purchases, entitlements, and manual grant or revoke written with `source = admin`.
 - [x] Products, minimal: internal product id, kind, price, what it grants, and the Play, App Store and Razorpay ids.
 - [x] Read endpoints the admin's result is checked through: `GET /programs`, `GET /programs/:slug`, `GET /sessions/:id` (never returning `video_ref`).

@@ -295,3 +295,13 @@ export type Reorder = z.infer<typeof reorderSchema>;
 
 export const builderIdParamsSchema = z.strictObject({ id });
 export const sessionDrillParamsSchema = z.strictObject({ id, drillId: id });
+
+// ---------------------------------------------------------------- uploads
+/** POST /api/admin/uploads (multipart: file, kind). The URL is the largest variant. */
+export const imageUploadKinds = ["cover", "badge", "thumbnail"] as const;
+export const uploadResultSchema = z.strictObject({
+  url: z.string(),
+  kind: z.enum(imageUploadKinds),
+  variants: z.array(z.strictObject({ width: z.number().int(), url: z.string() })),
+});
+export type UploadResult = z.infer<typeof uploadResultSchema>;
