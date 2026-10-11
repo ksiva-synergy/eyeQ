@@ -211,6 +211,24 @@ describeDb("demo:refresh", () => {
         [oldArjun, oldArjun, phone],
       );
 
+    // On Supabase: a pending code on the old user (as a sign-in leaves it) must not follow.
+    const supabaseAuth = (
+      await c.query(
+        "select to_regclass('auth.one_time_tokens') is not null and exists (select 1 from information_schema.columns where table_schema = 'auth' and table_name = 'users' and column_name = 'recovery_token') as ok",
+      )
+    ).rows[0].ok as boolean;
+    if (supabaseAuth) {
+      await c.query(
+        "update auth.users set recovery_token = 'pending-hash', recovery_sent_at = now() where id = $1",
+        [oldArjun],
+      );
+      await c.query(
+        `insert into auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to)
+         values (gen_random_uuid(), $1::uuid, 'recovery_token', 'pending-hash', $2::text)`,
+        [oldArjun, phone],
+      );
+    }
+
     const r = await refreshDemo(c);
     previous = r;
     expect(r.retired).toContain(oldArjun);
@@ -226,6 +244,18 @@ describeDb("demo:refresh", () => {
         [phone],
       );
       expect(idn.rows).toEqual([{ user_id: newArjun, provider_id: newArjun, sub: newArjun }]);
+    }
+    if (supabaseAuth) {
+      const tokens = await c.query(
+        "select id, recovery_token, recovery_sent_at from auth.users where id = any($1::uuid[]) order by id",
+        [[oldArjun, newArjun]],
+      );
+      for (const t of tokens.rows)
+        expect([t.recovery_token, t.recovery_sent_at]).toEqual(["", null]);
+      const ott = await c.query("select 1 from auth.one_time_tokens where user_id = $1", [
+        oldArjun,
+      ]);
+      expect(ott.rowCount).toBe(0);
     }
     const name = await c.query("select display_name from profiles where id = $1", [newArjun]);
     expect(name.rows[0].display_name).toBe("Arjun R.");

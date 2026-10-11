@@ -139,6 +139,25 @@ export async function refreshDemo(client: pg.Client): Promise<RefreshResult> {
  * its identities. The old user keeps neither phone nor email, so it can no longer sign in.
  * Runs as the admin role; auth belongs to it, not to eyeq_owner.
  */
+/** Supabase Auth's pending-code columns (strings it never reads as null), and their times. */
+const TOKEN_TEXT = [
+  "confirmation_token",
+  "recovery_token",
+  "email_change_token_new",
+  "email_change_token_current",
+  "email_change",
+  "phone_change",
+  "phone_change_token",
+  "reauthentication_token",
+];
+const TOKEN_TIMES = [
+  "confirmation_sent_at",
+  "recovery_sent_at",
+  "email_change_sent_at",
+  "phone_change_sent_at",
+  "reauthentication_sent_at",
+];
+
 async function moveSignIns(
   client: pg.Client,
   cohort: { id: string; n: number }[],
@@ -150,9 +169,23 @@ async function moveSignIns(
        and column_name not in ('id', 'created_at') and is_generated = 'NEVER' and is_identity = 'NO'
      order by ordinal_position`,
   );
+  // Pending one-time codes are not part of a sign-in: they are left empty on both users
+  // (Supabase Auth reads them as strings), and the old user's one_time_tokens are dropped.
+  // Supabase Auth finds a pending code by the phone it relates to: left on the old user, it
+  // made the next code request for that phone fail (500).
+  const pending = new Set([...TOKEN_TEXT, ...TOKEN_TIMES]);
   const set = cols
+    .filter(({ c }) => !pending.has(c))
     .map(({ c }) => `${pg.escapeIdentifier(c)} = o.${pg.escapeIdentifier(c)}`)
     .join(", ");
+  const present = new Set(cols.map(({ c }) => c));
+  const clear = [
+    ...TOKEN_TEXT.filter((c) => present.has(c)).map((c) => `${pg.escapeIdentifier(c)} = ''`),
+    ...TOKEN_TIMES.filter((c) => present.has(c)).map((c) => `${pg.escapeIdentifier(c)} = null`),
+  ].join(", ");
+  const oneTimeTokens = await client.query(
+    "select to_regclass('auth.one_time_tokens') is not null as ok",
+  );
   const identities = await client.query("select to_regclass('auth.identities') is not null as ok");
   let moved = 0;
   for (const { id: from, n } of cohort) {
@@ -174,6 +207,10 @@ async function moveSignIns(
       `update auth.users u set ${set} from pg_temp.moving_user o where u.id = $1`,
       [to],
     );
+    if (clear)
+      await client.query(`update auth.users set ${clear} where id = any($1::uuid[])`, [[from, to]]);
+    if (oneTimeTokens.rows[0]?.ok)
+      await client.query("delete from auth.one_time_tokens where user_id = $1::uuid", [from]);
     if (identities.rows[0]?.ok)
       await client.query(
         // $1/$2 are the ids as uuids, $3/$4 the same ids as text: one type per parameter.
