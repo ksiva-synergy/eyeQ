@@ -1,7 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import pg from "pg";
 import sharp from "sharp";
-import { YT_STUB, defineAcceptance } from "./acceptance";
+import { YT_STUB } from "./yt-stub";
 import { smallTargets } from "./touch-targets";
 
 /**
@@ -383,5 +383,3 @@ test.describe("sign-in", () => {
     });
   });
 });
-
-defineAcceptance();

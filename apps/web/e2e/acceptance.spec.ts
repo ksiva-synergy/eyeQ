@@ -1,9 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import pg from "pg";
 import { smallTargets } from "./touch-targets";
+import { YT_STUB } from "./yt-stub";
 
 /**
  * Phase 5 acceptance (plan section 9), against a real Supabase Auth and the seed, at
@@ -15,19 +14,15 @@ import { smallTargets } from "./touch-targets";
  *     (at 1440 an exact twin of him, since a day's session can be done once);
  *   - a paid drill's video reference is in no payload until entitled;
  *   - the first load of /app makes no API call from the browser (the page is the one trip).
- * Declared from auth.spec.ts, the file CI's Supabase job runs (DECISIONS, phase 5).
+ * CI's Supabase job runs this file as its own step, after the sign-in specs.
  */
-export const YT_STUB = readFileSync(
-  path.join(__dirname, "fixtures", "youtube-iframe-api.js"),
-  "utf8",
-);
 const code = process.env["E2E_AUTH_CODE"] ?? "123456";
 const ARJUN = "00000001-0000-4000-a000-000000000001";
 const ARJUN_TWIN = "00000001-0000-4000-a000-0000000000a1";
 const PPV_DRILL = "00000006-0000-4000-a000-000000000014";
 const PPV_REF = "1AbCdEfGhIjKlMnOpQrStUvWxYz";
 
-export async function axeCheck(page: Page) {
+async function axeCheck(page: Page) {
   const r = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
@@ -489,63 +484,61 @@ async function arjunJourney(page: Page, phone: string, id: string) {
   expect(stats.rows[0]).toEqual({ total_xp: 2112, current_streak: 13 });
 }
 
-export function defineAcceptance() {
-  test.describe("phase 5 acceptance", () => {
-    test.skip(process.env["E2E_AUTH"] !== "1", "needs Supabase Auth (E2E_AUTH=1)");
-    test.describe.configure({ mode: "serial" });
+test.describe("phase 5 acceptance", () => {
+  test.skip(process.env["E2E_AUTH"] !== "1", "needs Supabase Auth (E2E_AUTH=1)");
+  test.describe.configure({ mode: "serial" });
 
-    test.beforeAll(async () => {
-      await withDb(async (db) => {
-        // Local reruns reuse the new athletes' auth users; start them again as new. CI
-        // starts from an empty database.
-        for (const phone of ["919000000004", "919000000006"]) {
-          await db.query(
-            `update profiles set onboarded_at = null, dob = null, visibility = 'public'
+  test.beforeAll(async () => {
+    await withDb(async (db) => {
+      // Local reruns reuse the new athletes' auth users; start them again as new. CI
+      // starts from an empty database.
+      for (const phone of ["919000000004", "919000000006"]) {
+        await db.query(
+          `update profiles set onboarded_at = null, dob = null, visibility = 'public'
              where id in (select id from auth.users where phone = $1)`,
-            [phone],
-          );
-          await db.query(
-            "delete from self_ratings where user_id in (select id from auth.users where phone = $1)",
-            [phone],
-          );
-        }
-        // Arjun's twin is copied before Arjun trains, so both start the day the same.
-        await cloneArjun(db, ARJUN_TWIN, "919000000007");
-      });
+          [phone],
+        );
+        await db.query(
+          "delete from self_ratings where user_id in (select id from auth.users where phone = $1)",
+          [phone],
+        );
+      }
+      // Arjun's twin is copied before Arjun trains, so both start the day the same.
+      await cloneArjun(db, ARJUN_TWIN, "919000000007");
     });
-
-    for (const [width, height, phone, rule] of [
-      [390, 844, "9000000004", true],
-      [1440, 1000, "9000000006", false],
-    ] as const) {
-      test(`${width} px: a new athlete signs in, onboards, trains, and sees +65, streak 1 and the first badge`, async ({
-        browser,
-      }) => {
-        const context = await browser.newContext({ viewport: { width, height } });
-        const page = await context.newPage();
-        try {
-          await newAthleteJourney(page, phone, rule);
-        } finally {
-          await context.close();
-        }
-      });
-    }
-
-    for (const [width, height, phone, id] of [
-      [390, 844, "9000000005", ARJUN],
-      [1440, 1000, "9000000007", ARJUN_TWIN],
-    ] as const) {
-      test(`${width} px: seeded Arjun completes his session: +72 XP, streak 13, 151 to level 8`, async ({
-        browser,
-      }) => {
-        const context = await browser.newContext({ viewport: { width, height } });
-        const page = await context.newPage();
-        try {
-          await arjunJourney(page, phone, id);
-        } finally {
-          await context.close();
-        }
-      });
-    }
   });
-}
+
+  for (const [width, height, phone, rule] of [
+    [390, 844, "9000000004", true],
+    [1440, 1000, "9000000006", false],
+  ] as const) {
+    test(`${width} px: a new athlete signs in, onboards, trains, and sees +65, streak 1 and the first badge`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({ viewport: { width, height } });
+      const page = await context.newPage();
+      try {
+        await newAthleteJourney(page, phone, rule);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+
+  for (const [width, height, phone, id] of [
+    [390, 844, "9000000005", ARJUN],
+    [1440, 1000, "9000000007", ARJUN_TWIN],
+  ] as const) {
+    test(`${width} px: seeded Arjun completes his session: +72 XP, streak 13, 151 to level 8`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({ viewport: { width, height } });
+      const page = await context.newPage();
+      try {
+        await arjunJourney(page, phone, id);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+});

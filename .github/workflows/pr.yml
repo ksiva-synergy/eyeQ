@@ -141,6 +141,12 @@ jobs:
           CI: "true"
           PW_REUSE_SERVER: "1"
 
+      - name: Phase 5 acceptance (new athlete, seeded Arjun, rule 5) at 390 and 1440
+        run: pnpm --filter web exec playwright test e2e/acceptance.spec.ts
+        env:
+          CI: "true"
+          PW_REUSE_SERVER: "1"
+
       - name: Web server log
         if: always()
         run: cat "$RUNNER_TEMP/web.log" || true
