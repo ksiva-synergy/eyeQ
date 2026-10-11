@@ -30,6 +30,12 @@ const SCREENS: [name: string, url: string][] = [
 
 for (const [name, url] of SCREENS) {
   test(`${name} matches its baseline`, async ({ page }) => {
+    // Profile's web push row depends on the browser: CI serves localhost (a secure
+    // context, so a service worker), a Mac reaches the app through host.docker.internal
+    // (none). The same "this browser can't" state everywhere keeps one baseline.
+    await page.addInitScript(() => {
+      delete (Navigator.prototype as unknown as { serviceWorker?: unknown }).serviceWorker;
+    });
     await page.goto(url);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     // The error boundary has a heading too: a crashed page must fail, not become a baseline.
