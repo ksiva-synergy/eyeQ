@@ -42,7 +42,8 @@ export default function AccountPreview() {
             source: "admin",
             status: "active",
             startsAt: "2026-09-01T06:00:00.000Z",
-            endsAt: "2026-10-31T18:29:59.000Z",
+            // 07:30 on 1 Nov in Kolkata, still 31 Oct in New York (the west-of-UTC test).
+            endsAt: "2026-11-01T02:00:00.000Z",
             title: null,
           },
         ]}

@@ -125,7 +125,7 @@ export function Account({
       </dl>
 
       <Group title={t("account.purchases")}>
-        <Purchases entitlements={entitlements} programs={programs} />
+        <Purchases entitlements={entitlements} programs={programs} timeZone={me.timezone} />
       </Group>
 
       <Group title={t("account.notifications")}>
@@ -325,9 +325,11 @@ const SOURCE: Record<string, MessageKey> = {
 function Purchases({
   entitlements,
   programs,
+  timeZone,
 }: {
   entitlements: EntitlementsResponse["entitlements"];
   programs: ProgramCard[];
+  timeZone: string;
 }) {
   const pro = entitlements.find((e) => e.scope === "subscription");
   const owned = new Set(entitlements.filter((e) => e.scope === "program").map((e) => e.scopeId));
@@ -346,7 +348,7 @@ function Purchases({
         pro.status === "grace"
           ? t("account.inGrace")
           : pro.endsAt
-            ? t("account.proUntil", { date: formatDate(pro.endsAt) })
+            ? t("account.proUntil", { date: formatDate(pro.endsAt, timeZone) })
             : t("account.proLifetime"),
       icon: "check",
     });
