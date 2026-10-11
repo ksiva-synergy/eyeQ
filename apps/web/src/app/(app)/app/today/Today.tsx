@@ -63,10 +63,13 @@ export function Today({
   home,
   multiplierDays,
   freezePrice,
+  unread = 0,
 }: {
   home: HomeResponse;
   multiplierDays: number;
   freezePrice: number;
+  /** Unread items in the in-app feed (D29); the bell shows only when there are some. */
+  unread?: number;
 }) {
   const state = STATE[home.streak.state];
   const dayLine =
@@ -85,6 +88,21 @@ export function Today({
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {unread > 0 && (
+            <NextLink
+              href="/app/notifications"
+              aria-label={t("feed.linkUnread", { n: unread })}
+              className="relative inline-flex size-11 items-center justify-center rounded-full text-text-primary"
+            >
+              <Icon name="bell" size={22} />
+              <span
+                aria-hidden="true"
+                className="absolute top-1.5 right-1.5 min-w-4 rounded-full bg-cta px-1 text-center text-[0.625rem] leading-4 font-extrabold text-on-cta tabular-nums"
+              >
+                {unread > 9 ? "9+" : unread}
+              </span>
+            </NextLink>
+          )}
           <NextLink
             href="/app/rewards"
             aria-label={t("today.coinsLink", { n: home.coins })}

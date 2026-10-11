@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { asSignedInAthlete, configNumbers } from "@/server/athlete";
 import { getHome } from "@/server/services/daily";
 import { getMe } from "@/server/services/me";
+import { unreadCount } from "@/server/services/notify";
 import { Today } from "./today/Today";
 import { TodaySkeleton } from "./today/TodaySkeleton";
 
@@ -20,10 +21,11 @@ export default function TodayPage() {
 }
 
 async function Load() {
-  const { me, home, cfg } = await asSignedInAthlete("/app", async (tx, session) => ({
+  const { me, home, cfg, unread } = await asSignedInAthlete("/app", async (tx, session) => ({
     me: await getMe(tx, session),
     home: await getHome(tx),
     cfg: await configNumbers(tx, ["streak.multiplier_days", "streak.freeze_coin_price"]),
+    unread: await unreadCount(tx, session.userId),
   }));
   // Onboarding (boards 1c to 1e) comes before Today.
   if (!me.onboardedAt) redirect("/onboarding/profile");
@@ -32,6 +34,7 @@ async function Load() {
       home={home}
       multiplierDays={cfg["streak.multiplier_days"]}
       freezePrice={cfg["streak.freeze_coin_price"]}
+      unread={unread}
     />
   );
 }

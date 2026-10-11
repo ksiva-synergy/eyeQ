@@ -26,6 +26,7 @@ import {
   cx,
 } from "@eyeq/ui/web";
 import Link from "next/link";
+import { PushOptIn } from "@/components/notify/PushOptIn";
 import { NextLink } from "@/components/shell/NextLink";
 import { SignOutButton } from "@/components/shell/SignOutButton";
 import { GOALS, SPORTS, sportKey } from "@/app/onboarding/options";
@@ -136,6 +137,7 @@ export function Account({
 
       <Group title={t("account.notifications")}>
         <Card padding="s" className="flex flex-col divide-y divide-border px-4">
+          <PushOptIn />
           <ToggleRow
             label={t("account.dailyReminder")}
             sub={t("account.dailyReminderAt", { time: me.reminderTime })}
@@ -204,6 +206,13 @@ export function Account({
           />
         </Card>
         <p className="type-caption text-text-muted">{t("account.notificationsNote")}</p>
+        <NextLink
+          href="/app/notifications"
+          className="inline-flex min-h-11 items-center gap-1 self-start type-body-strong text-primary-text"
+        >
+          {t("feed.link")}
+          <Icon name="chevron" size={14} />
+        </NextLink>
       </Group>
 
       <Group title={t("account.privacy")}>
