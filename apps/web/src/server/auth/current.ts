@@ -1,6 +1,7 @@
 import "server-only";
 import { connection } from "next/server";
 import { nextJar } from "./next-cookies";
+import { qaGrantFromJar, qaSession } from "./qa";
 import { claimsToSession, supabaseFor } from "./supabase";
 import { env } from "../env";
 import { log } from "../observability/log";
@@ -16,6 +17,8 @@ import type { Session } from "./session";
 export async function currentSession(): Promise<Session | null> {
   await connection();
   const jar = await nextJar();
+  const qa = qaSession(qaGrantFromJar(jar));
+  if (qa) return qa;
   if (!env.supabase()) return null;
   const { data, error } = await supabaseFor(jar).auth.getClaims();
   if (error) {

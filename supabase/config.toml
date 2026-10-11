@@ -52,8 +52,23 @@ sign_in_sign_ups = 60
 token_verifications = 60
 token_refresh = 150
 
+# Email OTP (sign-in takes a phone or an email): a 6-digit code, never a link. A new
+# address gets the confirmation template, a known one the magic-link template; both carry
+# {{ .Token }}. Hosted: the same text goes in the dashboard's Email Templates.
 [auth.email]
-enable_signup = false
+enable_signup = true
+enable_confirmations = false
+otp_length = 6
+otp_expiry = 600
+max_frequency = "1s"
+
+[auth.email.template.magic_link]
+subject = "Your EyeQ code is {{ .Token }}"
+content_path = "./supabase/templates/email-code.html"
+
+[auth.email.template.confirmation]
+subject = "Your EyeQ code is {{ .Token }}"
+content_path = "./supabase/templates/email-code.html"
 
 # Phone OTP. Messages go through the Send SMS hook below, never a built-in provider.
 [auth.sms]
@@ -114,4 +129,4 @@ enabled = false
 enabled = false
 
 [local_smtp]
-enabled = false
+enabled = true

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   adminProductCreateSchema,
   adminProductUpdateSchema,
+  otpRequestSchema,
   otpVerifySchema,
   patchMeRequestSchema,
   phoneSchema,
@@ -23,6 +24,20 @@ describe("phone numbers", () => {
   });
   it("needs a 6-digit code", () => {
     expect(otpVerifySchema.safeParse({ phone: "9876543210", token: "12345" }).success).toBe(false);
+  });
+});
+
+describe("email sign-in", () => {
+  it("takes an email, lower-cased, or a phone, never both", () => {
+    expect(otpRequestSchema.parse({ email: " Asha@Example.COM " })).toEqual({
+      email: "asha@example.com",
+    });
+    expect(otpRequestSchema.parse({ phone: "9876543210" })).toEqual({ phone: "+919876543210" });
+    expect(otpRequestSchema.safeParse({ email: "not-an-email" }).success).toBe(false);
+    expect(otpRequestSchema.safeParse({ email: "a@b.co", phone: "9876543210" }).success).toBe(
+      false,
+    );
+    expect(otpVerifySchema.safeParse({ email: "a@b.co", token: "123456" }).success).toBe(true);
   });
 });
 

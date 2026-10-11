@@ -1,6 +1,7 @@
 import type React from "react";
 import { Suspense } from "react";
 import { AthleteIdentity } from "@/components/analytics/AthleteIdentity";
+import { QaBanner } from "@/components/qa/QaBanner";
 
 /**
  * The drill player and session summary (boards 3, 4, 5a, 5b) are full-screen on the boards:
@@ -13,6 +14,9 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
       {children}
       <Suspense>
         <AthleteIdentity />
+      </Suspense>
+      <Suspense>
+        <QaBanner />
       </Suspense>
     </div>
   );

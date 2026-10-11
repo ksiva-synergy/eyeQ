@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient, parseCookieHeader, type CookieOptions } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { env } from "../env";
+import { qaGrantFrom, qaSession, qaTokenFrom } from "./qa";
 import { e164, type Session, type SessionVerifier } from "./session";
 
 /**
@@ -51,6 +52,8 @@ export function requestJar(req: Request): CookieJar {
 export function supabaseVerifier(): SessionVerifier {
   return {
     async verify(req) {
+      const qa = qaSession(qaGrantFrom(qaTokenFrom(req)));
+      if (qa) return qa;
       if (!env.supabase()) return null;
       const bearer = req.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
       const supabase = supabaseFor(requestJar(req));
