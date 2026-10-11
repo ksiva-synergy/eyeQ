@@ -101,15 +101,18 @@ jobs:
       - name: A throwaway Send SMS hook secret for this run
         run: echo "SEND_SMS_HOOK_SECRET=v1,whsec_$(openssl rand -base64 32)" >> "$GITHUB_ENV"
 
-      - name: Start Supabase locally (Postgres, Auth, Data API gateway)
+      - name: Start Supabase locally (Postgres, Auth, Data API gateway, Storage)
         run: pnpm supabase:up
 
-      - name: Export the local API URL and anon key
+      - name: Export the local API URL, anon key and service-role key
         run: |
           pnpm exec supabase status -o env > "$RUNNER_TEMP/sb.env"
           set -a; . "$RUNNER_TEMP/sb.env"; set +a
           echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "SUPABASE_PUBLISHABLE_KEY=${ANON_KEY:-$PUBLISHABLE_KEY}" >> "$GITHUB_ENV"
+          # Storage uploads (phase 4): the local stack's service-role key, server-only.
+          echo "::add-mask::${SERVICE_ROLE_KEY:-$SECRET_KEY}"
+          echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY:-$SECRET_KEY}" >> "$GITHUB_ENV"
 
       - name: Migrate, run pgTAP, integration tests, then seed
         run: |

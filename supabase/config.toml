@@ -92,7 +92,13 @@ enabled = false
 [realtime]
 enabled = false
 
+# Storage for admin image uploads (phase 4). Variants are made by the app with sharp,
+# so Supabase's image transformation stays off.
 [storage]
+enabled = true
+file_size_limit = "10MiB"
+
+[storage.image_transformation]
 enabled = false
 
 [edge_runtime]

@@ -20,6 +20,12 @@ export const env = {
     return url && key ? { url, key } : undefined;
   },
   smsHookSecret: () => str("SEND_SMS_HOOK_SECRET"),
+  /** Storage uploads only (plan 2.0, rule 12); never used for game data. */
+  storage: () => {
+    const url = str("SUPABASE_URL");
+    const key = str("SUPABASE_SERVICE_ROLE_KEY");
+    return url && key ? { url, key } : undefined;
+  },
   smsProvider: () => (str("SMS_PROVIDER") ?? "console") as "console" | "test" | "msg91",
   otpTestPhone: () => str("OTP_TEST_PHONE"),
   sentryDsn: () => str("SENTRY_DSN"),

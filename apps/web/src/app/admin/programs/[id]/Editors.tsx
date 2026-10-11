@@ -10,6 +10,7 @@ import {
   type BuilderDrill,
   type BuilderProgram,
   type LinkCheckResult,
+  uploadResultSchema,
 } from "@eyeq/api-contract";
 import { t, type MessageKey } from "@eyeq/i18n";
 import { Button, Chip, SegmentedControl, TextInput, Toggle, cx } from "@eyeq/ui/web";
@@ -151,6 +152,104 @@ function ConfirmDelete({
   );
 }
 
+/** Uploads one image (the server writes the variants) and hands back its URL. */
+function ImageField({
+  label,
+  alt,
+  kind,
+  value,
+  onChange,
+}: {
+  label: string;
+  alt: string;
+  kind: "cover" | "thumbnail";
+  value: string | null;
+  onChange: (url: string | null) => void;
+}) {
+  const id = useId();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function upload(file: File) {
+    setBusy(true);
+    setError(null);
+    const form = new FormData();
+    form.set("file", file);
+    form.set("kind", kind);
+    try {
+      const res = await fetch("/api/admin/uploads", {
+        method: "POST",
+        headers: { "idempotency-key": crypto.randomUUID() },
+        body: form,
+      });
+      const json = (await res.json().catch(() => null)) as unknown;
+      if (!res.ok) {
+        const issues = (json as { details?: { issues?: { message: string }[] } } | null)?.details
+          ?.issues;
+        setError(issues?.map((i) => i.message).join("; ") || t("admin.builder.uploadError"));
+      } else onChange(uploadResultSchema.parse(json).url);
+    } catch {
+      setError(t("admin.builder.uploadError"));
+    }
+    setBusy(false);
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="type-label text-text-muted">{label}</span>
+      <div className="flex flex-wrap items-center gap-3">
+        {value ? (
+          // eslint-disable-next-line @next/next/no-img-element -- a Storage URL, already resized
+          <img
+            src={value}
+            alt={alt}
+            className="h-20 w-36 rounded-m border border-border object-cover"
+          />
+        ) : (
+          <span className="flex h-20 w-36 items-center justify-center rounded-m border border-dashed border-border type-caption text-text-muted">
+            {t("admin.builder.noImage")}
+          </span>
+        )}
+        <div className="flex flex-wrap gap-2">
+          <label
+            htmlFor={id}
+            className="inline-flex min-h-11 cursor-pointer items-center rounded-m border border-border bg-surface-2 px-5 type-button focus-within:outline-2 focus-within:outline-focus-ring"
+          >
+            {busy
+              ? t("admin.builder.uploading")
+              : value
+                ? t("admin.builder.replace")
+                : t("admin.builder.upload")}
+            <input
+              id={id}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              className="sr-only"
+              disabled={busy}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                e.target.value = "";
+                if (f) void upload(f);
+              }}
+            />
+          </label>
+          {value && (
+            <Button variant="ghost" size="m" onClick={() => onChange(null)}>
+              {t("admin.builder.removeImage")}
+            </Button>
+          )}
+        </div>
+      </div>
+      <span
+        role={error ? "alert" : undefined}
+        className={cx("type-caption", error ? "font-bold text-cta-text" : "text-text-secondary")}
+      >
+        {error ?? t("admin.builder.uploadHint")}
+      </span>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- program settings
 
 export function ProgramSettings({
@@ -165,6 +264,7 @@ export function ProgramSettings({
   const products = useProducts().filter((p) => p.kind === "program");
   const [isFree, setFree] = useState(program.isFree);
   const [inPro, setInPro] = useState(program.inSubscription);
+  const [cover, setCover] = useState(program.coverUrl);
 
   async function save(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -185,6 +285,7 @@ export function ProgramSettings({
           .filter(Boolean),
         isFree,
         inSubscription: inPro,
+        coverUrl: cover,
         productId: optStr(f, "productId"),
         completionXp: optInt(f, "completionXp"),
         minLevel: Number(f.get("minLevel")) || 1,
@@ -235,6 +336,13 @@ export function ProgramSettings({
           defaultValue={program.sportTags.join(", ")}
         />
       </div>
+      <ImageField
+        label={t("admin.builder.cover")}
+        alt={t("admin.builder.coverAlt")}
+        kind="cover"
+        value={cover}
+        onChange={setCover}
+      />
       <TextArea
         name="description"
         label={t("admin.builder.field.description")}
@@ -793,6 +901,7 @@ export function DrillEditor({
   const [access, setAccess] = useState(drill.access);
   const [url, setUrl] = useState(drill.videoUrl);
   const [check, setCheck] = useState<LinkCheckResult | null>(null);
+  const [thumbnail, setThumbnail] = useState(drill.thumbnailUrl);
   const [checking, setChecking] = useState(false);
   const day =
     program.modules.flatMap((m) => m.sessions).find((s) => s.id === sessionId)?.dayNumber ?? 0;
@@ -829,7 +938,7 @@ export function DrillEditor({
       {
         title: str(f, "title"),
         videoUrl: url.trim(),
-        thumbnailUrl: optStr(f, "thumbnailUrl"),
+        thumbnailUrl: thumbnail,
         measurementTag: optStr(f, "measurementTag"),
         xp: optInt(f, "xp"),
         targetType,
@@ -918,12 +1027,12 @@ export function DrillEditor({
         )}
       </div>
       {provider === "drive" && (
-        <TextInput
-          dense
-          name="thumbnailUrl"
-          type="url"
+        <ImageField
           label={t("admin.builder.thumbnail")}
-          defaultValue={drill.thumbnailUrl ?? ""}
+          alt={t("admin.builder.thumbnailAlt")}
+          kind="thumbnail"
+          value={thumbnail}
+          onChange={setThumbnail}
         />
       )}
       <div className={grid}>

@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import pg from "pg";
+import sharp from "sharp";
 
 /**
  * Phone OTP sign-in in a browser, against a real Supabase Auth with a test number.
@@ -249,6 +250,47 @@ test.describe("sign-in", () => {
         programs: { id: string; title: string }[];
       };
       expect(programs.find((p) => p.id === id)?.title).toBe(title);
+    });
+
+    test("uploads a cover image: resized by the server, served from Storage, saved on the program", async () => {
+      const created = await page.request.post("/api/admin/programs", {
+        headers: { "idempotency-key": crypto.randomUUID() },
+        data: { title: `E2E Cover ${crypto.randomUUID().slice(0, 8)}`, durationDays: 3 },
+      });
+      expect(created.status()).toBe(201);
+      const { id } = (await created.json()) as { id: string };
+      await page.goto(`/admin/programs/${id}`);
+      const image = await sharp({
+        create: { width: 1600, height: 900, channels: 3, background: "#7C3AED" },
+      })
+        .jpeg()
+        .toBuffer();
+      await page
+        .getByLabel("Upload image")
+        .setInputFiles({ name: "cover.jpg", mimeType: "image/jpeg", buffer: image });
+      const preview = page.getByRole("img", { name: "Program cover" });
+      await expect(preview).toBeVisible();
+      const src = (await preview.getAttribute("src"))!;
+      expect(src).toMatch(
+        /\/storage\/v1\/object\/public\/public\/cover\/[0-9a-f-]{36}\/1200\.webp$/,
+      );
+      const served = await page.request.get(src);
+      expect(served.status()).toBe(200);
+      expect((await sharp(await served.body()).metadata()).width).toBe(1200);
+      await page.getByRole("button", { name: "Save settings" }).click();
+      const db = new pg.Client({ connectionString: process.env["DATABASE_URL"] });
+      await db.connect();
+      try {
+        await expect
+          .poll(
+            async () =>
+              (await db.query("select cover_url from programs where id = $1", [id])).rows[0]
+                ?.cover_url,
+          )
+          .toBe(src);
+      } finally {
+        await db.end();
+      }
     });
   });
 });
