@@ -67,7 +67,8 @@ export async function refreshDemo(client: pg.Client): Promise<RefreshResult> {
     "create or replace function pg_temp.sid(kind integer, n integer) returns uuid language sql immutable as $$ select (lpad(kind::text, 8, '0') || '-0000-4000-a000-' || lpad(n::text, 12, '0'))::uuid $$",
   );
   await client.query(
-    "create or replace function pg_temp.uid(k integer) returns uuid language sql stable as $$ select id from pg_temp.demo_ids where n = k $$",
+    // Replaces the seed's uid() if this session defined one (same signature, new body).
+    "drop function if exists pg_temp.uid(integer); create function pg_temp.uid(n integer) returns uuid language sql stable as $$ select d.id from pg_temp.demo_ids d where d.n = $1 $$",
   );
 
   await client.query("set local role eyeq_owner");
