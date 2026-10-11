@@ -1,13 +1,21 @@
 import type { PrismaClient } from "@eyeq/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ApiError } from "../api/errors";
-import { log, maskPhone } from "../observability/log";
+import { log, maskEmail, maskPhone } from "../observability/log";
 
 /**
- * Phone OTP through Supabase Auth, behind our own limits (plan 5.2): 5 requests per phone
- * and 20 per IP per hour, counted in rate_limits before Supabase is asked. Counted in
- * autocommit calls, so refused requests count too.
+ * Phone or email OTP through Supabase Auth, behind our own limits (plan 5.2): 5 requests
+ * per phone or email (the otp_phone rule, keyed by either) and 20 per IP per hour,
+ * counted in rate_limits before Supabase is asked. Counted in autocommit calls, so
+ * refused requests count too. Email codes need {{ .Token }} in Supabase's Magic Link and
+ * Confirm signup templates (DECISIONS.md, 2026-10-11).
  */
+export type OtpTarget = { phone: string } | { email: string };
+
+const subjectOf = (t: OtpTarget) => ("phone" in t ? t.phone : t.email);
+const masked = (t: OtpTarget) =>
+  "phone" in t ? { phone: maskPhone(t.phone) } : { email: maskEmail(t.email) };
+
 export interface OtpDeps {
   supabase: SupabaseClient;
   db: PrismaClient; // eyeq_service
@@ -19,12 +27,16 @@ async function hit(db: PrismaClient, rule: "otp_phone" | "otp_ip", subject: stri
   return rows[0]!.r;
 }
 
-export async function requestOtp(phone: string, ip: string | null, deps: OtpDeps): Promise<void> {
-  const byPhone = await hit(deps.db, "otp_phone", phone);
+export async function requestOtp(
+  target: OtpTarget,
+  ip: string | null,
+  deps: OtpDeps,
+): Promise<void> {
+  const byPhone = await hit(deps.db, "otp_phone", subjectOf(target));
   const byIp = ip ? await hit(deps.db, "otp_ip", ip) : { allowed: true, retry_after: 0 };
   if (!byPhone.allowed || !byIp.allowed) {
     log("warn", "otp rate limited", {
-      phone: maskPhone(phone),
+      ...masked(target),
       by: byPhone.allowed ? "ip" : "phone",
     });
     throw new ApiError(
@@ -37,13 +49,14 @@ export async function requestOtp(phone: string, ip: string | null, deps: OtpDeps
       },
     );
   }
-  const { error } = await deps.supabase.auth.signInWithOtp({
-    phone,
-    options: { shouldCreateUser: true, channel: "sms" },
-  });
+  const { error } = await deps.supabase.auth.signInWithOtp(
+    "phone" in target
+      ? { phone: target.phone, options: { shouldCreateUser: true, channel: "sms" } }
+      : { email: target.email, options: { shouldCreateUser: true } },
+  );
   if (error) {
     log("warn", "otp send refused by supabase", {
-      phone: maskPhone(phone),
+      ...masked(target),
       status: error.status,
       code: error.code,
     });
@@ -58,11 +71,15 @@ export async function requestOtp(phone: string, ip: string | null, deps: OtpDeps
 
 /** Verifies the code; @supabase/ssr writes the session cookies through the client's jar. */
 export async function verifyOtp(
-  phone: string,
+  target: OtpTarget,
   token: string,
   deps: OtpDeps,
 ): Promise<{ userId: string }> {
-  const { data, error } = await deps.supabase.auth.verifyOtp({ phone, token, type: "sms" });
+  const { data, error } = await deps.supabase.auth.verifyOtp(
+    "phone" in target
+      ? { phone: target.phone, token, type: "sms" }
+      : { email: target.email, token, type: "email" },
+  );
   if (error || !data.user) {
     throw new ApiError(400, "otp_invalid", "That code is not right, or it has expired.");
   }

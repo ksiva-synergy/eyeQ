@@ -17,3 +17,9 @@ export function log(level: Level, msg: string, fields: Record<string, unknown> =
 export function maskPhone(phone: string): string {
   return phone.length > 6 ? `${phone.slice(0, 3)}••••${phone.slice(-2)}` : "••••";
 }
+
+/** "asha@example.com" → "a••••@example.com". */
+export function maskEmail(email: string): string {
+  const at = email.lastIndexOf("@");
+  return at > 0 ? `${email[0]}••••${email.slice(at)}` : "••••";
+}

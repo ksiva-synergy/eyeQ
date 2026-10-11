@@ -62,18 +62,19 @@ async function run<S extends z.ZodType>(
 }
 
 export async function postOtp(req: Request): Promise<Response> {
-  return run("POST /api/auth/otp", req, otpRequestSchema, async ({ phone }) => {
+  return run("POST /api/auth/otp", req, otpRequestSchema, async (target) => {
     const supabase = supabaseFor(await nextJar());
-    await requestOtp(phone, clientIp(req), { supabase, db: serviceDb() });
+    await requestOtp(target, clientIp(req), { supabase, db: serviceDb() });
     return { ok: true };
   });
 }
 
 export async function postVerify(req: Request): Promise<Response> {
-  return run("POST /api/auth/verify", req, otpVerifySchema, async ({ phone, token }) => {
+  return run("POST /api/auth/verify", req, otpVerifySchema, async ({ token, ...target }) => {
     const supabase = supabaseFor(await nextJar());
-    const { userId } = await verifyOtp(phone, token, { supabase, db: serviceDb() });
-    after(() => capture(userId, "signed_in", { method: "phone" }));
+    const { userId } = await verifyOtp(target, token, { supabase, db: serviceDb() });
+    const method = "phone" in target ? "phone" : "email";
+    after(() => capture(userId, "signed_in", { method }));
     return { ok: true, userId };
   });
 }
