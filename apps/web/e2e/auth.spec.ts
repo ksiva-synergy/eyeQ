@@ -531,5 +531,18 @@ test.describe("onboarding", () => {
     await page.keyboard.press("Escape");
     await page.waitForURL(/\/app$/);
     await expect(page.getByText("Today's session is done")).toBeVisible();
+
+    // Progress (board 8), signed in: the session counted, the baseline on the radar.
+    await page.getByRole("link", { name: "Progress" }).first().click();
+    await page.waitForURL(/\/app\/progress$/);
+    await expect(page.getByRole("heading", { name: "Progress" })).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: /^Self-ratings, baseline to now: Focus 3 → 3/ }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("img", {
+        name: /^Sessions per week for the last 8 weeks: (0, ){7}1, this week so far$/,
+      }),
+    ).toBeVisible();
   });
 });
