@@ -1,4 +1,4 @@
--- Phase 5: session detail says which drills are done today, drill detail for the free drill,
+-- Phase 5: the session for play says which drills are done today, drill detail for the free drill,
 -- progress with scores, and a minor's date of birth makes a profile private on boards (0018)
 select plan(15);
 create function pg_temp.t() returns setof text language plpgsql as $$
@@ -20,10 +20,10 @@ begin
   return next is((progress_payload_for(u, t))->'drills'->0->>'best', '15', 'progress gives the best score in the drill''s direction');
   return next is(jsonb_array_length((progress_payload_for(u, t))->'drills'->0->'points'), 2, 'progress gives every scored point');
 
-  sd := session_detail_for(u, s, t + interval '3 minutes');
+  sd := session_play_for(u, s, t + interval '3 minutes');
   return next is(sd->'drills'->0->>'done_today', 'true', 'a drill done today says so');
   return next is(sd->'drills'->2->>'done_today', 'false', 'a drill not yet done says so');
-  return next is((session_detail_for(u, s, t + interval '1 day'))->'drills'->0->>'done_today', 'false', 'done_today is per local day');
+  return next is((session_play_for(u, s, t + interval '1 day'))->'drills'->0->>'done_today', 'false', 'done_today is per local day');
 
   dd := drill_detail_for(u, d[2], t);
   return next is(dd->>'id', d[2]::text, 'drill detail returns the drill');

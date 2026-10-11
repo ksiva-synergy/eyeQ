@@ -1,6 +1,9 @@
 -- Phase 5 · the daily loop: what the athlete web app needs beyond the phase 1 payloads.
---   session_detail_for  each drill also says whether it is done today, so a session resumes
---                       where the athlete left it
+--   session_play_for    session detail whose drills also say whether they are done today, so
+--                       a session resumes where the athlete left it. A new function rather
+--                       than a change to session_detail_for: the previous release's strict
+--                       contract would refuse the new key while this migration runs ahead of
+--                       its deploy (plan 2.4)
 --   drill_detail_for    one drill outside a session (the free drill of the day, D20); like
 --                       every athlete payload it never reads video_ref (rule 5)
 --   progress            fixes progress_payload_for, which could not run (see below)
@@ -30,7 +33,7 @@ language sql stable as $$
     'done_today', p_done)
 $$;
 
-create or replace function session_detail_for(p_user_id uuid, p_session_id uuid, p_at timestamptz default now()) returns jsonb
+create function session_play_for(p_user_id uuid, p_session_id uuid, p_at timestamptz default now()) returns jsonb
 language plpgsql stable security definer set search_path = public as $$
 declare s sessions; p programs; m modules; v_today date := user_local_date(p_user_id, p_at);
 begin
@@ -65,12 +68,14 @@ begin
     || jsonb_build_object('free_today', d.id is not distinct from free_drill_of_day(v_today));
 end $$;
 
+create function session_play(p_session_id uuid) returns jsonb
+language sql stable security definer set search_path = public as $$ select session_play_for(require_user_id(), p_session_id) $$;
 create function drill_detail(p_drill_id uuid) returns jsonb
 language sql stable security definer set search_path = public as $$ select drill_detail_for(require_user_id(), p_drill_id) $$;
 
-grant execute on function drill_detail(uuid) to eyeq_api;
+grant execute on function session_play(uuid), drill_detail(uuid) to eyeq_api;
 grant execute on function athlete_drill_json(uuid, drills, integer, boolean, timestamptz),
-  drill_detail_for(uuid, uuid, timestamptz) to eyeq_service;
+  session_play_for(uuid, uuid, timestamptz), drill_detail_for(uuid, uuid, timestamptz) to eyeq_service;
 
 -- ---------------------------------------------------------------- Progress (board 8)
 -- 0009's progress_payload_for nested max() inside jsonb_agg(), which Postgres refuses
