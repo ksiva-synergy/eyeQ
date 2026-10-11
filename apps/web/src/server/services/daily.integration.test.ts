@@ -234,6 +234,51 @@ describeDb("daily loop", () => {
     );
   });
 
+  it("PATCH /me: an adult's date of birth corrected to a minor's makes a public profile private (D11)", async () => {
+    const minorDob = new Date(Date.now() - 15 * 365.25 * 86400e3).toISOString().slice(0, 10);
+    // The profile form's own body (ProfileForm.tsx): it never sends visibility.
+    const formBody = {
+      displayName: "Daily L.",
+      sport: "cricket",
+      playingLevel: "club",
+      dob: minorDob,
+      goal: "Reaction speed",
+      sessionMinutes: 15,
+    };
+    const patch = async (body: unknown, key: string) => {
+      const res = await patchMeRoute(req(athlete, { method: "PATCH", key, body }));
+      expect(res.status).toBe(200);
+      return meResponseSchema.parse(await res.json());
+    };
+    const reset = (visibility: string) =>
+      admin.query("update profiles set dob = '2000-01-01', visibility = $2 where id = $1", [
+        athlete,
+        visibility,
+      ]);
+
+    await reset("public");
+    const fromForm = await patch(formBody, `dob-form-${tag}`);
+    expect(fromForm.isMinor).toBe(true);
+    expect(fromForm.visibility).toBe("private");
+
+    // A client that echoes every field sends the unchanged "public": not a choice, still private.
+    await reset("public");
+    const echoed = await patch({ ...formBody, visibility: "public" }, `dob-echo-${tag}`);
+    expect(echoed.visibility).toBe("private");
+
+    // An actual change of visibility in the same save is a choice, and it stands.
+    await reset("private");
+    const chosen = await patch({ ...formBody, visibility: "public" }, `dob-chose-${tag}`);
+    expect(chosen.visibility).toBe("public");
+
+    // Minor back to adult: visibility left alone.
+    const grown = await patch({ ...formBody, dob: "2000-01-01" }, `dob-adult-${tag}`);
+    expect(grown.isMinor).toBe(false);
+    expect(grown.visibility).toBe("public");
+
+    await reset("public");
+  });
+
   it("POST /me/self-ratings stores the baseline", async () => {
     const res = await ratingsRoute(
       req(athlete, {
