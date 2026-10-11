@@ -14,6 +14,7 @@ export * from "./notify.ts";
 export * from "./admin-products.ts";
 export * from "./admin-athletes.ts";
 export * from "./admin-builder.ts";
+export * from "./admin-challenges.ts";
 
 export const healthResponseSchema = z.object({
   ok: z.literal(true),
