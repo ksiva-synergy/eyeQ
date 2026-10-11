@@ -28,6 +28,10 @@ for (const [name, url] of SCREENS) {
   test(`${name} matches its baseline`, async ({ page }) => {
     await page.goto(url);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+    // The error boundary has a heading too: a crashed page must fail, not become a baseline.
+    await expect(page.getByText(/This page couldn.t load/)).toHaveCount(0);
+    // Streamed sections show skeletons first (the gallery shows them on purpose).
+    if (name !== "gallery") await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
     await page.evaluate(() => document.fonts.ready);
     // The freeze toast leaves on a timer; wait for it so the page is the same each run.
     if (url.includes("frozen")) {
