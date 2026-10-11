@@ -81,7 +81,11 @@ for (const [width, height] of [
     test("nothing clips or overlaps at 200 % text", async ({ page }) => {
       await page.goto("/dev/today?state=frozen");
       // The freeze toast overlays the page on purpose and leaves after duration.toast.
-      await expect(page.getByText(/Streak freeze used/)).toBeHidden({ timeout: 6_000 });
+      // Wait for it to arrive first: "hidden" is also true before it has appeared.
+      const toast = page.getByText(/Streak freeze used/);
+      await expect(toast).toBeVisible();
+      await expect(toast).toBeHidden({ timeout: 6_000 });
+      await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
       await scaleText(page);
       expect(await textProblems(page, "main")).toEqual([]);
     });

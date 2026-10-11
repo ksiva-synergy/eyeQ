@@ -191,6 +191,7 @@ test.describe("component gallery", () => {
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto(GALLERY);
+      await expect(page.getByTestId("gallery").getByRole("heading").first()).toBeVisible();
       await scaleText(page);
       expect(await textProblems(page, '[data-testid="gallery"]')).toEqual([]);
     });
@@ -318,6 +319,7 @@ test.describe("athlete shell", () => {
     test(`shell survives 200 % text at ${width} px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 });
       await page.goto("/dev/shell?path=/app/compete");
+      await expect(page.getByRole("link", { name: "Compete" }).first()).toBeVisible();
       await scaleText(page);
       expect(await textProblems(page, "body")).toEqual([]);
     });

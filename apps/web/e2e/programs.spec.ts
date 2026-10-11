@@ -99,6 +99,7 @@ for (const [width, height] of [
     test("nothing clips or overlaps at 200 % text", async ({ page }) => {
       for (const url of ["/dev/programs", "/dev/programs?view=detail&as=free"]) {
         await page.goto(url);
+        await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
         await scaleText(page);
         expect(await textProblems(page, "main")).toEqual([]);
       }
