@@ -168,7 +168,7 @@ async function moveSignIns(
   const { rows: cols } = await client.query<{ c: string }>(
     `select column_name as c from information_schema.columns
      where table_schema = 'auth' and table_name = 'users'
-       and column_name <> 'id' and is_generated = 'NEVER' and is_identity = 'NO'
+       and column_name not in ('id', 'created_at') and is_generated = 'NEVER' and is_identity = 'NO'
      order by ordinal_position`,
   );
   // Pending one-time codes are not part of a sign-in: they are left empty on both users
@@ -176,9 +176,12 @@ async function moveSignIns(
   // Supabase Auth finds a pending code by the phone it relates to: left on the old user, it
   // made the next code request for that phone fail (500).
   const pending = new Set([...TOKEN_TEXT, ...TOKEN_TIMES]);
+  // created_at never ends up null: the seed inserts demo auth users with an id only, and
+  // Supabase Auth cannot read a user without one.
   const set = cols
     .filter(({ c }) => !pending.has(c))
     .map(({ c }) => `${pg.escapeIdentifier(c)} = o.${pg.escapeIdentifier(c)}`)
+    .concat("created_at = coalesce(o.created_at, now())")
     .join(", ");
   const present = new Set(cols.map(({ c }) => c));
   const clear = [
