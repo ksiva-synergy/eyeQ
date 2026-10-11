@@ -35,7 +35,7 @@ test.describe("sign-in", () => {
 
   test("phone OTP signs in, shows the profile, and signs out", async ({ page }) => {
     await page.goto("/app");
-    await page.waitForURL("**/sign-in");
+    await page.waitForURL(/\/sign-in(\?|$)/);
 
     await page.getByLabel("Phone number").fill(phone);
     await page.getByRole("button", { name: "Send code" }).click();
@@ -412,6 +412,11 @@ test.describe("onboarding", () => {
     await axeCheck(page);
     await page.getByRole("button", { name: "Go to Home instead" }).click();
     await page.waitForURL(/\/app$/);
+    // Today, signed in: the Reset's day 1 from GET /home, rendered on the server.
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/, Meera$/i);
+    await expect(page.getByText("4 drills · 10 min")).toBeVisible();
+    await expect(page.getByText("+65")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Start session" })).toBeVisible();
 
     // What the server now holds.
     const me = await (await page.request.get("/api/v1/me")).json();

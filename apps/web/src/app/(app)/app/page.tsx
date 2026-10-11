@@ -1,59 +1,37 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { asAthlete } from "@eyeq/db";
-import { t } from "@eyeq/i18n";
-import { currentSession } from "@/server/auth/current";
-import { apiDb } from "@/server/db";
+import { asSignedInAthlete, configNumbers } from "@/server/athlete";
+import { getHome } from "@/server/services/daily";
 import { getMe } from "@/server/services/me";
-import { Card } from "@eyeq/ui/web";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { SignOutButton } from "./sign-out-button";
+import { Today } from "./today/Today";
+import { TodaySkeleton } from "./today/TodaySkeleton";
 
 /**
- * Phase 2's signed-in page, inside the phase 3 athlete shell: proves sign-in end
- * to end with the same service GET /me uses. Today (board 2) replaces it in phase 5.
+ * Today (boards 2 and 13a to 13c; board 16 from 768 px). Rendered on the server from the
+ * same services GET /me and GET /home use, in one transaction, so the first load makes no
+ * API round trip from the browser (plan phase 5 acceptance).
  */
-export default function AppHome() {
+export default function TodayPage() {
   return (
-    <div className="flex max-w-xl flex-col gap-6">
-      <Suspense fallback={<p className="type-body text-text-secondary">{t("common.loading")}</p>}>
-        <Me />
-      </Suspense>
-    </div>
+    <Suspense fallback={<TodaySkeleton />}>
+      <Load />
+    </Suspense>
   );
 }
 
-async function Me() {
-  const session = await currentSession();
-  if (!session) redirect("/sign-in");
-  const me = await asAthlete(apiDb(), session.userId, async (tx) => {
-    await tx.$queryRaw`select ensure_my_profile(${session.name})`;
-    return getMe(tx, session);
-  });
+async function Load() {
+  const { me, home, cfg } = await asSignedInAthlete("/app", async (tx, session) => ({
+    me: await getMe(tx, session),
+    home: await getHome(tx),
+    cfg: await configNumbers(tx, ["streak.multiplier_days", "streak.freeze_coin_price"]),
+  }));
   // Onboarding (boards 1c to 1e) comes before Today.
   if (!me.onboardedAt) redirect("/onboarding/profile");
-  const stats = [
-    { label: t("home.level"), value: me.stats.level },
-    { label: t("home.xp"), value: me.stats.totalXp },
-    { label: t("home.streak"), value: me.stats.currentStreak },
-    { label: t("home.coins"), value: me.stats.coins },
-  ];
   return (
-    <>
-      <div>
-        <PageHeader eyebrow={t("home.signedInAs")} title={me.displayName || t("home.unnamed")} />
-        <p className="-mt-3 type-body-s text-text-secondary">{me.phone ?? me.email}</p>
-      </div>
-      <dl className="grid grid-cols-2 gap-3">
-        {stats.map((s) => (
-          <Card key={s.label}>
-            <dt className="type-label text-text-muted">{s.label}</dt>
-            <dd className="type-display-m">{s.value}</dd>
-          </Card>
-        ))}
-      </dl>
-      <p className="type-body-s text-text-secondary">{t("home.placeholder")}</p>
-      <SignOutButton />
-    </>
+    <Today
+      home={home}
+      multiplierDays={cfg["streak.multiplier_days"]}
+      freezePrice={cfg["streak.freeze_coin_price"]}
+    />
   );
 }

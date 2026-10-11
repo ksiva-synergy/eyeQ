@@ -1,0 +1,192 @@
+{
+  "now": "2026-10-11T08:40:32.704756+00:00",
+  "coins": 140,
+  "level": {
+    "level": 7,
+    "title": "Prospect",
+    "toNext": 223,
+    "totalXp": 2040,
+    "xpInLevel": 188,
+    "xpForLevel": 411,
+    "nextThreshold": 2263
+  },
+  "today": {
+    "kind": "program",
+    "title": "Day 13",
+    "drills": [
+      {
+        "xp": 10,
+        "done": false,
+        "order": 1,
+        "title": "Near–Far Focus Shifts",
+        "access": "free_preview",
+        "locked": false,
+        "drillId": "00000006-0000-4000-a000-000000000001",
+        "scoreType": "number",
+        "targetLabel": "3 sets × 30 s",
+        "measurementTag": "dynamic-visual-acuity",
+        "durationMinutes": 4,
+        "measurementName": "Dynamic Visual Acuity",
+        "measurementGroup": "vision"
+      },
+      {
+        "xp": 10,
+        "done": false,
+        "order": 2,
+        "title": "Peripheral Flash Catch",
+        "access": "included",
+        "locked": false,
+        "drillId": "00000006-0000-4000-a000-000000000002",
+        "scoreType": "number",
+        "targetLabel": "3 sets × 20",
+        "measurementTag": "simple-reaction-speed",
+        "durationMinutes": 3,
+        "measurementName": "Simple Reaction Speed",
+        "measurementGroup": "reaction"
+      },
+      {
+        "xp": 10,
+        "done": false,
+        "order": 3,
+        "title": "Saccade Ladder",
+        "access": "included",
+        "locked": false,
+        "drillId": "00000006-0000-4000-a000-000000000003",
+        "scoreType": "rating",
+        "targetLabel": "2 ladders",
+        "measurementTag": "executive-scan",
+        "durationMinutes": 4,
+        "measurementName": "Executive Scan",
+        "measurementGroup": "cognition"
+      },
+      {
+        "xp": 10,
+        "done": false,
+        "order": 4,
+        "title": "Number Recall Sprint",
+        "access": "included",
+        "locked": false,
+        "drillId": "00000006-0000-4000-a000-000000000004",
+        "scoreType": "number",
+        "targetLabel": "10 rounds",
+        "measurementTag": "digit-span",
+        "durationMinutes": 3,
+        "measurementName": "Digit Span",
+        "measurementGroup": "cognition"
+      }
+    ],
+    "locked": null,
+    "completed": false,
+    "moduleId": "00000004-0000-4000-a000-000000000022",
+    "dayNumber": 13,
+    "localDate": "2026-10-11",
+    "programId": "00000003-0000-4000-a000-000000000002",
+    "sessionId": "00000005-0000-4000-a000-000000000213",
+    "xpPreview": {
+      "total": 72,
+      "drills": 40,
+      "multiplier": 7,
+      "sessionBonus": 25,
+      "multiplierFactor": 1.1
+    },
+    "estMinutes": 14,
+    "moduleOrder": 2,
+    "moduleTitle": "Track It Clean",
+    "programSlug": "cricket-vision-foundations",
+    "durationDays": 21,
+    "enrollmentId": "00000001-0000-4000-a000-000000000901",
+    "programTitle": "Cricket Vision Foundations"
+  },
+  "streak": {
+    "best": 19,
+    "week": [
+      {
+        "date": "2026-10-05",
+        "status": "done"
+      },
+      {
+        "date": "2026-10-06",
+        "status": "done"
+      },
+      {
+        "date": "2026-10-07",
+        "status": "done"
+      },
+      {
+        "date": "2026-10-08",
+        "status": "done"
+      },
+      {
+        "date": "2026-10-09",
+        "status": "done"
+      },
+      {
+        "date": "2026-10-10",
+        "status": "done"
+      },
+      {
+        "date": "2026-10-11",
+        "status": "today"
+      }
+    ],
+    "state": "pending",
+    "current": 12,
+    "endsAt": "2026-10-11T18:30:00+00:00",
+    "lastRun": 0,
+    "freezeMax": 2,
+    "frozenDay": null,
+    "multiplier": 1.1,
+    "freezesHeld": 1,
+    "lastTrained": "2026-10-10"
+  },
+  "profile": {
+    "id": "00000001-0000-4000-a000-000000000001",
+    "sport": "cricket",
+    "initials": "AR",
+    "visibility": "public",
+    "displayName": "Arjun R."
+  },
+  "program": {
+    "slug": "cricket-vision-foundations",
+    "title": "Cricket Vision Foundations",
+    "completed": false,
+    "programId": "00000003-0000-4000-a000-000000000002",
+    "currentDay": 13,
+    "durationDays": 21,
+    "enrollmentId": "00000001-0000-4000-a000-000000000901"
+  },
+  "timezone": "Asia/Kolkata",
+  "localDate": "2026-10-11",
+  "weeklyRank": {
+    "of": 15,
+    "xp": 412,
+    "rank": 4,
+    "delta": 4,
+    "scope": "sport",
+    "weekStart": "2026-10-05",
+    "scopeValue": "cricket",
+    "rankDayStart": 8
+  },
+  "weeklyChallenge": {
+    "id": "00000008-0000-4000-a000-000000000001",
+    "type": "weekly",
+    "state": "complete",
+    "title": "5 sessions this week",
+    "joined": 12,
+    "reward": {
+      "xp": 150,
+      "badge": "Five-a-Week",
+      "coins": 40,
+      "badgeId": "00000007-0000-4000-a000-000000000016"
+    },
+    "target": 5,
+    "progress": 6,
+    "completed": true,
+    "resetsAt": "2026-10-11T18:30:00+00:00",
+    "programId": null,
+    "windowEnd": "2026-10-11T18:30:00+00:00",
+    "description": "Complete five sessions between Monday and Sunday.",
+    "completedAt": "2026-10-11T08:06:38.048716+00:00",
+    "windowStart": "2026-10-04T18:30:00+00:00"
+  }
+}

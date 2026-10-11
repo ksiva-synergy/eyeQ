@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatNumber, formatRelativeDay, t } from "./index.ts";
+import {
+  formatDate,
+  formatNumber,
+  formatRelativeDay,
+  t,
+  formatShortWeekday,
+  formatWeekdayDate,
+  hourIn,
+} from "./index.ts";
 
 describe("i18n", () => {
   it("returns the message for a key", () => {
@@ -20,5 +28,16 @@ describe("i18n", () => {
     expect(formatRelativeDay(new Date("2026-10-09T23:00:00"), now)).toBe("yesterday");
     expect(formatRelativeDay(new Date("2026-10-07T08:00:00"), now)).toBe("3 days ago");
     expect(formatRelativeDay(new Date("2026-09-19T08:00:00"), now)).toBe("3 weeks ago");
+  });
+});
+
+describe("day labels", () => {
+  it("formats a local date without shifting it across zones", () => {
+    expect(formatWeekdayDate("2026-10-10")).toBe("Saturday 10 Oct");
+    expect(formatShortWeekday("2026-10-10")).toBe("Sat");
+  });
+  it("gives the hour in the athlete's time zone", () => {
+    expect(hourIn("2026-10-11T13:00:00Z", "Asia/Kolkata")).toBe(18);
+    expect(hourIn("2026-10-11T13:00:00Z", "America/New_York")).toBe(9);
   });
 });

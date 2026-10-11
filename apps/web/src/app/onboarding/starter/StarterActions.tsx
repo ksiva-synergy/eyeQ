@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { t } from "@eyeq/i18n";
 import { Button, Icon } from "@eyeq/ui/web";
 import { v1 } from "@/lib/athlete-api";
@@ -18,7 +17,6 @@ export function StarterActions({
   programId: string | null;
   startLabel: string;
 }) {
-  const router = useRouter();
   const [busy, setBusy] = useState<"start" | "home" | null>(null);
   const [failed, setFailed] = useState(false);
   const keys = useRef({ enroll: crypto.randomUUID(), onboarded: crypto.randomUUID() });
@@ -47,8 +45,11 @@ export function StarterActions({
       setFailed(true);
       return;
     }
-    // The player arrives in the next slice; until then both go to Today.
-    router.push("/app");
+    // A full navigation, not router.push: the router still holds the redirect to onboarding
+    // that /app answered right after sign-in. The player arrives in the next slice; until
+    // then both go to Today.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- see above
+    window.location.assign("/app");
   }
 
   return (
