@@ -75,6 +75,8 @@ const ENGINE_REASONS = new Set([
   "freeze_cap_reached",
   "already_unlocked",
   "not_available_yet",
+  "insufficient_coins",
+  "insufficient_credits",
 ]);
 
 /** Maps anything thrown to an ApiError. Unknown errors become a 500 with no detail. */
@@ -95,7 +97,14 @@ export function toApiError(e: unknown): ApiError {
     case "23503":
     case "23505":
       return new ApiError(409, "validation_failed", "This conflicts with existing data.");
-    // Raised by the game engine (db/migrations 0009): not found, locked, wrong state.
+    // Raised by the game engine (db/migrations 0008, 0009): a spend the balance cannot
+    // cover, not found, locked, wrong state.
+    case "P0001": {
+      const reason = engineReason(e);
+      return reason === "insufficient_coins" || reason === "insufficient_credits"
+        ? new ApiError(409, "conflict", "Not enough coins yet.", { reason })
+        : new ApiError(500, "internal", "Something went wrong.");
+    }
     case "P0002":
       return new ApiError(404, "not_found", "Not found.", { reason: engineReason(e) });
     case "P0003":

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  boardRowSchema,
+  leaderboardQuerySchema,
+  rewardPurchaseRequestSchema,
   adminProductCreateSchema,
   adminProductUpdateSchema,
   otpRequestSchema,
@@ -132,5 +135,38 @@ describe("admin products", () => {
     expect(adminProductCreateSchema.safeParse({ ...ok, pricePaise: 299.5 }).success).toBe(false);
     expect(adminProductCreateSchema.safeParse({ ...ok, price: 299 }).success).toBe(false);
     expect(adminProductUpdateSchema.safeParse({ kind: "program" }).success).toBe(false);
+  });
+});
+
+describe("compete", () => {
+  it("defaults the board to this week, global, and refuses other periods", () => {
+    expect(leaderboardQuerySchema.parse({})).toEqual({ period: "week", scope: "global" });
+    expect(leaderboardQuerySchema.safeParse({ period: "month" }).success).toBe(false);
+  });
+
+  it("a board row cannot carry a user id or anything else personal (rule 11)", () => {
+    const row = {
+      rank: 1,
+      displayName: "A R.",
+      initials: "AR",
+      level: 7,
+      xp: 2040,
+      delta: 1,
+      isMe: false,
+    };
+    expect(boardRowSchema.safeParse(row).success).toBe(true);
+    for (const extra of [
+      { userId: "x" },
+      { sport: "cricket" },
+      { dob: "2000-01-01" },
+      { phone: "91" },
+    ])
+      expect(boardRowSchema.safeParse({ ...row, ...extra }).success).toBe(false);
+  });
+
+  it("a purchase names an item and, for a drill unlock, the drill", () => {
+    const itemId = "00000000-0000-4000-8000-000000000001";
+    expect(rewardPurchaseRequestSchema.safeParse({ itemId }).success).toBe(true);
+    expect(rewardPurchaseRequestSchema.safeParse({ itemId, coins: 1 }).success).toBe(false);
   });
 });
