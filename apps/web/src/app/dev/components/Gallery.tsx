@@ -118,9 +118,11 @@ export function Gallery() {
     <div data-theme={theme} data-testid="gallery" className="min-h-dvh bg-ground text-text-primary">
       <div className="mx-auto flex max-w-[242.5rem] flex-col gap-6 px-gutter py-10 md:px-12">
         <header className="flex flex-wrap items-end justify-between gap-6">
-          <div className="flex flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1.5">
             <span className="type-label text-primary-text">{copy.eyebrow}</span>
-            <h1 className="font-display text-[3.5rem] leading-[0.95] font-bold">{copy.title}</h1>
+            <h1 className="font-display text-[3.5rem] leading-[0.95] font-bold break-words">
+              {copy.title}
+            </h1>
           </div>
           <p className="max-w-[45rem] text-xs leading-normal text-text-secondary">{copy.intro}</p>
           <SegmentedControl
@@ -201,7 +203,7 @@ export function Gallery() {
                 xpInLevel={xpInLevel}
                 xpForLevel={xpForLevel}
                 totalXp={2040}
-                className="min-w-[12rem] flex-1"
+                className="min-w-[min(100%,12rem)] flex-1"
               />
             </div>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3">

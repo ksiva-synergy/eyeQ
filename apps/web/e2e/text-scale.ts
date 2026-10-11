@@ -131,11 +131,31 @@ export async function textProblems(page: Page, root: string) {
 }
 
 export async function scaleText(page: Page) {
-  // Same effect as the browser's text size at 200 %: rem doubles, px does not.
-  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-  // Measure the relaid-out page with its web fonts, not a fixed delay's guess at it.
-  await page.evaluate(async () => {
+  // Same effect as the browser's text size at 200 %: rem doubles, px does not. Set on the
+  // root element itself: an added style sheet changed the root's size but, after
+  // emulateMedia, Chrome kept descendants' rem values from before, so the check measured
+  // the page at 100 % while reporting 200 %.
+  const ratio = await page.evaluate(async () => {
+    const remPx = () => {
+      const probe = document.createElement("div");
+      probe.style.cssText = "position:absolute;visibility:hidden;width:10rem";
+      document.body.appendChild(probe);
+      const w = probe.getBoundingClientRect().width;
+      probe.remove();
+      return w / 10;
+    };
+    const before = remPx();
+    const root = document.documentElement;
+    root.style.setProperty("font-size", "200%", "important");
+    // Re-resolve every element's styles: without this, Chrome under emulateMedia kept
+    // some descendants' rem values from before the change.
+    root.style.display = "none";
+    void root.offsetHeight;
+    root.style.removeProperty("display");
+    // Measure the relaid-out page with its web fonts, not a fixed delay's guess at it.
     await document.fonts.ready;
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    return remPx() / before;
   });
+  if (Math.abs(ratio - 2) > 0.01) throw new Error(`text did not scale to 200 % (×${ratio})`);
 }

@@ -38,7 +38,7 @@ export function BottomTabBar({ items, activeHref, Link = DefaultLink, className 
         {items.map((item) => {
           const active = item.href === activeHref;
           return (
-            <li key={item.href} className="flex flex-1">
+            <li key={item.href} className="flex min-w-0 flex-1">
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
@@ -56,7 +56,7 @@ export function BottomTabBar({ items, activeHref, Link = DefaultLink, className 
                   />
                 )}
                 <Icon name={item.icon} size={24} filled={active} />
-                <span>{item.label}</span>
+                <span className="max-w-full [overflow-wrap:anywhere]">{item.label}</span>
               </Link>
             </li>
           );

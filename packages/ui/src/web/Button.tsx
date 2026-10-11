@@ -101,7 +101,7 @@ export function Button(props: ButtonProps) {
       ) : icon ? (
         <Icon name={icon} size={iconSize} filled={icon === "play"} />
       ) : null}
-      <span>
+      <span className="min-w-0 break-words">
         {children}
         {disabled && (
           <span className="font-semibold">

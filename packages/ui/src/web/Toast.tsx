@@ -41,7 +41,7 @@ export function Toast({
       onFocus={() => setHeld(true)}
       onBlur={() => setHeld(false)}
       className={cx(
-        "eyeq-fade-in flex items-center gap-2.5 rounded-m border border-border-strong bg-surface-2 py-0 pr-2 pl-3.5 shadow-e1",
+        "eyeq-fade-in flex flex-wrap items-center gap-2.5 rounded-m border border-border-strong bg-surface-2 py-0 pr-2 pl-3.5 shadow-e1",
         className,
       )}
     >
@@ -50,7 +50,7 @@ export function Toast({
         size={20}
         className={icon === "check" ? "text-success-text" : "text-text-secondary"}
       />
-      <span className="flex-1 py-3 type-body-strong">{message}</span>
+      <span className="min-w-0 flex-1 py-3 type-body-strong break-words">{message}</span>
       {action && (
         <button
           type="button"

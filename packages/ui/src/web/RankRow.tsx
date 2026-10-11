@@ -83,7 +83,8 @@ export function RankRow({
       )}
       <div
         className={cx(
-          "flex min-h-[3.25rem] items-center gap-3 rounded-m border px-3.5 py-2",
+          // Wraps the XP onto its own line at large text sizes rather than overflowing.
+          "flex min-h-[3.25rem] flex-wrap items-center gap-3 rounded-m border px-3.5 py-2",
           isMe ? "border-primary bg-primary-subtle" : "border-border bg-surface-1",
         )}
       >
@@ -128,7 +129,10 @@ export function RankRow({
                 : t("rank.new")}
           </span>
         )}
-        <span aria-hidden="true" className="flex items-baseline gap-1 type-display-s text-xp-text">
+        <span
+          aria-hidden="true"
+          className="ml-auto flex items-baseline gap-1 type-display-s text-xp-text"
+        >
           {formatNumber(xp)}
           <span className="type-caption font-bold text-text-secondary">{t("xp.unit")}</span>
         </span>
