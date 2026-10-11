@@ -194,7 +194,14 @@ export async function getProgram(tx: Tx, id: string): Promise<BuilderProgram> {
       })),
     })),
     check: await publishCheck(tx, p.id),
+    defaults: await defaults(tx),
   };
+}
+
+async function defaults(tx: Tx) {
+  const [row] = await tx.$queryRaw<{ xp: number; coins: number }[]>`
+    select config_int('xp.drill') as xp, config_int('coin.drill_unlock_price') as coins`;
+  return { drillXp: row?.xp ?? 0, coinDrillPrice: row?.coins ?? 0 };
 }
 
 /** The drill library for reuse: newest first, optionally by title. */

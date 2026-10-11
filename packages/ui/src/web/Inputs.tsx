@@ -6,7 +6,7 @@ import { cx } from "./cx.ts";
 import { Icon } from "./Icon.tsx";
 
 const fieldBase =
-  "min-h-[3.25rem] w-full min-w-0 rounded-m border bg-surface-2 px-3.5 text-base font-bold text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none disabled:text-text-disabled";
+  "w-full min-w-0 border bg-surface-2 px-3.5 text-base font-bold text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none disabled:text-text-disabled";
 
 export type TextInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   label: string;
@@ -32,7 +32,7 @@ export function TextInput({ label, error, hint, dense, id, className, ...rest }:
         aria-describedby={error || hint ? msgId : undefined}
         className={cx(
           fieldBase,
-          dense && "min-h-10 rounded-control text-sm",
+          dense ? "min-h-10 rounded-control text-sm" : "min-h-[3.25rem] rounded-m",
           error ? "border-cta-text" : "border-border",
         )}
         {...rest}
@@ -83,7 +83,11 @@ export function PhoneInput({
           autoComplete="tel-national"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? msgId : undefined}
-          className={cx(fieldBase, error ? "border-cta-text" : "border-border")}
+          className={cx(
+            fieldBase,
+            "min-h-[3.25rem] rounded-m",
+            error ? "border-cta-text" : "border-border",
+          )}
           {...rest}
         />
       </div>
@@ -184,7 +188,10 @@ export function SegmentedControl({
     <div
       role="radiogroup"
       aria-label={label}
-      className={cx("flex gap-1 rounded-m border border-border bg-surface-2 p-1", className)}
+      className={cx(
+        "flex flex-wrap gap-1 rounded-m border border-border bg-surface-2 p-1",
+        className,
+      )}
     >
       {options.map((o) => {
         const on = o.value === value;
@@ -196,7 +203,8 @@ export function SegmentedControl({
             aria-checked={on}
             onClick={() => onChange(o.value)}
             className={cx(
-              "min-h-10 flex-1 rounded-control px-2 type-body-strong",
+              // Wraps onto a second row at large text sizes rather than overflowing.
+              "min-h-10 min-w-fit flex-1 rounded-control px-2 type-body-strong",
               on ? "bg-primary text-on-primary" : "bg-transparent text-text-secondary",
             )}
           >

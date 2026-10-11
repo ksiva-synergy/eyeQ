@@ -1,0 +1,303 @@
+{
+  "id": "8d2b1371-543d-474b-93c0-e6412e40836c",
+  "slug": "cricket-vision-foundations",
+  "title": "Cricket Vision Foundations",
+  "description": null,
+  "coverUrl": null,
+  "sportTags": [],
+  "level": null,
+  "durationDays": 21,
+  "isFree": false,
+  "inSubscription": false,
+  "productId": null,
+  "completionXp": null,
+  "minLevel": 1,
+  "coachLine": null,
+  "product": null,
+  "status": "draft",
+  "updatedAt": "2026-10-11T05:34:55.837Z",
+  "modules": [
+    {
+      "id": "9dcadd7f-63c2-4ec3-a574-e06cd29bd861",
+      "order": 1,
+      "title": "Clear",
+      "description": null,
+      "unlockRule": "immediate",
+      "unlockDay": null,
+      "sessions": [
+        {
+          "id": "aaa08deb-61ac-44a7-85cb-47935c36fae4",
+          "dayNumber": 1,
+          "title": "Focus basics",
+          "estMinutes": 14,
+          "drills": [
+            {
+              "id": "ea82896c-d2be-453c-8dce-b4c8792d1b6f",
+              "order": 1,
+              "title": "Near–Far Focus Shifts",
+              "videoProvider": "youtube",
+              "videoUrl": "https://youtu.be/aaaaaaaaaa1",
+              "thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaa1/hqdefault.jpg",
+              "instructions": [
+                "Hold the near card at arm's length.",
+                "On each beep, snap focus between them."
+              ],
+              "targetType": "seconds",
+              "targetValue": 30,
+              "targetLabel": "3 sets × 30 s",
+              "restSeconds": null,
+              "durationMinutes": 3,
+              "scoreType": "number",
+              "scoreDirection": "higher",
+              "scoreUnit": null,
+              "xp": null,
+              "measurementTag": null,
+              "access": "included",
+              "ppvProductId": null,
+              "coinPrice": null,
+              "minLevel": 1,
+              "linkStatus": "ok",
+              "linkReason": null,
+              "linkCheckedAt": "2026-10-11T05:34:55.778Z",
+              "videoDurationSeconds": 180,
+              "videoPrivacy": "unlisted",
+              "usedIn": [
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "aaa08deb-61ac-44a7-85cb-47935c36fae4",
+                  "dayNumber": 1
+                },
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "e959981c-910d-4b03-a28f-dffcc74fc492",
+                  "dayNumber": 3
+                }
+              ]
+            },
+            {
+              "id": "471257e7-33ac-464e-8ff7-9670e6f96a93",
+              "order": 2,
+              "title": "Peripheral Flash Catch",
+              "videoProvider": "youtube",
+              "videoUrl": "https://youtu.be/aaaaaaaaaa2",
+              "thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaa2/hqdefault.jpg",
+              "instructions": [
+                "Hold the near card at arm's length.",
+                "On each beep, snap focus between them."
+              ],
+              "targetType": "seconds",
+              "targetValue": 30,
+              "targetLabel": "3 sets × 30 s",
+              "restSeconds": null,
+              "durationMinutes": 3,
+              "scoreType": "number",
+              "scoreDirection": "higher",
+              "scoreUnit": null,
+              "xp": null,
+              "measurementTag": null,
+              "access": "included",
+              "ppvProductId": null,
+              "coinPrice": null,
+              "minLevel": 1,
+              "linkStatus": "ok",
+              "linkReason": null,
+              "linkCheckedAt": "2026-10-11T05:34:55.785Z",
+              "videoDurationSeconds": 180,
+              "videoPrivacy": "unlisted",
+              "usedIn": [
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "aaa08deb-61ac-44a7-85cb-47935c36fae4",
+                  "dayNumber": 1
+                }
+              ]
+            },
+            {
+              "id": "51e998f5-9d98-44ed-a9ed-23486edaab34",
+              "order": 3,
+              "title": "Saccade Ladder",
+              "videoProvider": "youtube",
+              "videoUrl": "https://youtu.be/deadvideo01",
+              "thumbnailUrl": null,
+              "instructions": [
+                "Hold the near card at arm's length.",
+                "On each beep, snap focus between them."
+              ],
+              "targetType": "seconds",
+              "targetValue": 30,
+              "targetLabel": "3 sets × 30 s",
+              "restSeconds": null,
+              "durationMinutes": 3,
+              "scoreType": "number",
+              "scoreDirection": "higher",
+              "scoreUnit": null,
+              "xp": null,
+              "measurementTag": null,
+              "access": "included",
+              "ppvProductId": null,
+              "coinPrice": null,
+              "minLevel": 1,
+              "linkStatus": "broken",
+              "linkReason": "not_found",
+              "linkCheckedAt": "2026-10-11T05:34:55.788Z",
+              "videoDurationSeconds": null,
+              "videoPrivacy": null,
+              "usedIn": [
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "aaa08deb-61ac-44a7-85cb-47935c36fae4",
+                  "dayNumber": 1
+                }
+              ]
+            },
+            {
+              "id": "a988d423-984f-44dd-8620-4a8cde4c0b8b",
+              "order": 4,
+              "title": "Number Recall Sprint",
+              "videoProvider": "drive",
+              "videoUrl": "https://drive.google.com/file/d/1DriveFileAbcd/view",
+              "thumbnailUrl": null,
+              "instructions": [
+                "Hold the near card at arm's length.",
+                "On each beep, snap focus between them."
+              ],
+              "targetType": "seconds",
+              "targetValue": 30,
+              "targetLabel": "3 sets × 30 s",
+              "restSeconds": null,
+              "durationMinutes": 3,
+              "scoreType": "number",
+              "scoreDirection": "higher",
+              "scoreUnit": null,
+              "xp": null,
+              "measurementTag": null,
+              "access": "included",
+              "ppvProductId": null,
+              "coinPrice": null,
+              "minLevel": 1,
+              "linkStatus": "ok",
+              "linkReason": null,
+              "linkCheckedAt": "2026-10-11T05:34:55.793Z",
+              "videoDurationSeconds": 180,
+              "videoPrivacy": "anyone_with_link",
+              "usedIn": [
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "aaa08deb-61ac-44a7-85cb-47935c36fae4",
+                  "dayNumber": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "69703290-8195-4c52-8f91-ec4c33cd354d",
+          "dayNumber": 2,
+          "title": null,
+          "estMinutes": 14,
+          "drills": []
+        }
+      ]
+    },
+    {
+      "id": "fb5418aa-a697-421b-83be-a0d55762be73",
+      "order": 2,
+      "title": "Wide",
+      "description": null,
+      "unlockRule": "after_previous",
+      "unlockDay": null,
+      "sessions": [
+        {
+          "id": "e959981c-910d-4b03-a28f-dffcc74fc492",
+          "dayNumber": 3,
+          "title": null,
+          "estMinutes": 15,
+          "drills": [
+            {
+              "id": "ea82896c-d2be-453c-8dce-b4c8792d1b6f",
+              "order": 1,
+              "title": "Near–Far Focus Shifts",
+              "videoProvider": "youtube",
+              "videoUrl": "https://youtu.be/aaaaaaaaaa1",
+              "thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaa1/hqdefault.jpg",
+              "instructions": [
+                "Hold the near card at arm's length.",
+                "On each beep, snap focus between them."
+              ],
+              "targetType": "seconds",
+              "targetValue": 30,
+              "targetLabel": "3 sets × 30 s",
+              "restSeconds": null,
+              "durationMinutes": 3,
+              "scoreType": "number",
+              "scoreDirection": "higher",
+              "scoreUnit": null,
+              "xp": null,
+              "measurementTag": null,
+              "access": "included",
+              "ppvProductId": null,
+              "coinPrice": null,
+              "minLevel": 1,
+              "linkStatus": "ok",
+              "linkReason": null,
+              "linkCheckedAt": "2026-10-11T05:34:55.778Z",
+              "videoDurationSeconds": 180,
+              "videoPrivacy": "unlisted",
+              "usedIn": [
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "aaa08deb-61ac-44a7-85cb-47935c36fae4",
+                  "dayNumber": 1
+                },
+                {
+                  "programId": "8d2b1371-543d-474b-93c0-e6412e40836c",
+                  "programTitle": "Cricket Vision Foundations",
+                  "sessionId": "e959981c-910d-4b03-a28f-dffcc74fc492",
+                  "dayNumber": 3
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "check": {
+    "ok": false,
+    "problems": [
+      {
+        "code": "empty_session",
+        "sessionId": "69703290-8195-4c52-8f91-ec4c33cd354d",
+        "day": 2
+      },
+      {
+        "code": "no_price"
+      },
+      {
+        "code": "video_broken",
+        "drillId": "51e998f5-9d98-44ed-a9ed-23486edaab34",
+        "title": "Saccade Ladder",
+        "day": 1,
+        "reason": "not_found"
+      }
+    ],
+    "warnings": [
+      {
+        "code": "drive_paid",
+        "drillId": "a988d423-984f-44dd-8620-4a8cde4c0b8b",
+        "title": "Number Recall Sprint",
+        "day": 1
+      }
+    ]
+  },
+  "defaults": {
+    "drillXp": 10,
+    "coinDrillPrice": 30
+  }
+}

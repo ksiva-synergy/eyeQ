@@ -1,7 +1,6 @@
-import { ComingSoon } from "@/components/shell/ComingSoon";
+import { ProgramsAdmin } from "./ProgramsAdmin";
 
-export default function Page() {
-  return (
-    <ComingSoon title="shell.admin.programsTitle" icon="builder" body="shell.admin.soonBody" />
-  );
+// Program builder, the list (plan phase 4, board 17).
+export default function ProgramsPage() {
+  return <ProgramsAdmin />;
 }

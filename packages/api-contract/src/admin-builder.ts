@@ -212,6 +212,8 @@ export const builderProgramSchema = z.strictObject({
   updatedAt: timestamp,
   modules: z.array(builderModuleSchema),
   check: publishCheckSchema,
+  /** game_config defaults the editor shows for blank fields (rule 8). */
+  defaults: z.strictObject({ drillXp: z.number().int(), coinDrillPrice: z.number().int() }),
 });
 export type BuilderProgram = z.infer<typeof builderProgramSchema>;
 

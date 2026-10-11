@@ -239,7 +239,7 @@ export function AthleteAdmin({ id }: { id: string }) {
       <div className="flex flex-wrap items-center gap-4">
         <Avatar initials={a.initials} size="l" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h1 className="font-display text-[2.5rem] leading-[0.95] font-bold uppercase">
+          <h1 className="font-display text-[2.5rem] leading-[0.95] font-bold [overflow-wrap:anywhere] uppercase">
             {a.displayName}
           </h1>
           <span className="text-text-secondary tabular-nums">

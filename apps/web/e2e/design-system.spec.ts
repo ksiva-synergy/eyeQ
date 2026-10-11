@@ -1,4 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
@@ -459,5 +461,91 @@ test.describe("admin and public shells", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Train your brain.");
     const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
     expect(result.violations.map((v) => v.id)).toEqual([]);
+  });
+});
+
+test.describe("program builder (board 17)", () => {
+  // The builder without the admin gate (/dev/builder), its API answered from a fixture
+  // recorded from the real service. The signed-in journey runs in the Supabase job.
+  const program = JSON.parse(
+    readFileSync(path.join(__dirname, "fixtures", "builder-program.json"), "utf8"),
+  ) as {
+    modules: { id: string; sessions: { id: string; drills: { id: string }[] }[] }[];
+  };
+  const reorders: unknown[] = [];
+
+  test.beforeEach(async ({ page }) => {
+    reorders.length = 0;
+    await page.route("**/api/admin/programs/*/reorder", async (r) => {
+      reorders.push(r.request().postDataJSON());
+      await r.fulfill({ json: program });
+    });
+    await page.route("**/api/admin/programs/*", (r) => r.fulfill({ json: program }));
+    await page.route("**/api/admin/products", (r) => r.fulfill({ json: { products: [] } }));
+    await page.route("**/api/admin/measurement-tags", (r) =>
+      r.fulfill({
+        json: { tags: [{ slug: "dva", name: "Dynamic Visual Acuity", group: "vision" }] },
+      }),
+    );
+    await page.route("**/api/admin/drills*", (r) => r.fulfill({ json: { drills: [] } }));
+  });
+
+  const session1 = "Day 1 · Focus basics 4 drills · 14 min";
+
+  test("tree, publish check and drill editor pass accessibility checks", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto("/dev/builder");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cricket Vision Foundations");
+    const problems = page.getByTestId("publish-problems");
+    await expect(problems).toContainText("Day 2 has no drills.");
+    await expect(problems).toContainText("Day 1 · Saccade Ladder: No video at this link.");
+    await expect(page.getByText("Number Recall Sprint is paid and on Google Drive")).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Publish/ })).toContainText(
+      "fix 3 problems first",
+    );
+
+    await page.getByRole("button", { name: session1 }).click();
+    await page.getByRole("button", { name: /^Near–Far Focus Shifts/ }).click();
+    await expect(page.getByText("Used in 2 sessions")).toBeVisible();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Found · 3:00 · unlisted" }),
+    ).toBeVisible();
+    const result = await new AxeBuilder({ page })
+      .include("main")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(result.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(" ")}`)).toEqual([]);
+  });
+
+  test("Alt + arrow keys reorder without a mouse", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto("/dev/builder");
+    await page.getByRole("button", { name: session1 }).click();
+    const drills = program.modules[0]!.sessions[0]!.drills.map((d) => d.id);
+    await page.getByRole("button", { name: /^Near–Far Focus Shifts/ }).focus();
+    await page.keyboard.press("Alt+ArrowDown");
+    await expect.poll(() => reorders.length).toBe(1);
+    const body = reorders[0] as { modules: { sessions: { drillIds: string[] }[] }[] };
+    expect(body.modules[0]!.sessions[0]!.drillIds).toEqual([
+      drills[1],
+      drills[0],
+      drills[2],
+      drills[3],
+    ]);
+  });
+
+  test("works on a phone at 200 % text", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/dev/builder");
+    await page.getByRole("button", { name: session1 }).click();
+    await scaleText(page);
+    expect(await textProblems(page, "main")).toEqual([]);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+    await page.getByRole("button", { name: /^Near–Far Focus Shifts/ }).click();
+    await expect(page.getByLabel("Drill name")).toBeVisible();
+    expect(await textProblems(page, "main")).toEqual([]);
   });
 });
