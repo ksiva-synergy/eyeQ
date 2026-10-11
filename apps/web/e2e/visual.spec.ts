@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * Screenshot comparison of the Phase 3 gallery and the Phase 5 screens at 390 × 844,
+ * Screenshot comparison of the Phase 3 gallery and the Phase 5 and 6 screens at 390 × 844,
  * dark theme as the boards are drawn. Baselines are Linux renders from the official
  * Playwright image, so this runs only through scripts/visual.sh (CI and local alike);
  * `scripts/visual.sh --update-snapshots` rewrites them after an intended change.
@@ -22,6 +22,10 @@ const SCREENS: [name: string, url: string][] = [
   ["program-detail", "/dev/programs?view=detail"],
   ["program-detail-locked", "/dev/programs?view=detail&as=free"],
   ["account", "/dev/account"],
+  ["compete", "/dev/compete"],
+  ["compete-challenges", "/dev/compete?tab=challenges"],
+  ["trophies", "/dev/trophies"],
+  ["rewards", "/dev/rewards?as=free"],
 ];
 
 for (const [name, url] of SCREENS) {

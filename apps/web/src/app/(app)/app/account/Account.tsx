@@ -25,6 +25,7 @@ import {
   Toggle,
   cx,
 } from "@eyeq/ui/web";
+import Link from "next/link";
 import { NextLink } from "@/components/shell/NextLink";
 import { SignOutButton } from "@/components/shell/SignOutButton";
 import { GOALS, SPORTS, sportKey } from "@/app/onboarding/options";
@@ -121,7 +122,12 @@ export function Account({
           tone="text-streak-text"
         />
         <Stat value={formatNumber(sessions)} label={t("account.statSessions")} />
-        <Stat value={formatNumber(badges)} label={t("account.statBadges")} />
+        <Stat
+          value={formatNumber(badges)}
+          label={t("account.statBadges")}
+          href="/app/trophies"
+          linkLabel={t("account.badgesLink", { n: badges })}
+        />
       </dl>
 
       <Group title={t("account.purchases")}>
@@ -274,13 +280,34 @@ export function Account({
   );
 }
 
-function Stat({ value, label, tone }: { value: string; label: string; tone?: string }) {
+function Stat({
+  value,
+  label,
+  tone,
+  href,
+  linkLabel,
+}: {
+  value: string;
+  label: string;
+  tone?: string;
+  /** Board 14's "badges ›": the whole stat opens the trophy case. */
+  href?: string;
+  linkLabel?: string;
+}) {
   return (
-    <div className="flex flex-col items-center gap-0.5 rounded-m border border-border bg-surface-1 px-2 py-3 text-center">
+    <div className="relative flex flex-col items-center gap-0.5 rounded-m border border-border bg-surface-1 px-2 py-3 text-center">
       <dd className={cx("font-display text-[1.625rem] leading-none font-bold tabular-nums", tone)}>
         {value}
       </dd>
-      <dt className="type-label text-text-muted">{label}</dt>
+      <dt className="inline-flex items-center gap-0.5 type-label text-text-muted">
+        {label}
+        {href && (
+          <>
+            <Icon name="chevron" size={12} />
+            <Link href={href} aria-label={linkLabel} className="absolute inset-0 rounded-m" />
+          </>
+        )}
+      </dt>
     </div>
   );
 }

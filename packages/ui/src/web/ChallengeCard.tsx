@@ -135,7 +135,11 @@ export function ChallengeCard({
           {state !== "missed" && <strong className="text-xp-text">{rewardText}</strong>}
         </span>
         {reward.badge && <span>{t("challenge.badge", { badge: reward.badge })}</span>}
-        {joined !== undefined && <span>{t("challenge.joined", { n: joined })}</span>}
+        {joined !== undefined && joined > 0 && (
+          <span>
+            {joined === 1 ? t("challenge.joinedOne") : t("challenge.joined", { n: joined })}
+          </span>
+        )}
       </div>
       {kind === "premium" && state === "active" && price && (
         <>

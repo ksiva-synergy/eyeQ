@@ -11,13 +11,17 @@ export type RankRowProps = {
   initials: string;
   /** Display name of the sport; omitted on boards that do not show it (D25). */
   sport?: string;
-  level: number;
+  /** XP level; omitted where it is not known (the athlete passed, in the rank moment). */
+  level?: number;
   xp: number;
   delta?: RankDelta;
   trainedToday?: boolean;
   isMe?: boolean;
-  /** Only rendered on the "me" row: the connector to the row above. */
-  gapAbove?: { xp: number; name: string };
+  /**
+   * Only rendered on the "me" row: the connector to the row above. `passesToday` adds
+   * "today's session passes them", only where the caller knows it is true.
+   */
+  gapAbove?: { xp: number; name: string; passesToday?: boolean };
   className?: string;
 };
 
@@ -36,7 +40,12 @@ export function RankRow({
   className,
 }: RankRowProps) {
   const shownName = isMe ? t("rank.youName", { name }) : name;
-  const sub = sport ? t("rank.sportLevel", { sport, level }) : t("rank.levelOnly", { level });
+  const sub =
+    level === undefined
+      ? (sport ?? null)
+      : sport
+        ? t("rank.sportLevel", { sport, level })
+        : t("rank.levelOnly", { level });
   const deltaText =
     delta?.dir === "up"
       ? t("rank.a11y.up", { n: delta.n ?? 1 })
@@ -50,7 +59,7 @@ export function RankRow({
     isMe ? t("rank.a11y.you") : null,
     name,
     sport ?? null,
-    t("rank.a11y.level", { level }),
+    level === undefined ? null : t("rank.a11y.level", { level }),
     t("rank.a11y.xp", { xp }),
     deltaText,
     trainedToday ? t("rank.trainedToday") : null,
@@ -78,7 +87,12 @@ export function RankRow({
           >
             <path d="M6 19V2M2 6l4-4 4 4" />
           </svg>
-          <span>{t("rank.gap", { xp: gapAbove.xp, name: gapAbove.name })}</span>
+          <span>
+            {t(gapAbove.passesToday ? "rank.gap" : "rank.gapTo", {
+              xp: gapAbove.xp,
+              name: gapAbove.name,
+            })}
+          </span>
         </div>
       )}
       <div
@@ -101,11 +115,16 @@ export function RankRow({
         <Avatar initials={initials} size={32} me={isMe} />
         <span aria-hidden="true" className="flex min-w-0 flex-1 flex-col">
           <span className="type-body-strong break-words">{shownName}</span>
-          <span
-            className={cx("type-caption", isMe ? "text-primary-on-subtle" : "text-text-secondary")}
-          >
-            {sub}
-          </span>
+          {sub && (
+            <span
+              className={cx(
+                "type-caption",
+                isMe ? "text-primary-on-subtle" : "text-text-secondary",
+              )}
+            >
+              {sub}
+            </span>
+          )}
         </span>
         {trainedToday && (
           <span className="text-streak" title={t("rank.trainedToday")} aria-hidden="true">

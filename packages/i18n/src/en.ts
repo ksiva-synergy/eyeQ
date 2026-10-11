@@ -3,6 +3,7 @@
  * filled by t(). Numbers passed as numbers are formatted for en-IN.
  * Copy follows ground rule 10: training language, never diagnosis.
  */
+import { compete } from "./en-compete.ts";
 import { loop } from "./en-loop.ts";
 
 const core = {
@@ -95,6 +96,7 @@ const core = {
   "rank.new": "new",
   "rank.trainedToday": "Trained today",
   "rank.gap": "{xp} XP to {name} · today's session passes {name}",
+  "rank.gapTo": "{xp} XP to {name}",
   "rank.a11y.rank": "Rank {rank}",
   "rank.a11y.you": "you",
   "rank.a11y.level": "level {level}",
@@ -147,6 +149,7 @@ const core = {
   "challenge.oneShort": "{progress}/{target} · one short",
   "challenge.badge": "Badge: {badge}",
   "challenge.joined": "{n} athletes in",
+  "challenge.joinedOne": "1 athlete in",
   "challenge.enter": "Enter · {price}",
   "challenge.under18": "Under 18? A parent or guardian completes the purchase.",
 
@@ -539,4 +542,4 @@ const core = {
 } as const;
 
 /** Phase 5 onwards keeps its copy in its own files, merged here. */
-export const en = { ...core, ...loop } as const;
+export const en = { ...core, ...loop, ...compete } as const;

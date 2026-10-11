@@ -22,8 +22,13 @@ export function adminNav(): NavItem[] {
   ];
 }
 
+/** Screens reached from a destination rather than the nav: the trophy case is Profile's. */
+const UNDER: [prefix: string, owner: string][] = [["/app/trophies", "/app/account"]];
+
 /** The nav item a path belongs to: the longest matching prefix. */
 export function activeHref(items: NavItem[], pathname: string): string {
+  const owner = UNDER.find(([p]) => pathname === p || pathname.startsWith(`${p}/`));
+  if (owner) pathname = owner[1];
   let best = "";
   for (const item of items) {
     const match = pathname === item.href || pathname.startsWith(`${item.href}/`);
