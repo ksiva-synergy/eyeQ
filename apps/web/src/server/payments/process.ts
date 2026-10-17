@@ -10,7 +10,7 @@ import type { Razorpay, RzpPayment, RzpSubscription } from "./razorpay";
  * Razorpay's API and the entitlement is set from that state, never from the event's own
  * copy, so a late `subscription.pending` cannot undo a later `subscription.charged`. If
  * the fetch fails, the event stays unprocessed and the sweep retries it. Refund events
- * fetch the payment for the same reason (its `amount_refunded` is the running total).
+ * fetch the payment and all its refunds for the same reason.
  */
 export type Via = "webhook" | "refresh" | "sweep";
 
@@ -42,7 +42,7 @@ interface Envelope {
     payment?: { entity?: RzpPayment };
     order?: { entity?: { id?: string } };
     subscription?: { entity?: RzpSubscription };
-    refund?: { entity?: { id?: string; payment_id?: string; amount?: number } };
+    refund?: { entity?: { id?: string; payment_id?: string; amount?: number; status?: string } };
     dispute?: { entity?: { id?: string; payment_id?: string } };
   };
 }
@@ -124,12 +124,18 @@ async function handle(
     return [await applySubscription(tx, sub, payment, via, eventId, at)];
   }
   if (type.startsWith("refund.")) {
+    // Decided from the refunds themselves (0024): a pending or processed refund counts, a
+    // failed one does not, so refund.created locks a full refund and refund.failed undoes it.
     const refund = p.refund?.entity;
     const paymentId = refund?.payment_id ?? p.payment?.entity?.id;
     if (!refund || !paymentId) throw new Error(`${type} without a refund and its payment`);
-    const payment = await razorpay.fetchPayment(paymentId);
+    const [payment, refunds] = await Promise.all([
+      razorpay.fetchPayment(paymentId),
+      razorpay.fetchPaymentRefunds(paymentId),
+    ]);
     const rows = await tx.$queryRaw<{ r: GrantResult }[]>`
-      select razorpay_refund(${JSON.stringify(refund)}::jsonb, ${JSON.stringify(payment)}::jsonb, ${eventId}::uuid, ${at}) as r`;
+      select razorpay_refund_sync(${JSON.stringify(payment)}::jsonb, ${JSON.stringify(refunds.items)}::jsonb,
+        ${JSON.stringify(refund)}::jsonb, ${eventId}::uuid, ${at}) as r`;
     return [rows[0]!.r];
   }
   if (type.startsWith("payment.dispute.")) {

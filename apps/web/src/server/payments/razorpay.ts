@@ -32,6 +32,15 @@ export interface RzpPayment {
   [k: string]: unknown;
 }
 
+export interface RzpRefund {
+  id: string;
+  entity: "refund";
+  payment_id: string;
+  amount: number;
+  status: "pending" | "processed" | "failed";
+  [k: string]: unknown;
+}
+
 export interface RzpOrder {
   id: string;
   entity: "order";
@@ -101,6 +110,8 @@ export interface Razorpay {
   }): Promise<RzpSubscription>;
   cancelSubscription(id: string, atCycleEnd: boolean): Promise<RzpSubscription>;
   fetchPayment(id: string): Promise<RzpPayment>;
+  /** GET /payments/{id}/refunds: every refund of the payment, each with its own status. */
+  fetchPaymentRefunds(id: string): Promise<{ items: RzpRefund[] }>;
   fetchSubscription(id: string): Promise<RzpSubscription>;
   fetchPlans(count?: number, skip?: number): Promise<{ items: RzpPlan[]; count: number }>;
   createPlan(body: {
@@ -149,6 +160,7 @@ export function razorpayClient(keys: RazorpayKeys, fetcher: Fetch = fetch): Razo
     cancelSubscription: (sub, atCycleEnd) =>
       call("POST", `/subscriptions/${id(sub)}/cancel`, { cancel_at_cycle_end: atCycleEnd }),
     fetchPayment: (pay) => call("GET", `/payments/${id(pay)}`),
+    fetchPaymentRefunds: (pay) => call("GET", `/payments/${id(pay)}/refunds?count=100`),
     fetchSubscription: (sub) => call("GET", `/subscriptions/${id(sub)}`),
     fetchPlans: (count = 100, skip = 0) => call("GET", `/plans?count=${count}&skip=${skip}`),
     createPlan: (body) => call("POST", "/plans", body),
