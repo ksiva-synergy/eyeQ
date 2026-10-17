@@ -260,6 +260,7 @@ model entitlements {
   updated_at         DateTime             @default(now()) @db.Timestamptz(6)
   entitlement_events entitlement_events[]
   profiles           profiles             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  payment_grants     payment_grants[]
 
   @@index([ends_at], map: "entitlements_expiry_idx", where: raw("(status = ANY (ARRAY['active'::text, 'grace'::text]))"))
   @@index([user_id, scope, scope_id], map: "entitlements_user_idx")
@@ -402,6 +403,8 @@ model payment_events {
   attempts           Int                  @default(0)
   last_error         String?
   entitlement_events entitlement_events[]
+  payment_flags      payment_flags[]
+  payment_grants     payment_grants[]
   promo_redemptions  promo_redemptions[]
 
   @@unique([provider, external_id])
@@ -425,6 +428,7 @@ model products {
   created_at          DateTime      @default(now()) @db.Timestamptz(6)
   updated_at          DateTime      @default(now()) @db.Timestamptz(6)
   challenges          challenges[]
+  checkouts           checkouts[]
   drills              drills[]
   programs            programs[]
   promo_codes         promo_codes[]
@@ -435,48 +439,53 @@ model products {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model profiles {
-  id                  String                @id @db.Uuid
-  display_name        String
-  avatar_url          String?
-  sport               String?
-  playing_level       String?
-  dob                 DateTime?             @db.Date
-  goal                String?
-  session_minutes     Int                   @default(15)
-  timezone            String                @default("Asia/Kolkata")
-  visibility          String                @default("public")
-  reminder_time       DateTime              @default(dbgenerated("'19:00:00'::time without time zone")) @db.Time(6)
-  notify_daily        Boolean               @default(true)
-  notify_streak       Boolean               @default(true)
-  notify_challenge    Boolean               @default(true)
-  notify_recap        Boolean               @default(true)
-  notify_overtaken    Boolean               @default(true)
-  onboarded_at        DateTime?             @db.Timestamptz(6)
-  created_at          DateTime              @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime              @default(now()) @db.Timestamptz(6)
-  retired_at          DateTime?             @db.Timestamptz(6)
-  admins              admins?
-  challenge_progress  challenge_progress[]
-  coin_ledger         coin_ledger[]
-  credit_ledger       credit_ledger[]
-  drill_completions   drill_completions[]
-  enrollments         enrollments?
-  entitlements        entitlements[]
-  freeze_ledger       freeze_ledger[]
-  idempotency_keys    idempotency_keys[]
-  leaderboard_weekly  leaderboard_weekly[]
-  notifications       notifications[]
-  users               users                 @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  promo_codes         promo_codes[]
-  promo_redemptions   promo_redemptions[]
-  push_tokens         push_tokens[]
-  redemptions         redemptions[]
-  self_ratings        self_ratings[]
-  session_completions session_completions[]
-  user_badges         user_badges[]
-  user_items          user_items[]
-  user_stats          user_stats?
-  xp_ledger           xp_ledger[]
+  id                     String                   @id @db.Uuid
+  display_name           String
+  avatar_url             String?
+  sport                  String?
+  playing_level          String?
+  dob                    DateTime?                @db.Date
+  goal                   String?
+  session_minutes        Int                      @default(15)
+  timezone               String                   @default("Asia/Kolkata")
+  visibility             String                   @default("public")
+  reminder_time          DateTime                 @default(dbgenerated("'19:00:00'::time without time zone")) @db.Time(6)
+  notify_daily           Boolean                  @default(true)
+  notify_streak          Boolean                  @default(true)
+  notify_challenge       Boolean                  @default(true)
+  notify_recap           Boolean                  @default(true)
+  notify_overtaken       Boolean                  @default(true)
+  onboarded_at           DateTime?                @db.Timestamptz(6)
+  created_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  retired_at             DateTime?                @db.Timestamptz(6)
+  billing_email          String?                  @db.Citext
+  admins                 admins?
+  challenge_progress     challenge_progress[]
+  checkouts              checkouts[]
+  coin_ledger            coin_ledger[]
+  credit_ledger          credit_ledger[]
+  drill_completions      drill_completions[]
+  enrollments            enrollments?
+  entitlements           entitlements[]
+  freeze_ledger          freeze_ledger[]
+  idempotency_keys       idempotency_keys[]
+  leaderboard_weekly     leaderboard_weekly[]
+  notifications          notifications[]
+  payment_flags          payment_flags[]
+  payment_grants         payment_grants[]
+  users                  users                    @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  promo_codes            promo_codes[]
+  promo_redemptions      promo_redemptions[]
+  provider_subscriptions provider_subscriptions[]
+  push_tokens            push_tokens[]
+  redemptions            redemptions[]
+  self_ratings           self_ratings[]
+  session_completions    session_completions[]
+  user_badges            user_badges[]
+  user_items             user_items[]
+  user_stats             user_stats?
+  xp_ledger              xp_ledger[]
 
   @@index([sport])
   @@schema("public")
@@ -502,6 +511,7 @@ model programs {
   status          String        @default("draft")
   created_at      DateTime      @default(now()) @db.Timestamptz(6)
   updated_at      DateTime      @default(now()) @db.Timestamptz(6)
+  landing         Json          @default("{}")
   challenges      challenges[]
   enrollments     enrollments[]
   modules         modules[]
@@ -747,5 +757,94 @@ model xp_ledger {
   @@index([created_at], map: "xp_ledger_created_idx")
   @@index([user_id, local_date], map: "xp_ledger_user_day_idx")
   @@index([user_id, reason, source_id], map: "xp_ledger_user_reason_source_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model checkouts {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                String                   @db.Uuid
+  product_id             String                   @db.Uuid
+  kind                   String
+  scope                  String
+  scope_id               String?                  @db.Uuid
+  provider               String                   @default("razorpay")
+  external_id            String
+  amount_paise           Int
+  currency               String                   @default("INR")
+  surface                String?
+  created_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  products               products                 @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles               profiles                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  payment_grants         payment_grants[]
+  provider_subscriptions provider_subscriptions[]
+
+  @@unique([provider, external_id])
+  @@index([user_id, created_at(sort: Desc)], map: "checkouts_user_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_flags {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kind             String
+  provider         String          @default("razorpay")
+  external_id      String
+  user_id          String?         @db.Uuid
+  payment_event_id String?         @db.Uuid
+  detail           Json            @default("{}")
+  created_at       DateTime        @default(now()) @db.Timestamptz(6)
+  resolved_at      DateTime?       @db.Timestamptz(6)
+  resolved_by      String?         @db.Uuid
+  payment_events   payment_events? @relation(fields: [payment_event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles         profiles?       @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+
+  @@unique([kind, provider, external_id])
+  @@index([created_at(sort: Desc)], map: "payment_flags_open_idx", where: raw("(resolved_at IS NULL)"))
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_grants {
+  provider         String
+  payment_id       String
+  checkout_id      String          @db.Uuid
+  user_id          String          @db.Uuid
+  entitlement_id   String          @db.Uuid
+  amount_paise     Int
+  payment_event_id String?         @db.Uuid
+  via              String
+  created_at       DateTime        @default(now()) @db.Timestamptz(6)
+  checkouts        checkouts       @relation(fields: [checkout_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entitlements     entitlements    @relation(fields: [entitlement_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payment_events   payment_events? @relation(fields: [payment_event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles         profiles        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([provider, payment_id])
+  @@index([entitlement_id], map: "payment_grants_entitlement_idx")
+  @@index([user_id, created_at(sort: Desc)], map: "payment_grants_user_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model provider_subscriptions {
+  provider            String
+  external_id         String
+  checkout_id         String    @db.Uuid
+  user_id             String    @db.Uuid
+  status              String
+  current_start       DateTime? @db.Timestamptz(6)
+  current_end         DateTime? @db.Timestamptz(6)
+  cancel_requested_at DateTime? @db.Timestamptz(6)
+  synced_at           DateTime  @default(now()) @db.Timestamptz(6)
+  checkouts           checkouts @relation(fields: [checkout_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles            profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([provider, external_id])
+  @@index([user_id], map: "provider_subscriptions_user_idx")
   @@schema("public")
 }

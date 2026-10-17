@@ -49,5 +49,8 @@
   "progress.weekly_target": 4,
   "board.scopes": ["global", "sport"],
   "challenge.paid_entry_with_coins": false,
-  "paywall.day_after_reset": 4
+  "paywall.day_after_reset": 4,
+  "payments.subscription_grace_days": 3,
+  "payments.subscription_total_count": { "30": 120, "90": 40, "365": 10 },
+  "landing.coach": { "name": "", "title": "", "bio": "", "stats": [] }
 }
