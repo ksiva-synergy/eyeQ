@@ -64,12 +64,15 @@ export function Today({
   multiplierDays,
   freezePrice,
   unread = 0,
+  resetPaywall = false,
 }: {
   home: HomeResponse;
   multiplierDays: number;
   freezePrice: number;
   /** Unread items in the in-app feed (D29); the bell shows only when there are some. */
   unread?: number;
+  /** The day-4 paywall after the 3-Day Reset (plan phase 7). */
+  resetPaywall?: boolean;
 }) {
   const state = STATE[home.streak.state];
   const dayLine =
@@ -127,6 +130,7 @@ export function Today({
           <StreakArea home={home} state={state} multiplierDays={multiplierDays} />
         </div>
         <div className="flex flex-col gap-4 md:order-1 md:row-span-3">
+          {resetPaywall && <ResetDone />}
           <SessionCard home={home} state={state} />
           {state === "ended" && <FreezeTip coins={freezePrice} />}
         </div>
@@ -145,6 +149,21 @@ export function Today({
         />
       )}
     </div>
+  );
+}
+
+function ResetDone() {
+  return (
+    <Card className="flex flex-col gap-2.5 border-primary bg-primary-subtle">
+      <span className="type-label text-primary-on-subtle">{t("pay.eyebrow")}</span>
+      <h2 className="font-display text-[1.625rem] leading-none font-bold uppercase">
+        {t("pay.reset.title")}
+      </h2>
+      <p className="type-body-s text-text-secondary">{t("pay.reset.body")}</p>
+      <Button variant="cta" href="/app/upgrade?from=today">
+        {t("pay.reset.cta")}
+      </Button>
+    </Card>
   );
 }
 
