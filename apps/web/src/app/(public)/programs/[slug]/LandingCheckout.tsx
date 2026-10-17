@@ -71,6 +71,9 @@ export function LandingCheckout({
     const r = await post("/api/auth/otp", { phone });
     setBusy(false);
     if (r.ok) setStep({ kind: "code", phone });
+    // Say what is wrong: a number we refuse is not "try again shortly".
+    else if (r.code === "validation_failed") setAuthError(t("landing.verify.badPhone"));
+    else if (r.code === "rate_limited") setAuthError(t("landing.verify.rateLimited"));
     else setAuthError(t("landing.verify.sendFailed"));
   }
 

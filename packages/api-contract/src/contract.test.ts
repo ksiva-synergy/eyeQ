@@ -19,12 +19,19 @@ describe("phone numbers", () => {
     ["9876543210", "+919876543210"],
     ["+91 98765 43210", "+919876543210"],
     ["+44 (20) 7946-0958", "+442079460958"],
+    // typed after the +91 prefix the field shows (staging, 2026-10-17)
+    ["919000000009", "+919000000009"],
+    ["91 90000 00009", "+919000000009"],
+    ["09876543210", "+919876543210"],
   ])("%s -> %s", (input, out) => {
     expect(phoneSchema.parse(input)).toBe(out);
   });
-  it.each(["12345", "abc", "+0123456789", ""])("refuses %j", (input) => {
-    expect(phoneSchema.safeParse(input).success).toBe(false);
-  });
+  it.each(["12345", "abc", "+0123456789", "", "9190000000091", "1234567890123"])(
+    "refuses %j",
+    (input) => {
+      expect(phoneSchema.safeParse(input).success).toBe(false);
+    },
+  );
   it("needs a 6-digit code", () => {
     expect(otpVerifySchema.safeParse({ phone: "9876543210", token: "12345" }).success).toBe(false);
   });
