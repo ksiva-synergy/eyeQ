@@ -70,5 +70,16 @@ export const env = {
     const subject = str("VAPID_SUBJECT");
     return publicKey && privateKey && subject ? { publicKey, privateKey, subject } : undefined;
   },
+  /**
+   * Razorpay (phase 7, test keys until production). The key secret and webhook secret are
+   * server-only; the key id is public by design (Checkout needs it) and is served to the
+   * browser in the order response, read from RAZORPAY_KEY_ID or NEXT_PUBLIC_RAZORPAY_KEY_ID.
+   */
+  razorpay: () => {
+    const keyId = str("RAZORPAY_KEY_ID") ?? str("NEXT_PUBLIC_RAZORPAY_KEY_ID");
+    const keySecret = str("RAZORPAY_KEY_SECRET");
+    return keyId && keySecret ? { keyId, keySecret } : undefined;
+  },
+  razorpayWebhookSecret: () => str("RAZORPAY_WEBHOOK_SECRET"),
   str,
 };

@@ -33,12 +33,16 @@ export async function handleCron(
   req: Request,
   deps: {
     secret: string | undefined;
-    run: () => Promise<DispatchResult>;
+    run: () => Promise<DispatchResult | Record<string, unknown>>;
     allowForcedFailure?: boolean;
+    /** Names the job in log lines (`cron.<job>`) and its route; the dispatcher by default. */
+    job?: string;
   },
 ): Promise<Response> {
+  const job = deps.job ?? "dispatch";
+  const route = `/api/cron/${job}`;
   if (!hasCronSecret(req, deps.secret)) {
-    log("warn", "cron.refused", { route: "/api/cron/dispatch" });
+    log("warn", "cron.refused", { route });
     return Response.json(
       { code: "unauthenticated", message: "Not allowed." },
       { status: 401, headers: { "cache-control": "no-store" } },
@@ -50,16 +54,16 @@ export async function handleCron(
   try {
     if (forced) throw new ForcedCronFailure();
     const result = await deps.run();
-    log("info", "cron.dispatch", { ...result, ms: Date.now() - started });
+    log("info", `cron.${job}`, { ...result, ms: Date.now() - started });
     return Response.json(result, { headers: { "cache-control": "no-store" } });
   } catch (e) {
-    log("error", "cron.dispatch_failed", {
+    log("error", `cron.${job}_failed`, {
       ms: Date.now() - started,
       error: e instanceof Error ? e.message : String(e),
     });
-    report(e, { route: "/api/cron/dispatch" });
+    report(e, { route });
     return Response.json(
-      { code: "internal", message: "Dispatch failed." },
+      { code: "internal", message: job === "dispatch" ? "Dispatch failed." : "Job failed." },
       { status: 500, headers: { "cache-control": "no-store" } },
     );
   }

@@ -13,7 +13,8 @@
     "test:integration": "node --env-file-if-exists=../../.env --import tsx node_modules/vitest/vitest.mjs run --config vitest.integration.config.ts",
     "auth:e2e": "node --env-file-if-exists=../../.env --import tsx scripts/auth-e2e.ts",
     "concurrency:check": "node --env-file-if-exists=../../.env --import tsx scripts/concurrency-check.ts",
-    "check:data-api": "node --env-file-if-exists=../../.env --import tsx scripts/check-data-api.ts"
+    "check:data-api": "node --env-file-if-exists=../../.env --import tsx scripts/check-data-api.ts",
+    "razorpay:sync-plans": "node --env-file-if-exists=../../.env --import tsx scripts/razorpay-sync-plans.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",

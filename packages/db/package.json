@@ -6,7 +6,8 @@
   "description": "Prisma client (introspected from db/migrations), typed helpers, and the SQL migration runner",
   "exports": {
     ".": "./src/index.ts",
-    "./seed": "./src/seed.ts"
+    "./seed": "./src/seed.ts",
+    "./target": "./src/target.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

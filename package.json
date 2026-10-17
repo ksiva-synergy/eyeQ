@@ -28,7 +28,8 @@
     "supabase:up": "node scripts/supabase-env.mjs && supabase start --exclude postgres-meta,imgproxy",
     "supabase:down": "supabase stop --no-backup",
     "supabase:status": "supabase status -o env",
-    "admin:grant": "pnpm --filter @eyeq/db admin:grant"
+    "admin:grant": "pnpm --filter @eyeq/db admin:grant",
+    "razorpay:sync-plans": "pnpm --filter web razorpay:sync-plans"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
