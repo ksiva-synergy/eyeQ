@@ -19,7 +19,22 @@ export function formatNumber(n: number): string {
   return numberFormat.format(n);
 }
 
-const relativeFormat = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
+/*
+ * Made on first use, and only where the runtime has it: Hermes (the mobile app's engine)
+ * may not ship Intl.RelativeTimeFormat, and building it at import would crash the app.
+ */
+let relativeFormat: Intl.RelativeTimeFormat | null | undefined;
+function relative(n: number, unit: "day" | "week"): string {
+  if (relativeFormat === undefined) {
+    relativeFormat =
+      typeof Intl.RelativeTimeFormat === "function"
+        ? new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" })
+        : null;
+  }
+  if (relativeFormat) return relativeFormat.format(n, unit);
+  if (unit === "week") return t("time.weeksAgo", { n: -n });
+  return n >= 0 ? t("time.today") : n === -1 ? t("time.yesterday") : t("time.daysAgo", { n: -n });
+}
 
 /*
  * Every instant is formatted in a time zone the caller names: the athlete's profile zone
@@ -119,8 +134,8 @@ export function formatRelativeDay(
   const ymd = new Intl.DateTimeFormat("en-CA", { timeZone });
   const day = (d: Date) => Date.parse(`${ymd.format(d)}T00:00:00Z`) / 86_400_000;
   const days = day(new Date(iso)) - day(now);
-  if (days > -14) return relativeFormat.format(days, "day");
-  if (days > -56) return relativeFormat.format(Math.round(days / 7), "week");
+  if (days > -14) return relative(days, "day");
+  if (days > -56) return relative(Math.round(days / 7), "week");
   return formatDate(iso, timeZone);
 }
 

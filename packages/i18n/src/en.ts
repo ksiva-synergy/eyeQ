@@ -25,6 +25,12 @@ const core = {
   "common.share": "Share",
   "common.skipToContent": "Skip to content",
 
+  /** formatRelativeDay where the runtime has no Intl.RelativeTimeFormat (Hermes). */
+  "time.today": "today",
+  "time.yesterday": "yesterday",
+  "time.daysAgo": "{n} days ago",
+  "time.weeksAgo": "{n} weeks ago",
+
   "auth.title": "Sign in",
   "auth.subtitle": "We'll text or email you a 6-digit code. No password to remember.",
   "auth.phone.label": "Phone number or email",
@@ -47,6 +53,12 @@ const core = {
   "auth.error.credentials": "That login or password is not right.",
   "auth.password.label": "Password",
   "auth.password.submit": "Sign in",
+  "auth.error.network": "No connection. Check your internet and try again.",
+
+  /** The mobile app's first signed-in screen (phase 8a), before the tab shell. */
+  "mobile.me.title": "You're signed in",
+  "mobile.me.loadFailed": "Your profile did not load.",
+  "mobile.noServer": "This build has no server address. Set EXPO_PUBLIC_API_URL and rebuild.",
 
   "home.signedInAs": "Signed in as",
   "home.unnamed": "New athlete",
