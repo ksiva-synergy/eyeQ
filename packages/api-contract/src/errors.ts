@@ -18,6 +18,8 @@ export const errorCodes = [
   "locked",
   /** The action does not fit the current state (details.reason: freeze_cap_reached, ...). */
   "conflict",
+  /** A provider the request needs (payments) is not configured or not answering. */
+  "unavailable",
   "internal",
 ] as const;
 export const errorCodeSchema = z.enum(errorCodes);
