@@ -154,7 +154,7 @@ describeDb("purchases", () => {
     programSlug = `buyable-${rid("p")}`;
     products.program = (
       await one<{ id: string }>(
-        `insert into products (kind, title, price_paise, grants) values ('program', 'Buyable', 129900, '{}') returning id`,
+        `insert into products (kind, title, price_paise, grants) values ('program', 'Buyable', 129900, '{"scope":"program"}') returning id`,
       )
     ).id;
     program = (
@@ -164,6 +164,11 @@ describeDb("purchases", () => {
         [programSlug, products.program],
       )
     ).id;
+    // A program product names its program (the admin products list checks every row).
+    await admin.query(
+      "update products set grants = jsonb_build_object('scope', 'program', 'scope_id', $2::uuid) where id = $1",
+      [products.program, program],
+    );
     products.drill = (
       await one<{ id: string }>(
         `insert into products (kind, title, price_paise, grants) values ('drill', 'PPV', 9900, '{"scope":"drill"}') returning id`,
