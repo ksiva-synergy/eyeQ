@@ -122,6 +122,16 @@ insert into session_drills (session_id, drill_id, "order") values
   (pg_temp.sid(5, 213), pg_temp.sid(6, 3), 3),
   (pg_temp.sid(5, 213), pg_temp.sid(6, 4), 4);
 
+-- Public page (board 15): the prototype's headline and lede only. Proof numbers, bio and
+-- testimonials are the coach's claims to write in admin (D15), so none are seeded.
+update programs set landing = jsonb_build_object(
+  'headline', 'See the ball | earlier.',
+  'intro', 'Cricket Vision Foundations is a 21-day video-led program that trains dynamic visual acuity, peripheral awareness and reaction speed: the half-second between release and your first move.')
+where id = pg_temp.sid(3, 2);
+insert into game_config (key, value, active_from, note)
+values ('landing.coach', '{"name": "Vevek", "title": "Founder, Forge Your Peak · neuro-visual performance coach", "bio": "", "stats": []}',
+        '2000-01-02T00:00:00Z', 'seed: the coach''s name and role');
+
 -- ---------------------------------------------------------------- badges (17, D2)
 insert into badges (id, slug, name, description, family, rule, coins, icon, evaluated_on, sort) values
   (pg_temp.sid(7, 1), 'first-rep', 'First Rep', 'Finish your first session', 'consistency', '{"metric":"sessions_total","gte":1}', 10, 'check', 'completion', 1),
