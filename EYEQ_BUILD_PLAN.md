@@ -580,6 +580,8 @@ Every screen in this phase is built phone-width first to match its board, then a
 
 ### Phase 7: Payments and entitlements on web
 
+**Status (17 Oct 2026): built; staging acceptance OPEN.** Every task below is merged and deployed to staging. The staging checks in `docs/payments.md` wait on the open items, and Phase 8 runs alongside them.
+
 - [x] Razorpay: server-side orders for one-time purchases (a program, a pay-per-view drill) and subscriptions (monthly, quarterly, annual), Checkout on web, webhook route with signature verification on the raw body, events stored in `payment_events` then turned into entitlement grants, extensions and endings. Handle capture, subscription charge, cancellation, halt, refund and dispute events.
 - [x] While staging is behind Vercel Authentication, the webhook URL registered with Razorpay carries the bypass query parameter (section 2.4).
 - [x] Entitlement behaviour: grace period on billing failure, ending on refund or chargeback, hourly expiry sweep for anything a webhook missed.
@@ -592,6 +594,26 @@ Every screen in this phase is built phone-width first to match its board, then a
 **Acceptance.** In Razorpay test mode: buying a program unlocks it within seconds and on a second device; buying one pay-per-view drill unlocks only that drill; a subscription renews and extends; a cancelled subscription runs to period end and then locks; a refund locks at once. Replaying a webhook changes nothing; delivering two events out of order ends in the right state; a bad signature is refused and logged. No route decides access from anything but `entitlements`.
 
 **Gate. BLOCKER for production only:** the Razorpay account, legal entity and real prices (section 13). Staging uses test keys and test prices.
+
+**Open items**
+
+- [ ] Razorpay webhook URL: the registered URL carried a literal placeholder instead of the bypass secret (a setup error, not a code fault). Karthik corrects it in the Razorpay Dashboard. Then confirm that deliveries for `pay_Tp2kOTAhCPShjM` reached `payment_events` and were processed (so far: two rows, both no-ops), with:
+
+  ```sql
+  select external_id, event_type, received_at, processed_at, attempts, last_error,
+         payload #>> '{payload,payment,entity,id}' as payment_id
+  from payment_events
+  where provider = 'razorpay'
+    and payload::text like '%pay_Tp2kOTAhCPShjM%'
+  order by received_at;
+  ```
+
+  No probe of the webhook URL from the build side; real deliveries verify it.
+
+- [ ] Second-browser confirmation of the program purchase (`docs/payments.md` check 1, step 3): not yet run.
+- [ ] Pay-per-view drill, subscription, cancellation, refund and webhook replay (`docs/payments.md` checks 2 to 6): blocked on the webhook URL.
+- [ ] Production blockers: legal entity, Razorpay KYC and live keys, real prices, GSTIN and GST invoices (D21, `docs/payments.md`).
+- [ ] Supabase test OTPs on staging expire on 15 Nov 2026; renew them before then (`docs/payments.md`, Staging sign-in).
 
 ### Phase 8: Mobile app
 
