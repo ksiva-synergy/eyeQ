@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { programLandingSchema } from "./landing.ts";
 
 /**
  * /api/admin program builder (plan phase 4, board 17): programs, modules, sessions,
@@ -179,6 +180,8 @@ const programFields = {
   completionXp: z.number().int().min(0).max(10_000).nullable(),
   minLevel: z.number().int().min(1).max(100),
   coachLine: optionalText(200),
+  /** The public page's content (board 15); see landing.ts. */
+  landing: programLandingSchema,
 };
 
 export const programCreateSchema = z.strictObject({
@@ -205,6 +208,7 @@ export const builderProgramSchema = z.strictObject({
   completionXp: z.number().int().nullable(),
   minLevel: z.number().int(),
   coachLine: z.string().nullable(),
+  landing: programLandingSchema,
   product: z
     .strictObject({ id, title: z.string(), pricePaise: z.number().int(), active: z.boolean() })
     .nullable(),

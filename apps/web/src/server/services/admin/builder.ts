@@ -1,5 +1,6 @@
 import type { Prisma, Tx } from "@eyeq/db";
 import {
+  programLandingSchema,
   publishCheckSchema,
   type AdminProgramListItem,
   type BuilderDrill,
@@ -166,6 +167,7 @@ export async function getProgram(tx: Tx, id: string): Promise<BuilderProgram> {
     completionXp: p.completion_xp,
     minLevel: p.min_level,
     coachLine: p.coach_line,
+    landing: programLandingSchema.parse(p.landing ?? {}),
     product: p.products
       ? {
           id: p.products.id,
@@ -320,6 +322,7 @@ const programColumns: Record<keyof ProgramUpdate, string> = {
   completionXp: "completion_xp",
   minLevel: "min_level",
   coachLine: "coach_line",
+  landing: "landing",
 };
 
 function mapped<T extends object>(body: T, columns: Record<string, string>) {

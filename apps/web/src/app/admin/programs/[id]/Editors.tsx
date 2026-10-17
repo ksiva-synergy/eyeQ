@@ -1227,3 +1227,101 @@ export function DrillEditor({
     </form>
   );
 }
+
+/** "value | label" per line, as the coach types it; blank lines dropped. */
+const splitLines = (v: string) =>
+  v
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+const parts = (l: string) => l.split("|").map((p) => p.trim());
+
+/**
+ * The public program page's content (board 15, plan phase 7): what the coach stands
+ * behind, never code (D15). Proof numbers and testimonials are one per line, fields
+ * separated by "|". Anything left empty is not shown on the page.
+ */
+export function LandingSettings({
+  program,
+  run,
+  busy,
+}: {
+  program: BuilderProgram;
+  run: Run;
+  busy: boolean;
+}) {
+  const l = program.landing;
+  async function save(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    await run(
+      "PATCH",
+      `/api/admin/programs/${program.id}`,
+      {
+        landing: {
+          eyebrow: str(f, "eyebrow"),
+          headline: str(f, "headline"),
+          intro: str(f, "intro"),
+          measurementsIntro: str(f, "measurementsIntro"),
+          includes: splitLines(str(f, "includes")),
+          proof: splitLines(str(f, "proof"))
+            .map(parts)
+            .filter((p) => p[0] && p[1])
+            .map(([value, label]) => ({ value: value!, label: label! })),
+          testimonials: splitLines(str(f, "testimonials"))
+            .map(parts)
+            .filter((p) => p[0] && p[1])
+            .map(([quote, name, role]) => ({ quote: quote!, name: name!, role: role ?? "" })),
+        },
+      },
+      t("admin.builder.saved"),
+    );
+  }
+  return (
+    <form onSubmit={save} className={panel} aria-label={t("admin.landing.title")}>
+      <span className="type-label text-text-muted">{t("admin.landing.title")}</span>
+      <p className="type-caption text-text-secondary">
+        {t("admin.landing.hint", { slug: program.slug })}
+      </p>
+      <div className={grid}>
+        <TextInput
+          dense
+          name="eyebrow"
+          label={t("admin.landing.eyebrow")}
+          defaultValue={l.eyebrow}
+        />
+        <TextInput
+          dense
+          name="headline"
+          label={t("admin.landing.headline")}
+          defaultValue={l.headline}
+        />
+      </div>
+      <TextArea name="intro" label={t("admin.landing.intro")} defaultValue={l.intro} />
+      <TextArea
+        name="measurementsIntro"
+        label={t("admin.landing.measurementsIntro")}
+        defaultValue={l.measurementsIntro}
+      />
+      <TextArea
+        name="proof"
+        label={t("admin.landing.proof")}
+        defaultValue={l.proof.map((p) => `${p.value} | ${p.label}`).join("\n")}
+      />
+      <TextArea
+        name="testimonials"
+        rows={4}
+        label={t("admin.landing.testimonials")}
+        defaultValue={l.testimonials.map((p) => `${p.quote} | ${p.name} | ${p.role}`).join("\n")}
+      />
+      <TextArea
+        name="includes"
+        label={t("admin.landing.includes")}
+        defaultValue={l.includes.join("\n")}
+      />
+      <Button type="submit" variant="primary" size="m" loading={busy}>
+        {t("admin.landing.save")}
+      </Button>
+    </form>
+  );
+}

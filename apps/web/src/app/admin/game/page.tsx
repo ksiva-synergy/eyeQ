@@ -1,4 +1,5 @@
 import { t } from "@eyeq/i18n";
+import { CoachEditor } from "./CoachEditor";
 import { WeeklyEditor } from "./WeeklyEditor";
 
 /**
@@ -15,6 +16,7 @@ export default function GamePage() {
         </h1>
       </div>
       <WeeklyEditor />
+      <CoachEditor />
       <p className="type-caption text-text-muted">{t("admin.challenges.otherSettings")}</p>
     </div>
   );
