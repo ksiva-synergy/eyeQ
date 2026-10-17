@@ -19,7 +19,12 @@ export class EmailNotConfigured extends Error {
 export function resendChannel(
   cfg: { key: string; from: string } | undefined,
   fetcher: Fetch = fetch,
-  opts: { production?: boolean; report?: (e: unknown, ctx: Record<string, unknown>) => void } = {},
+  opts: {
+    production?: boolean;
+    report?: (e: unknown, ctx: Record<string, unknown>, o?: { fingerprint?: string[] }) => void;
+    /** Whether this report may go out now (at most once an hour across runs). */
+    mayReport?: () => Promise<boolean>;
+  } = {},
 ): Channel {
   let reported = false;
   return {
@@ -28,11 +33,17 @@ export function resendChannel(
       if (!to) return { outcome: "skipped", error: "no_address" };
       if (!cfg) {
         // Production: a receipt is owed, so it stays queued until the key is set, and the
-        // missing setting is reported (once per run). Staging and local: skipped and recorded.
+        // missing setting is reported, at most once an hour. Staging and local: skipped.
         if (opts.production) {
           if (!reported) {
             reported = true;
-            opts.report?.(new EmailNotConfigured(), { notificationId: n.id, kind: n.kind });
+            if (await (opts.mayReport?.() ?? Promise.resolve(true)))
+              // One stable Sentry issue, whatever the row or stack.
+              opts.report?.(
+                new EmailNotConfigured(),
+                { notificationId: n.id, kind: n.kind },
+                { fingerprint: ["email-not-configured"] },
+              );
           }
           return { outcome: "retry", error: "email_not_configured", hold: true };
         }

@@ -13,9 +13,16 @@ const FLUSH_MS = 2000;
  * so the error response is not delayed. Outside a request scope `after()` throws, and the
  * flush is started directly instead.
  */
-export function report(e: unknown, ctx: Record<string, unknown>): void {
+export function report(
+  e: unknown,
+  ctx: Record<string, unknown>,
+  opts: { fingerprint?: string[] } = {},
+): void {
   if (!process.env["SENTRY_DSN"]) return;
-  Sentry.captureException(e, { extra: ctx });
+  Sentry.captureException(e, {
+    extra: ctx,
+    ...(opts.fingerprint ? { fingerprint: opts.fingerprint } : {}),
+  });
   try {
     after(() => Sentry.flush(FLUSH_MS));
   } catch {

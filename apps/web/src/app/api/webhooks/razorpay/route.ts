@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { serviceDb } from "@/server/db";
 import { env } from "@/server/env";
 import { report } from "@/server/observability/sentry";
@@ -14,5 +15,7 @@ export function POST(req: Request): Promise<Response> {
     razorpay: razorpay(),
     report,
     onGrant: purchaseCompleted,
+    // Processing (with its Razorpay re-fetch) runs after the reply; the sweep backs it up.
+    defer: (work) => after(work),
   });
 }

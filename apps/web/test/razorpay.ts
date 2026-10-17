@@ -28,6 +28,8 @@ export class FakeRazorpay implements Razorpay {
   payments = new Map<string, RzpPayment>();
   refunds = new Map<string, RzpRefund[]>();
   failFetch = false;
+  /** While set, fetches wait on it (a slow or hanging Razorpay API). */
+  gate: Promise<void> | undefined;
   calls: string[] = [];
 
   async createOrder(body: {
@@ -72,6 +74,7 @@ export class FakeRazorpay implements Razorpay {
   }
   async fetchPayment(id: string): Promise<RzpPayment> {
     this.calls.push(`fetchPayment:${id}`);
+    if (this.gate) await this.gate;
     if (this.failFetch) throw new RazorpayError(503, undefined, "Razorpay unavailable");
     const p = this.payments.get(id);
     if (!p) throw new RazorpayError(400, "BAD_REQUEST_ERROR", "no such payment");
@@ -96,6 +99,7 @@ export class FakeRazorpay implements Razorpay {
   }
   async fetchSubscription(id: string): Promise<RzpSubscription> {
     this.calls.push(`fetchSubscription:${id}`);
+    if (this.gate) await this.gate;
     if (this.failFetch) throw new RazorpayError(503, undefined, "Razorpay unavailable");
     const s = this.subscriptions.get(id);
     if (!s) throw new RazorpayError(400, "BAD_REQUEST_ERROR", "no such subscription");

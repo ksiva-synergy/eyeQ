@@ -118,8 +118,9 @@ describeDb("purchases", () => {
     { name: "GET /purchases", handler: ({ tx, session }) => listPurchases(tx, session) },
     deps,
   );
-  const webhook = (d: ReturnType<typeof delivery>) =>
-    handleRazorpayWebhook(webhookRequest(d), {
+  const webhook = async (d: ReturnType<typeof delivery>) => {
+    const deferred: Promise<void>[] = [];
+    const res = await handleRazorpayWebhook(webhookRequest(d), {
       secret: WEBHOOK_SECRET,
       db: service,
       razorpay: rzp,
@@ -127,7 +128,13 @@ describeDb("purchases", () => {
       onGrant: async (r) => {
         grants.push(r);
       },
+      defer: (work) => {
+        deferred.push(Promise.resolve().then(work));
+      },
     });
+    await Promise.all(deferred);
+    return res;
+  };
 
   const athlete = async (name: string, phone = `+9190${Math.floor(Math.random() * 1e8)}`) => {
     const id = await makeAthlete(admin, { name, phone });

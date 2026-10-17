@@ -1,6 +1,6 @@
 import { serviceDb } from "@/server/db";
 import { env } from "@/server/env";
-import { handleCron } from "@/server/notify/cron";
+import { handleCron, oncePerHour } from "@/server/notify/cron";
 import { dispatch } from "@/server/notify/dispatch";
 import { resendChannel } from "@/server/notify/email";
 import { report } from "@/server/observability/sentry";
@@ -23,6 +23,7 @@ export function GET(req: Request) {
           email: resendChannel(env.resend(), fetch, {
             production: env.appEnv() === "production",
             report,
+            mayReport: () => oncePerHour(serviceDb(), "email-not-configured"),
           }),
         },
       });

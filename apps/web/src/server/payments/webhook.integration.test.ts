@@ -42,8 +42,10 @@ describeDb("POST /api/webhooks/razorpay", () => {
   let drillB: string;
   const products = { program: "", drill: "", sub: "" };
 
-  const send = (d: Delivery) =>
-    handleRazorpayWebhook(webhookRequest(d), {
+  /** The reply, with the work it deferred (after() in the route) run once it is back. */
+  const reply = (d: Delivery) => {
+    const deferred: Promise<void>[] = [];
+    const res = handleRazorpayWebhook(webhookRequest(d), {
       secret: WEBHOOK_SECRET,
       db: service,
       razorpay: rzp,
@@ -51,8 +53,20 @@ describeDb("POST /api/webhooks/razorpay", () => {
       onGrant: async (r) => {
         grants.push(r);
       },
+      defer: (work) => {
+        deferred.push(Promise.resolve().then(work));
+      },
       now: () => clock,
     });
+    return { res, done: () => res.then(() => Promise.all(deferred)) };
+  };
+  /** A delivery and its after-the-reply processing, both finished. */
+  const send = async (d: Delivery) => {
+    const r = reply(d);
+    const res = await r.res;
+    await r.done();
+    return res;
+  };
 
   const one = async <T extends pg.QueryResultRow>(sql: string, args: unknown[] = []) =>
     (await admin.query<T>(sql, args)).rows[0]!;
@@ -159,7 +173,7 @@ describeDb("POST /api/webhooks/razorpay", () => {
     const captured = delivery("payment.captured", { payment });
     const res = await send(captured);
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ ok: true, processed: true });
+    expect(await res.json()).toMatchObject({ ok: true, stored: true });
     expect(await access(athlete, "program", program)).toBe(true);
 
     const ent = await one<{ entitlement_id: string }>(
@@ -408,7 +422,7 @@ describeDb("POST /api/webhooks/razorpay", () => {
     const res = await send(delivery("subscription.activated", { subscription: s }));
     rzp.failFetch = false;
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ ok: true, processed: false });
+    expect(await res.json()).toMatchObject({ ok: true, stored: true });
     expect(await access(user, "subscription", null)).toBe(false);
     const row = await one<{ attempts: number; last_error: string; processed_at: Date | null }>(
       "select attempts, last_error, processed_at from payment_events where payload->'payload'->'subscription'->'entity'->>'id' = $1",
@@ -422,6 +436,43 @@ describeDb("POST /api/webhooks/razorpay", () => {
       200,
     );
     expect(out.processed).toBeGreaterThanOrEqual(1);
+    expect(await access(user, "subscription", null)).toBe(true);
+  });
+
+  it("the reply does not wait on the Razorpay API: 200 once stored, processed after", async () => {
+    const user = await makeAthlete(admin, { name: "Slow Razorpay" });
+    const sub = rid("sub");
+    await checkout(user, products.sub, "subscription", "subscription", null, sub, 29900);
+    const now = epoch(clock);
+    const s = {
+      id: sub,
+      entity: "subscription" as const,
+      plan_id: "plan_test",
+      status: "active" as const,
+      current_start: now,
+      current_end: now + 30 * 86400,
+      ended_at: null,
+      notes: [],
+    };
+    rzp.subscriptions.set(sub, s);
+    let release!: () => void;
+    rzp.gate = new Promise<void>((r) => (release = r)); // Razorpay's API hangs
+    const r = reply(delivery("subscription.activated", { subscription: s }));
+    const res = await Promise.race([
+      r.res,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("reply waited")), 2000)),
+    ]);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, stored: true });
+    const stored = await one<{ processed_at: Date | null }>(
+      "select processed_at from payment_events where payload->'payload'->'subscription'->'entity'->>'id' = $1",
+      [sub],
+    );
+    expect(stored.processed_at).toBeNull();
+    expect(await access(user, "subscription", null)).toBe(false);
+    release();
+    rzp.gate = undefined;
+    await r.done();
     expect(await access(user, "subscription", null)).toBe(true);
   });
 
