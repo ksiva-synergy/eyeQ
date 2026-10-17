@@ -69,6 +69,15 @@ EyeQ does not issue its own tax invoices. Prices are tax-inclusive (D21) and the
 
 This blocks **production** payments, together with the legal entity, Razorpay KYC and real prices (plan section 13, D21). Staging uses test keys and the seed's placeholder prices.
 
+## Staging sign-in
+
+Staging signs in with Supabase Auth's phone provider and **test numbers** (Supabase dashboard, Authentication, Sign In / Providers, Phone, Test phone numbers and OTPs). A test number gets its fixed code and no SMS.
+
+- **The test numbers expire on 15 November 2026.** After that date the post-deploy smoke check (Migrate, "Phone sign-in works on the deployment") fails on every merge, and the staging checks below cannot sign in. Before then, set a new expiry in the same dashboard screen and update this date.
+- `919000000002` is reserved for the smoke check: it spends one of the number's five codes an hour on every deploy, so nobody signs in with it by hand. Its number and code are the GitHub staging environment secrets `STAGING_SMOKE_PHONE` and `STAGING_SMOKE_CODE`.
+- `919000000001` is for manual checks.
+- **Google sign-in is not enabled on staging** and has never been verified there. `/sign-in` still shows "Continue with Google", which ends on the sign-in error message until the provider is set up. When it is enabled, add a manual Google sign-in to these checks; the smoke check cannot automate it.
+
 ## Acceptance on staging (test mode)
 
 Use Razorpay's test payment details from its docs (test cards and test UPI ids: <https://razorpay.com/docs/payments/payments/test-card-details/>). Sign in with a test number. Each check names what to look at.
