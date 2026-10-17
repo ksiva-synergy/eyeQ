@@ -26,3 +26,7 @@ export const healthResponseSchema = z.object({
   commit: z.string().nullable(),
 });
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
+export * from "./client.ts";
+
+/** `{ ok: true }`, the answer of routes that return nothing else. */
+export const okResponseSchema = z.object({ ok: z.literal(true) });
