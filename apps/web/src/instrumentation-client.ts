@@ -19,8 +19,9 @@ if (dsn) {
  * PostHog in the browser (plan phase 5). The project key is public by design, like the
  * DSN. Ground rule 11: events carry the user id and nothing else personal, so there is no
  * autocapture (it reads text off the page, names included), no session recording and no
- * person properties; only page views and the events the app names (paywall_viewed, phase
- * 7). Skipped without the key.
+ * person properties; only page views, web vitals (switched on in the PostHog project:
+ * timings and the URL) and the events the app names (paywall_viewed, phase 7). Skipped
+ * without the key.
  */
 const posthogKey = process.env["NEXT_PUBLIC_POSTHOG_KEY"];
 if (posthogKey) {
