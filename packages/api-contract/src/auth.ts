@@ -1,11 +1,21 @@
 import { z } from "zod";
 
-/** E.164, e.g. +919876543210. The sign-in form normalises spaces and a missing +91. */
+/** E.164, e.g. +919876543210. Spaces, dashes and brackets go; a missing +91 or + is added. */
 export const phoneSchema = z
   .string()
   .trim()
   .transform((v) => v.replace(/[\s()-]/g, ""))
-  .transform((v) => (/^\d{10}$/.test(v) ? `+91${v}` : v))
+  // An Indian mobile typed without "+": 10 digits, a trunk 0 first, or 91 first. The +91
+  // shown beside the field (PhoneInput) makes "91…" an easy thing to type.
+  .transform((v) =>
+    /^\d{10}$/.test(v)
+      ? `+91${v}`
+      : /^0\d{10}$/.test(v)
+        ? `+91${v.slice(1)}`
+        : /^91\d{10}$/.test(v)
+          ? `+${v}`
+          : v,
+  )
   .pipe(z.string().regex(/^\+[1-9]\d{7,14}$/, "a phone number with country code"));
 
 /** Lower-cased and trimmed, so one inbox is one account. */

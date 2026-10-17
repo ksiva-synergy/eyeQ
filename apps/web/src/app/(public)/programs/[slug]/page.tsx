@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { asAthlete } from "@eyeq/db";
 import { formatRupees, t } from "@eyeq/i18n";
 import { BrandMark, Button, Chip, Icon } from "@eyeq/ui/web";
@@ -22,6 +23,9 @@ type Params = { params: Promise<{ slug: string }> };
 const SLUG = /^[a-z0-9-]{1,80}$/;
 
 async function load(slug: string): Promise<LandingData | null> {
+  // Request time, not prerender: the read (Prisma's transaction id is a crypto.randomUUID())
+  // must not run while Next prerenders the shell with cacheComponents (staging, 2026-10-17).
+  await connection();
   if (!SLUG.test(slug)) return null;
   // Public read (plan 5.3): eyeq_api with no athlete; RLS shows published content only.
   return apiDb().$transaction((tx) => getLanding(tx, slug));

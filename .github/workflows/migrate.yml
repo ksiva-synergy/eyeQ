@@ -65,3 +65,24 @@ jobs:
           test "$commit" = "$GITHUB_SHA"
           curl -fsS "${h[@]}" "$STAGING_URL/api/health"; echo
           curl -fsS "${h[@]}" "$STAGING_URL/api/health/db"; echo
+      # Phone sign-in on the deployed app, with a Supabase test number (no SMS). Found off on
+      # staging on 2026-10-17 though every CI sign-in test passed against the local stack.
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Phone sign-in works on the deployment (code, verify, GET /me)
+        env:
+          APP_URL: ${{ vars.STAGING_URL }}
+          SMOKE_PHONE: ${{ secrets.STAGING_SMOKE_PHONE }}
+          SMOKE_CODE: ${{ secrets.STAGING_SMOKE_CODE }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$SMOKE_PHONE" ] || [ -z "$SMOKE_CODE" ]; then
+            echo "::error::Set STAGING_SMOKE_PHONE and STAGING_SMOKE_CODE (a Supabase test number and its code) on the staging environment."
+            exit 1
+          fi
+          pnpm --filter web signin:smoke

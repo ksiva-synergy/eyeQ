@@ -204,4 +204,6 @@ export const pay = {
   "landing.verify.change": "Change number",
   "landing.verify.failed": "That code did not work. Check it and try again.",
   "landing.verify.sendFailed": "The code could not be sent. Try again shortly.",
+  "landing.verify.badPhone": "Enter a 10-digit mobile number.",
+  "landing.verify.rateLimited": "Too many codes for this number. Try again in an hour.",
 } as const;
