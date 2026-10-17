@@ -45,6 +45,10 @@ Fast bowlers, batters, keepers, shuttlers and strikers all play on what they see
 
 **Privacy by default.** Public boards show only your display name, initials, level, XP and rank. Minors start private. You can leave the leaderboard any time.
 
+**Free to start, Pro when you're ready.** The 3-Day Reset, a daily free drill and the full game (XP, streaks, badges, boards) cost nothing. Pro comes monthly, quarterly or annually; a single program or one pay-per-view drill can be bought on its own. Pay by UPI, card or net banking, with prices in rupees including tax. A purchase opens within seconds and on every device you sign in on, and Account lists your purchases, what they unlock, when Pro renews, and lets you cancel at period end.
+
+**Programs you can share.** Every program has a public page at `/programs/<slug>` with its modules, the coach's bio and what athletes say, built for search, with checkout that verifies your phone first.
+
 ### For coaches
 
 **A program builder that keeps up with you.** Drag and drop modules, sessions and drills. Paste a batch of YouTube or Google Drive links at once, reuse a drill across programs and see everywhere it's used, duplicate sessions, and preview any session exactly as an athlete sees it.
@@ -53,16 +57,43 @@ Fast bowlers, batters, keepers, shuttlers and strikers all play on what they see
 
 **Know your athletes.** Search and filter your roster by plan, streak and last activity. Open any athlete for their activity timeline, purchases and access, grant or revoke access by hand, and export to CSV. Phone numbers stay masked.
 
-**Run the game.** Write weekly and program challenges and their rewards, and manage the products you sell. Every admin change is recorded in an audit log.
+**Run the game.** Write weekly challenges (title, target, coin and badge rewards, schedule next week or repeat) and challenges tied to a program, and manage the products you sell and their prices. Payments that need a look, such as a partial refund or an open dispute, are flagged for review. Every admin change is recorded in an audit log.
+
+### Where it stands
+
+Built, merged and deployed to staging (`eyeq-nu.vercel.app`, Vercel and Supabase in Mumbai):
+
+| Phase | What it delivered                                                                                                                                                                  | Status                                                                                                                                  |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 0–2   | Monorepo, local stack, schema and game engine, Supabase sign-in (phone OTP, Google), `/api/v1`                                                                                     | Done                                                                                                                                    |
+| 3–5   | Design system, web shell, coach admin and program builder, the athlete daily loop                                                                                                  | Done                                                                                                                                    |
+| 6     | Compete, rewards and scheduled jobs: leaderboards, challenges, trophy case, coin spends, rank-change moment, pg_cron schedules, the notification dispatcher, in-app feed, web push | Done; staging acceptance passed 17 Oct 2026                                                                                             |
+| 7     | Payments on web: Razorpay orders and subscriptions, webhooks into entitlements, paywall, public program pages, receipts, purchases in Account                                      | Done in CI (Razorpay test mode); staging run in test mode under way; production blocked on the legal entity, KYC, GSTIN and real prices |
+
+**Phase 6, in more detail.**
+
+- Weekly and all-time leaderboards, overall and by sport, refreshed every 5 minutes, with the pinned own row naming the athletes just above and below.
+- Weekly challenges (opened every Monday 00:00 IST by `week-rollover`, which also freezes last week's ranks and awards the weekly badges) and program challenges.
+- Trophy case, Rewards with coin spends (a streak freeze, unlocking a drill), the rank-change moment, and challenge and rank cards on Today.
+- pg_cron jobs: `leaderboard-refresh`, `daily-reminder`, `streak-at-risk` and `streak-close` (each by the athlete's local time), `challenge-ending`, `rank-day-snapshot`, `week-rollover` and `entitlement-expiry`.
+- A dispatcher at `/api/cron/dispatch` (Vercel Cron, every 5 minutes, behind the cron secret) drains the notification outbox in batches, enforces the two-a-day cap and per-kind toggles, retries with backoff, and never sends a row twice when runs overlap. Failed runs show in Vercel's logs and in Sentry.
+- An in-app notification feed, and web push (VAPID, service worker, opt-in from Profile) verified reaching desktop Chrome on staging.
+
+**Phase 7, in more detail.**
+
+- Razorpay Checkout limited to UPI, cards and net banking. The server prices every order from the `products` table; the browser never sends an amount.
+- One-time purchases (a program, a pay-per-view drill) and subscriptions (monthly, quarterly, annual), with Razorpay plans created from a GitHub Actions workflow.
+- A purchase is granted by whichever arrives first: the browser's signed refresh or the webhook. Webhooks are signature-checked on the raw body, stored once per event id, answered at once and processed after the response; a 5-minute sweep (`/api/cron/payments`) picks up anything left.
+- Subscription state is re-read from Razorpay on every event, so out-of-order events cannot move it backwards: grace while a charge retries, cancel at period end, end on halt. A full refund or a lost dispute locks at once; a failed refund gives access back; partial refunds and disputes are flagged for the coach.
+- The paywall (with the day-4 prompt after the Reset and variants behind PostHog flags), locked-content prompts, public program pages with search metadata and structured data, receipts by email, and purchases and entitlements in Account.
+- Analytics: `paywall_viewed` from the browser, `purchase_completed` from the webhook handler.
+- Outside production every response carries `noindex`. Setup and the staging checks are in [`docs/payments.md`](docs/payments.md).
 
 ### What's next
 
-Built and running today: the full athlete web app, the coach admin, the game engine and the scheduled jobs (leaderboards, streaks, reminders, web push). Coming next, in order:
-
-1. **Payments on web.** UPI, cards and net banking through Razorpay; subscriptions, one-time program purchases and pay-per-view drills; public program landing pages.
-2. **Native Android and iOS apps** at full parity with the web, with offline training that syncs when you reconnect.
-3. **Store billing and native push.**
-4. **Launch + 60 days.** Share cards, weekly recaps, personalised recommendations, paid challenges, promo codes, profile frames, an admin dashboard with live game tuning, data export and account deletion.
+1. **Native Android and iOS apps** (phase 8) at full parity with the web, with offline training that syncs when you reconnect.
+2. **Store billing and native push** (phase 9), through RevenueCat and Expo Push into the same entitlements and dispatcher.
+3. **Launch + 60 days.** Share cards, weekly recaps, personalised recommendations, paid challenges, promo codes, profile frames, an admin dashboard with live game tuning, data export and account deletion.
 
 ---
 
@@ -77,8 +108,11 @@ Built and running today: the full athlete web app, the coach admin, the game eng
 │ phone to desktop │       │  pages     public, /app, /admin      │── email ─▶ Resend
 ├──────────────────┤       │  /api/v1   typed athlete API         │── push ──▶ Web Push, Expo Push
 │ Mobile (Expo)    │──────▶│  /api/admin coach API                │◀─ hooks ─ Razorpay, RevenueCat
-│ coming           │       │  /api/cron/dispatch  every 5 minutes │
-└──────────────────┘       └──────────────────┬───────────────────┘
+│ coming           │       │  /api/webhooks/razorpay              │
+└──────────────────┘       │  /api/cron/dispatch  every 5 minutes │
+                           │  /api/cron/payments  every 5 minutes │── errors ▶ Sentry
+                           │                                      │── events ▶ PostHog
+                           └──────────────────┬───────────────────┘
                                               │ one transaction per request
                                               ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -110,29 +144,47 @@ Two managed platforms, no servers to run, TypeScript end to end, and hosting tha
 
 ### Technical choices
 
-| Area            | Choice                                                                   | Why                                                                                       |
-| --------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| Monorepo        | pnpm workspaces + Turborepo                                              | Shared contract, rules, tokens and strings across web, mobile and the database            |
-| Web             | Next.js 16 (App Router), React 19, Tailwind CSS 4                        | Server components call services directly; one deploy holds pages, API, webhooks and cron  |
-| Mobile (next)   | Expo + Expo Router, Reanimated                                           | One TypeScript stack; OTA updates through EAS                                             |
-| Database        | Supabase Postgres in Mumbai, pg_cron, pgTAP                              | Transactions, RLS and scheduled SQL in one place, close to Indian athletes                |
-| Data access     | Prisma 7 (client only, introspected) + `pg` adapter; SQL via `$queryRaw` | Typed models with drift checks in CI, while plain SQL migrations stay the source of truth |
-| Migrations      | Plain forward-only SQL with a small runner                               | Reviewable, reproducible, never edited once applied; run from GitHub Actions, not laptops |
-| Auth            | Supabase Auth: phone OTP and Google (Apple on iOS)                       | Managed sessions; OTP sent through MSG91 via the Send SMS hook                            |
-| Contract        | zod schemas in `packages/api-contract`                                   | One source of request and response types for server, web and mobile                       |
-| Hosting         | Vercel (`bom1`), Vercel Cron every 5 minutes                             | No servers; the dispatcher drains a notification outbox safely across overlapping runs    |
-| Payments (next) | Razorpay on web, RevenueCat for Play and App Store                       | UPI, cards and net banking on web; store billing in-app; all feed one entitlements table  |
-| Messaging       | Web Push (VAPID), Expo Push, Resend                                      | One channel interface, daily cap and per-kind toggles enforced centrally                  |
-| Video           | YouTube IFrame API and Google Drive embeds, behind a provider interface  | Coaches publish from tools they already use; room for Mux later                           |
-| Observability   | Sentry, PostHog, structured request logs                                 | Each wired behind its environment variable and skipped cleanly when absent                |
-| Tests           | Vitest, pgTAP, Playwright with axe                                       | Rules, database behaviour, signed-in end-to-end flows and accessibility, all in CI        |
+| Area          | Choice                                                                           | Why                                                                                       |
+| ------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Monorepo      | pnpm workspaces + Turborepo                                                      | Shared contract, rules, tokens and strings across web, mobile and the database            |
+| Web           | Next.js 16 (App Router), React 19, Tailwind CSS 4                                | Server components call services directly; one deploy holds pages, API, webhooks and cron  |
+| Mobile (next) | Expo + Expo Router, Reanimated                                                   | One TypeScript stack; OTA updates through EAS                                             |
+| Database      | Supabase Postgres in Mumbai, pg_cron, pgTAP                                      | Transactions, RLS and scheduled SQL in one place, close to Indian athletes                |
+| Data access   | Prisma 7 (client only, introspected) + `pg` adapter; SQL via `$queryRaw`         | Typed models with drift checks in CI, while plain SQL migrations stay the source of truth |
+| Migrations    | Plain forward-only SQL with a small runner                                       | Reviewable, reproducible, never edited once applied; run from GitHub Actions, not laptops |
+| Auth          | Supabase Auth: phone OTP and Google (Apple on iOS)                               | Managed sessions; OTP sent through MSG91 via the Send SMS hook                            |
+| Contract      | zod schemas in `packages/api-contract`                                           | One source of request and response types for server, web and mobile                       |
+| Hosting       | Vercel (`bom1`), Vercel Cron every 5 minutes (dispatcher, payment sweep)         | No servers; the dispatcher drains a notification outbox safely across overlapping runs    |
+| Payments      | Razorpay on web (live in test mode); RevenueCat for Play and App Store next      | UPI, cards and net banking on web; store billing in-app; all feed one entitlements table  |
+| Messaging     | Web Push (VAPID) and Resend now; Expo Push with the apps                         | One channel interface, daily cap and per-kind toggles enforced centrally                  |
+| Video         | YouTube IFrame API and Google Drive embeds, behind a provider interface          | Coaches publish from tools they already use; room for Mux later                           |
+| Observability | Sentry (source maps uploaded at build), PostHog (events, flags), structured logs | Each wired behind its environment variable and skipped cleanly when absent                |
+| Tests         | Vitest, pgTAP, Playwright with axe                                               | Rules, database behaviour, signed-in end-to-end flows and accessibility, all in CI        |
+
+### Integrations
+
+| Service                | What EyeQ uses it for                                                                                 | State                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Supabase Auth          | Phone OTP and Google sign-in; sessions verified on the server only                                    | Live; staging signs in with Supabase test numbers, Google not yet enabled there      |
+| MSG91                  | OTP SMS, sent from our Send SMS hook (`/api/auth/sms-hook`)                                           | Wired                                                                                |
+| Supabase Postgres      | The game engine, ledgers, entitlements, RLS; pg_cron for the scheduled jobs                           | Live, Mumbai                                                                         |
+| Supabase Storage       | Program covers, badge art, coach uploads                                                              | Live                                                                                 |
+| Vercel                 | Hosting for `apps/web` in `bom1`; Vercel Cron for the dispatcher and the payment sweep                | Live (staging behind Vercel Authentication)                                          |
+| Razorpay               | Orders, subscriptions, Checkout, webhooks, refunds and disputes; GST invoices from the Dashboard      | Built and tested in test mode; live keys wait on the legal entity, KYC and prices    |
+| Web Push (VAPID/FCM)   | Reminders, streak-at-risk and challenge-ending notices to subscribed browsers                         | Live, verified on desktop Chrome                                                     |
+| Resend                 | Payment receipts; the channel any email notice uses                                                   | Wired; without a key receipts are recorded and held, and Sentry is told once an hour |
+| Sentry                 | Server and browser errors, error boundaries, cron failures, rejected webhook signatures               | Live, with source maps                                                               |
+| PostHog                | Product analytics (user id only), server events from completions and purchases, paywall variant flags | Live                                                                                 |
+| YouTube / Google Drive | Drill video, with link checks when a coach saves                                                      | Live                                                                                 |
+| GitHub Actions         | PR checks, staging migrations with a post-deploy smoke test, demo refresh, Razorpay plan sync         | Live                                                                                 |
+| RevenueCat, Expo Push  | Store billing and native push for the apps                                                            | Phase 9                                                                              |
 
 ### Repository layout
 
 ```
 apps/
   web/              Next.js: public pages, athlete app (/app), coach admin (/admin),
-                    /api/v1, /api/admin, auth hook, cron dispatcher
+                    /api/v1, /api/admin, auth hook, Razorpay webhook, cron routes
 packages/
   game/             XP, level and streak rules in TypeScript; shared JSON vectors
   db/               Prisma client, asAthlete(), migration runner, seed, admin:grant
@@ -147,6 +199,7 @@ db/
 docker/             local Postgres image (pg_cron, pgTAP)
 supabase/           Supabase CLI config for the local Auth and Data API stack
 docs/design/        design tokens, component specs and the prototype boards
+docs/payments.md    Razorpay setup, the webhook, GST, staging acceptance
 ```
 
 Working documents: [`EYEQ_BUILD_PLAN.md`](EYEQ_BUILD_PLAN.md) (phases, rules and acceptance checks), [`DECISIONS.md`](DECISIONS.md) (every decision the plan left open) and [`CLAUDE.md`](CLAUDE.md) (ground rules for contributors).
@@ -208,7 +261,7 @@ pnpm admin:grant +919000000001 owner     # or coach
 pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm db:test && pnpm --filter web build
 ```
 
-CI (`.github/workflows/pr.yml`) runs the same, plus the Prisma drift check, the database suite on both plain Postgres and the Supabase image, the signed-in Supabase stack tests and Playwright. Merges to `main` run migrations against staging from GitHub Actions (`migrate.yml`) before Vercel deploys.
+CI (`.github/workflows/pr.yml`) runs the same, plus the Prisma drift check, the database suite on both plain Postgres and the Supabase image, the signed-in Supabase stack tests and Playwright. Merges to `main` run migrations against staging from GitHub Actions (`migrate.yml`), then wait for Vercel's deployment of that commit and smoke-test it: health checks and a real phone sign-in through to `GET /api/v1/me`. Two manual workflows run against staging from Actions, so no laptop holds its database URL: `demo-refresh.yml` and `razorpay-sync-plans.yml` (dry run unless `apply` is ticked).
 
 ### Database safety rails
 
