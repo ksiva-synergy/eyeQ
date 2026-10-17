@@ -21,6 +21,7 @@ import {
   type Delivery,
 } from "../../../test/razorpay";
 import { runtimeUrl } from "../db";
+import { listPaymentFlags, resolvePaymentFlag } from "../services/admin/payments";
 import { sweepEvents, type GrantResult } from "./process";
 import { handleRazorpayWebhook } from "./webhook";
 
@@ -315,6 +316,22 @@ describeDb("POST /api/webhooks/razorpay", () => {
         )
       ).n,
     ).toBe(1);
+
+    // The admin sees it under "Payments to review" and can mark it reviewed.
+    const listed = await service.$transaction((tx) => listPaymentFlags(tx));
+    const flag = listed.flags.find((f) => f.externalId === partial.id)!;
+    expect(flag).toMatchObject({
+      kind: "partial_refund",
+      userId: user,
+      athlete: "Refunded",
+      resolvedAt: null,
+    });
+    const audits: unknown[] = [];
+    const resolved = await service.$transaction((tx) =>
+      resolvePaymentFlag(tx, flag.id, user, async (e) => void audits.push(e)),
+    );
+    expect(resolved.resolvedAt).not.toBeNull();
+    expect(audits).toHaveLength(1);
 
     payment.amount_refunded = 99900;
     payment.refund_status = "full";

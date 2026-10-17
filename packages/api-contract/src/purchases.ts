@@ -143,3 +143,26 @@ export const purchasesResponseSchema = z.object({
   billingEmail: z.string().nullable(),
 });
 export type PurchasesResponse = z.infer<typeof purchasesResponseSchema>;
+
+/** Admin: payments a person should look at (partial refunds, disputes, unmatched payments). */
+export const paymentFlagSchema = z.object({
+  id: z.uuid(),
+  kind: z.enum([
+    "partial_refund",
+    "dispute_opened",
+    "dispute_won",
+    "dispute_lost",
+    "dispute_closed",
+    "unmatched_payment",
+    "amount_mismatch",
+  ]),
+  externalId: z.string(),
+  userId: z.uuid().nullable(),
+  athlete: z.string().nullable(),
+  detail: z.record(z.string(), z.unknown()),
+  createdAt: timestamp,
+  resolvedAt: timestamp.nullable(),
+});
+export type PaymentFlag = z.infer<typeof paymentFlagSchema>;
+export const paymentFlagsResponseSchema = z.object({ flags: z.array(paymentFlagSchema) });
+export type PaymentFlagsResponse = z.infer<typeof paymentFlagsResponseSchema>;
