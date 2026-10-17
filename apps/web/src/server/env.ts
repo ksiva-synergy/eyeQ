@@ -81,5 +81,11 @@ export const env = {
     return keyId && keySecret ? { keyId, keySecret } : undefined;
   },
   razorpayWebhookSecret: () => str("RAZORPAY_WEBHOOK_SECRET"),
+  /**
+   * Google sign-in on web: only when AUTH_GOOGLE_ENABLED is 1 or true, because it works only
+   * once the Google OAuth client is set up in that Supabase project (off on staging; plan
+   * item "Google OAuth client configured …"). Read per request.
+   */
+  googleSignIn: () => ["1", "true"].includes(str("AUTH_GOOGLE_ENABLED")?.toLowerCase() ?? ""),
   str,
 };

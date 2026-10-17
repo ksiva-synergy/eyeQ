@@ -597,6 +597,7 @@ Every screen in this phase is built phone-width first to match its board, then a
 
 - [ ] `apps/mobile` with Expo Router, a development build (not Expo Go), EAS profiles for development, staging and production, and OTA channels. Minimum OS: Android 9 (API 28) and iOS 16.
 - [ ] Native components for the full component list; fonts; both themes; the five motion moments with Reanimated and haptics.
+- [ ] Google OAuth client configured in Supabase (staging and production) and Google sign-in verified on staging. Phase 2's acceptance assumed it and it was never done; until then web hides "Continue with Google" (`AUTH_GOOGLE_ENABLED` off). Needed before Phase 11, and before native Google sign-in below.
 - [ ] Supabase Auth in the app: phone OTP and native Google sign-in; session kept in secure storage; the access token sent as a bearer token to `/api/v1`.
 - [ ] All boards 1a to 14, with the tab bar (Home, Train, Compete, Progress, Profile), using `packages/api-contract`. The web app already has every one of these; port behaviour and copy from it so the two do not drift. The paywall is built without the payment-method row; purchase buttons are wired in phase 9.
 - [ ] Drill player: `react-native-youtube-iframe` and a Drive WebView behind the same provider interface.

@@ -143,6 +143,9 @@ jobs:
           pnpm db:seed
 
       - name: Build and start web against local Supabase
+        env:
+          # The local stack has Google configured for the PKCE test (e2e/google.spec.ts).
+          AUTH_GOOGLE_ENABLED: "1"
         run: |
           pnpm --filter web build
           (cd apps/web && nohup pnpm start > "$RUNNER_TEMP/web.log" 2>&1 &)
