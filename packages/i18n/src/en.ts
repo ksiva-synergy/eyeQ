@@ -5,6 +5,7 @@
  */
 import { compete } from "./en-compete.ts";
 import { loop } from "./en-loop.ts";
+import { pay } from "./en-pay.ts";
 
 const core = {
   "app.name": "EyeQ",
@@ -543,4 +544,4 @@ const core = {
 } as const;
 
 /** Phase 5 onwards keeps its copy in its own files, merged here. */
-export const en = { ...core, ...loop, ...compete } as const;
+export const en = { ...core, ...loop, ...compete, ...pay } as const;
