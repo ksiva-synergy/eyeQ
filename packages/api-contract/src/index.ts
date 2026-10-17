@@ -12,6 +12,7 @@ export * from "./daily.ts";
 export * from "./compete.ts";
 export * from "./notify.ts";
 export * from "./purchases.ts";
+export * from "./landing.ts";
 export * from "./admin-products.ts";
 export * from "./admin-athletes.ts";
 export * from "./admin-builder.ts";

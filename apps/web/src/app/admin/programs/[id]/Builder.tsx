@@ -10,7 +10,14 @@ import {
 import { t } from "@eyeq/i18n";
 import { Button, Chip, ErrorCard, Icon, SkeletonRow, Toast } from "@eyeq/ui/web";
 import { api } from "../api";
-import { DrillEditor, ModuleEditor, ProgramSettings, SessionEditor, type Run } from "./Editors";
+import {
+  DrillEditor,
+  LandingSettings,
+  ModuleEditor,
+  ProgramSettings,
+  SessionEditor,
+  type Run,
+} from "./Editors";
 import { issueText } from "./issues";
 import { ProgramChallenges } from "./ProgramChallenges";
 import { moveDrill, moveSession, orderOf, type Order } from "./order";
@@ -249,7 +256,10 @@ export function Builder({ id }: { id: string }) {
         />
         <div className="flex min-w-0 flex-col gap-5">
           {sel.kind === "program" && (
-            <ProgramSettings key={p.updatedAt} program={p} run={run} busy={busy} />
+            <>
+              <ProgramSettings key={p.updatedAt} program={p} run={run} busy={busy} />
+              <LandingSettings key={`landing-${p.updatedAt}`} program={p} run={run} busy={busy} />
+            </>
           )}
           {sel.kind === "module" && (
             <ModuleEditor
