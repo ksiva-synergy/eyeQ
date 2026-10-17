@@ -580,14 +580,14 @@ Every screen in this phase is built phone-width first to match its board, then a
 
 ### Phase 7: Payments and entitlements on web
 
-- [ ] Razorpay: server-side orders for one-time purchases (a program, a pay-per-view drill) and subscriptions (monthly, quarterly, annual), Checkout on web, webhook route with signature verification on the raw body, events stored in `payment_events` then turned into entitlement grants, extensions and endings. Handle capture, subscription charge, cancellation, halt, refund and dispute events.
-- [ ] While staging is behind Vercel Authentication, the webhook URL registered with Razorpay carries the bypass query parameter (section 2.4).
-- [ ] Entitlement behaviour: grace period on billing failure, ending on refund or chargeback, hourly expiry sweep for anything a webhook missed.
-- [ ] Paywall (board 11) and locked-content prompts; the day-4 paywall after the Reset; prices in INR including tax; an email collected at checkout (it is optional at sign-up) for the receipt; GST invoices from Razorpay; purchases and entitlements in Account.
-- [ ] Public program page `/programs/[slug]` (board 15): server-rendered, metadata and structured data for search, checkout that verifies the phone by OTP before creating the order (D16).
-- [ ] Free tier: Reset program, daily free drill, full gamification.
-- [ ] Analytics: `paywall_viewed` from the client, `purchase_completed` from the webhook handler. Paywall variants behind PostHog flags.
-- [ ] Landing-page text (hero, modules, coach bio, testimonials, proof numbers) comes from program and config content, not from code, so the coach's real claims replace the prototype's placeholders.
+- [x] Razorpay: server-side orders for one-time purchases (a program, a pay-per-view drill) and subscriptions (monthly, quarterly, annual), Checkout on web, webhook route with signature verification on the raw body, events stored in `payment_events` then turned into entitlement grants, extensions and endings. Handle capture, subscription charge, cancellation, halt, refund and dispute events.
+- [x] While staging is behind Vercel Authentication, the webhook URL registered with Razorpay carries the bypass query parameter (section 2.4).
+- [x] Entitlement behaviour: grace period on billing failure, ending on refund or chargeback, hourly expiry sweep for anything a webhook missed.
+- [x] Paywall (board 11) and locked-content prompts; the day-4 paywall after the Reset; prices in INR including tax; an email collected at checkout (it is optional at sign-up) for the receipt; GST invoices from Razorpay; purchases and entitlements in Account.
+- [x] Public program page `/programs/[slug]` (board 15): server-rendered, metadata and structured data for search, checkout that verifies the phone by OTP before creating the order (D16).
+- [x] Free tier: Reset program, daily free drill, full gamification.
+- [x] Analytics: `paywall_viewed` from the client, `purchase_completed` from the webhook handler. Paywall variants behind PostHog flags.
+- [x] Landing-page text (hero, modules, coach bio, testimonials, proof numbers) comes from program and config content, not from code, so the coach's real claims replace the prototype's placeholders.
 
 **Acceptance.** In Razorpay test mode: buying a program unlocks it within seconds and on a second device; buying one pay-per-view drill unlocks only that drill; a subscription renews and extends; a cancelled subscription runs to period end and then locks; a refund locks at once. Replaying a webhook changes nothing; delivering two events out of order ends in the right state; a bad signature is refused and logged. No route decides access from anything but `entitlements`.
 
