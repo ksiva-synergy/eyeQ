@@ -638,6 +638,7 @@ Each item here ships on both clients.
 ### Phase 11: Hardening and launch
 
 - [ ] Production: a second Supabase project in Mumbai on the Pro plan, with roles, migrations, config seed, Auth settings, Storage buckets and the closed Data API reproduced from staging by script, not by hand. Vercel production variables point at it; staging keeps the existing project. `release.yml` runs migrations and then deploys from a release tag. Custom domain and certificate. Vercel Authentication off for production, bypass parameters removed from production webhook URLs.
+- [ ] Production builds set APP_ENV=production, or every page ships noindex.
 - [ ] Restore drill: restore a daily backup of the production database into a scratch project and verify the ledgers. Decide then whether point-in-time recovery is worth its monthly cost.
 - [ ] Alerts tested by causing each condition on staging.
 - [ ] Security pass: dependency audit, headers and CSP (allowing the YouTube, Drive and Razorpay frames), webhook replay, auth rate limits, admin routes, RLS suite re-run against production roles.
