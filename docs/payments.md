@@ -24,13 +24,13 @@ The rules this follows: the server decides what a payment grants (ground rule 1)
 
 Set these on Vercel, project `eyeq`, environment **Production** (which is staging until phase 11). Mark the secrets as sensitive. Never give any of them a `NEXT_PUBLIC_` prefix, except the optional key id.
 
-| Variable | Where it comes from | Secret |
-| --- | --- | --- |
-| `RAZORPAY_KEY_ID` | Razorpay Dashboard, **Test mode**, Account & Settings, API keys (`rzp_test_…`) | no (Checkout needs it; the API hands it to the browser) |
-| `RAZORPAY_KEY_SECRET` | same page, shown once when the key is generated | yes |
-| `RAZORPAY_WEBHOOK_SECRET` | the secret you type when you add the webhook below | yes |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | optional, same value as `RAZORPAY_KEY_ID`; not needed | no |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Resend; without them receipts are skipped and recorded, not sent | key: yes |
+| Variable                       | Where it comes from                                                            | Secret                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| `RAZORPAY_KEY_ID`              | Razorpay Dashboard, **Test mode**, Account & Settings, API keys (`rzp_test_…`) | no (Checkout needs it; the API hands it to the browser) |
+| `RAZORPAY_KEY_SECRET`          | same page, shown once when the key is generated                                | yes                                                     |
+| `RAZORPAY_WEBHOOK_SECRET`      | the secret you type when you add the webhook below                             | yes                                                     |
+| `NEXT_PUBLIC_RAZORPAY_KEY_ID`  | optional, same value as `RAZORPAY_KEY_ID`; not needed                          | no                                                      |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Resend; without them receipts are skipped and recorded, not sent               | key: yes                                                |
 
 Redeploy after setting them. Without the keys the purchase routes answer 503 `unavailable`, and webhooks are refused (500, not stored) until the webhook secret is set.
 
@@ -74,10 +74,10 @@ This blocks **production** payments, together with the legal entity, Razorpay KY
 
 Use Razorpay's test payment details from its docs (test cards and test UPI ids: <https://razorpay.com/docs/payments/payments/test-card-details/>). Sign in with a test number. Each check names what to look at.
 
-Checks marked *(automated)* run in CI with signed fixture payloads (`webhook.integration.test.ts`, `purchases.integration.test.ts`, pgTAP 0040). On staging they only need a look.
+Checks marked _(automated)_ run in CI with signed fixture payloads (`webhook.integration.test.ts`, `purchases.integration.test.ts`, pgTAP 0040). On staging they only need a look.
 
 1. **A program purchase unlocks within seconds, and on a second browser.**
-   1. Signed in as a free athlete, open Programs, then *Cricket Vision Foundations*, then **Unlock program**, and pay with a test card.
+   1. Signed in as a free athlete, open Programs, then _Cricket Vision Foundations_, then **Unlock program**, and pay with a test card.
    2. The page should land back on the program, open, in a few seconds.
    3. In a second browser (or a private window) signed in as the same athlete, open the program: it is open.
    4. Account, Purchases, Payments should list it as Active.
@@ -92,13 +92,13 @@ Checks marked *(automated)* run in CI with signed fixture payloads (`webhook.int
 4. **A cancelled subscription runs to period end, then locks.**
    1. In Account, choose **Cancel Pro**, then **Cancel at period end**.
    2. Pro stays open, and Account says "Cancelled · open until …".
-   3. The lock at period end is the hourly `entitlement-expiry` job *(automated, through `cron_run`)*. On staging it happens on that date.
+   3. The lock at period end is the hourly `entitlement-expiry` job _(automated, through `cron_run`)_. On staging it happens on that date.
 5. **A refund locks at once.**
    1. In the Razorpay Dashboard (Test mode), open the payment from check 1 and refund the full amount.
    2. Within seconds of `refund.processed`, the program is locked again.
    3. A partial refund on another payment changes nothing and adds a `payment_flags` row of kind `partial_refund`.
-6. **A replayed webhook changes nothing** *(automated)*. On staging, a delivery Razorpay retries is answered `{"ok":true,"replay":true}` and adds no `entitlement_events` row.
-7. **Two events out of order end in the right state** *(automated)*: a late `subscription.pending` after `subscription.charged` leaves Pro active.
+6. **A replayed webhook changes nothing** _(automated)_. On staging, a delivery Razorpay retries is answered `{"ok":true,"replay":true}` and adds no `entitlement_events` row.
+7. **Two events out of order end in the right state** _(automated)_: a late `subscription.pending` after `subscription.charged` leaves Pro active.
 8. **A bad signature is refused and logged.** Run:
 
    ```sh
@@ -111,8 +111,9 @@ Checks marked *(automated)* run in CI with signed fixture payloads (`webhook.int
    - Vercel's runtime log should show `razorpay.webhook_bad_signature`.
    - Sentry should show a `WebhookSignatureRejected` event.
    - No new `payment_events` row should exist.
-9. **Webhook and refresh racing for one payment produce one grant and one `entitlement_events` row** *(automated: two refreshes and a webhook in parallel)*. On staging, after check 1, `payment_grants` has one row for that payment.
-10. **No access decision outside entitlements** *(automated)*. `server/payments/access-rule.test.ts` reads the source: only the payment layer calls Razorpay; the provider's subscription cache is read only by Account and cancelling; access comes from `has_access()` in SQL.
+
+9. **Webhook and refresh racing for one payment produce one grant and one `entitlement_events` row** _(automated: two refreshes and a webhook in parallel)_. On staging, after check 1, `payment_grants` has one row for that payment.
+10. **No access decision outside entitlements** _(automated)_. `server/payments/access-rule.test.ts` reads the source: only the payment layer calls Razorpay; the provider's subscription cache is read only by Account and cancelling; access comes from `has_access()` in SQL.
 
 ## Not on mobile yet
 
