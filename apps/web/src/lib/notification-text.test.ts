@@ -19,6 +19,24 @@ describe("notificationText", () => {
     expect(ny.body).toBe("Train before 11:59 pm to keep it going.");
   });
 
+  it("a receipt names what was bought, the price incl. GST, the date and the payment", () => {
+    const n = notificationText(
+      "receipt",
+      {
+        product_title: "Reaction Edge",
+        amount_paise: 129900,
+        payment_id: "pay_123",
+        paid_at: "2026-10-17T05:00:00Z",
+      },
+      "Asia/Kolkata",
+    );
+    expect(n.title).toBe("Your EyeQ receipt");
+    expect(n.body).toContain("Reaction Edge\n₹1,299, including GST · 17 Oct 2026");
+    expect(n.body).toContain("Payment reference: pay_123");
+    expect(n.body).toContain("GST tax invoice comes separately from Razorpay");
+    expect(notificationText("receipt", {}, "Asia/Kolkata").body).toBe("Thanks for your purchase.");
+  });
+
   it("says when a challenge closes, in the athlete's zone, and links to it", () => {
     const n = notificationText(
       "challenge_ending",
