@@ -15,6 +15,7 @@ const core = {
   "common.continue": "Continue",
   "common.loading": "Loading",
   "common.retry": "Retry",
+  "common.crashed": "Something went wrong. Try again, or reload the page.",
   "common.close": "Close",
   "common.notNow": "Not now",
   "common.undo": "Undo",
