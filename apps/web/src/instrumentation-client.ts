@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import posthog from "posthog-js";
+import { stripUrlQueries } from "@/lib/posthog-before-send";
 
 /**
  * Sentry in the browser. The DSN is public by design (it can only submit events), so it
@@ -34,6 +35,10 @@ if (posthogKey) {
     person_profiles: "identified_only",
     mask_all_text: true,
     mask_all_element_attributes: true,
+    // No first-touch referrer or campaign params on the person; URLs lose query and hash.
+    save_referrer: false,
+    save_campaign_params: false,
+    before_send: stripUrlQueries,
   });
 }
 
