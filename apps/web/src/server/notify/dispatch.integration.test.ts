@@ -23,7 +23,7 @@ import type { Session, SessionVerifier } from "../auth/session";
 import { runtimeUrl } from "../db";
 import { deletePushToken, getFeed, markRead, savePushToken } from "../services/notify";
 import type { Channel, Claimed, SendResult } from "./channels";
-import { handleCron } from "./cron";
+import { handleCron, oncePerHour } from "./cron";
 import { dispatch, type DispatchResult } from "./dispatch";
 import { resendChannel } from "./email";
 import { pushOptions, webPushChannel } from "./web-push";
@@ -310,7 +310,7 @@ describeDb("the dispatcher", () => {
     });
   });
 
-  it("in production without Resend a receipt stays queued, past five attempts, and is reported", async () => {
+  it("in production without Resend a receipt stays queued past five attempts; Sentry hears once an hour", async () => {
     const u = await makeAthlete(admin, { name: "Prod no Resend" });
     const row = await queue(
       u,
@@ -318,22 +318,27 @@ describeDb("the dispatcher", () => {
       "prod-unconfigured",
       JSON.stringify({ email: "c@example.com" }),
     );
-    const reports: unknown[] = [];
-    const email = resendChannel(undefined, fetch, {
-      production: true,
-      report: (e) => reports.push(e),
-    });
+    const reports: { e: unknown; fingerprint?: string[] }[] = [];
+    const key = `email-not-configured-${tag}`;
+    // A fresh channel per run, as the cron route builds one: the hourly limit is shared.
     for (let i = 0; i < 7; i++) {
       await admin.query(
         "update notifications set send_after = now() - interval '1 second' where id = $1",
         [row],
       );
+      const email = resendChannel(undefined, fetch, {
+        production: true,
+        report: (e, _ctx, o) => reports.push({ e, fingerprint: o?.fingerprint }),
+        mayReport: () => oncePerHour(service, key),
+      });
       await dispatch({ db: service, channels: { push: webPushChannel(undefined), email } });
     }
     const s = await status(row);
     expect(s).toMatchObject({ status: "queued", last_error: "email_not_configured", attempts: 7 });
+    // Seven runs, one Sentry event this hour, always the same issue.
     expect(reports).toHaveLength(1);
-    expect((reports[0] as Error).name).toBe("EmailNotConfigured");
+    expect((reports[0]!.e as Error).name).toBe("EmailNotConfigured");
+    expect(reports[0]!.fingerprint).toEqual(["email-not-configured"]);
 
     // Once the key is set, the next run sends it.
     await admin.query(

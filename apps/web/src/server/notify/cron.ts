@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import type { PrismaClient } from "@eyeq/db";
 import { log } from "../observability/log";
 import { report } from "../observability/sentry";
 import type { DispatchResult } from "./dispatch";
@@ -67,4 +68,20 @@ export async function handleCron(
       { status: 500, headers: { "cache-control": "no-store" } },
     );
   }
+}
+
+/**
+ * At most one report per key per clock hour, across runs and replicas: the first caller
+ * in an hour inserts the rate_limits row and may report; every other caller conflicts.
+ * The dispatcher runs every 5 minutes, so an unset setting would otherwise be 288 Sentry
+ * events a day.
+ */
+export async function oncePerHour(db: PrismaClient, key: string): Promise<boolean> {
+  const rows = await db.$queryRaw<{ ok: number }[]>`
+    insert into rate_limits (key, window_start, count) values (${`report:${key}`}, date_trunc('hour', now()), 1)
+    on conflict (key, window_start) do nothing
+    returning 1 as ok`;
+  await db.$executeRaw`
+    delete from rate_limits where key = ${`report:${key}`} and window_start < now() - interval '2 hours'`;
+  return rows.length > 0;
 }
