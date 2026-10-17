@@ -298,9 +298,11 @@ async function newAthleteJourney(page: Page, phone: string, checkRule5: boolean)
   await expect(cvf).toContainText("Pro · or ₹");
   await cvf.click();
   await page.waitForURL(/\/app\/programs\/cricket-vision-foundations$/);
+  // Phase 7: a locked program is bought once or opened with Pro.
   await expect(
-    page.getByRole("button", { name: /Unlock program · payments open/ }).filter({ visible: true }),
-  ).toBeDisabled();
+    page.getByRole("button", { name: "Unlock program" }).filter({ visible: true }),
+  ).toBeEnabled();
+  await expect(page.getByRole("link", { name: "See Pro" }).filter({ visible: true })).toBeVisible();
   await page.goto("/app/programs/eye-health-reset");
   await expect(
     page.getByRole("link", { name: "Continue · day 2" }).filter({ visible: true }),

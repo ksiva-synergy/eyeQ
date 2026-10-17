@@ -409,9 +409,15 @@ function Locked({ data }: { data: PlayData }) {
           <Icon name="lock" size={20} />
           {t("player.locked")}
         </span>
-        <p className="type-body-s text-text-secondary">{t("player.lockedBody")}</p>
+        <p className="type-body-s text-text-secondary">{t("pay.locked.session")}</p>
         <Button
-          variant="primary"
+          variant="cta"
+          href={`/app/upgrade?from=program${data.programSlug ? `&program=${data.programSlug}` : ""}`}
+        >
+          {t("pay.locked.seePro")}
+        </Button>
+        <Button
+          variant="ghost"
           href={data.programSlug ? `/app/programs/${data.programSlug}` : "/app"}
         >
           {t("common.back")}

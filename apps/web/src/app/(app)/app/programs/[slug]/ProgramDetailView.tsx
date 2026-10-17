@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { ProgramDetail } from "@eyeq/api-contract";
 import { formatNumber, formatRupees, t, type MessageKey } from "@eyeq/i18n";
 import { Button, Card, Chip, Icon, cx } from "@eyeq/ui/web";
+import { BuyButton } from "@/components/purchase/BuyButton";
 import { NextLink } from "@/components/shell/NextLink";
 import { ProgramArt } from "@/components/programs/ProgramArt";
 import { sportKey } from "@/app/onboarding/options";
@@ -257,18 +258,25 @@ function Actions({
             )}
             <div className="flex gap-2.5">
               {program.inSubscription && (
-                <span className="flex min-h-[3.25rem] flex-1 items-center justify-center rounded-m border border-border bg-surface-2 px-3 text-center type-body-strong">
-                  {t("program.includedInPro")}
-                </span>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  className="flex-1"
+                  href={`/app/upgrade?program=${program.slug}&from=program`}
+                >
+                  {t("pay.locked.seePro")}
+                </Button>
               )}
-              <Button
-                variant="cta"
-                fullWidth
-                className="flex-[1.4]"
-                disabledReason={t("program.paymentsSoon")}
-              >
-                {t("program.unlock")}
-              </Button>
+              {program.product && (
+                <div className="flex-[1.4]">
+                  <BuyButton
+                    productId={program.product.id}
+                    surface="program"
+                    fullWidth
+                    label={t("program.unlock")}
+                  />
+                </div>
+              )}
             </div>
           </>
         )}

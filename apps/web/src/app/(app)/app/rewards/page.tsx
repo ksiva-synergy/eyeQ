@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@eyeq/ui/web";
 import { asSignedInAthlete } from "@/server/athlete";
 import { getRewards } from "@/server/services/compete";
+import { ppvPrices } from "@/server/services/paywall";
 import { Rewards } from "./Rewards";
 
 /** Rewards (board 12; from the coin chip), rendered on the server from GET /rewards. */
@@ -22,6 +23,15 @@ export default function RewardsPage() {
 }
 
 async function Load() {
-  const data = await asSignedInAthlete("/app/rewards", (tx) => getRewards(tx));
-  return <Rewards data={data} />;
+  const { data, prices } = await asSignedInAthlete("/app/rewards", async (tx) => {
+    const data = await getRewards(tx);
+    return {
+      data,
+      prices: await ppvPrices(
+        tx,
+        data.unlockableDrills.map((d) => d.id),
+      ),
+    };
+  });
+  return <Rewards data={data} ppv={prices} />;
 }

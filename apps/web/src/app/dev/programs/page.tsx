@@ -56,6 +56,7 @@ async function Preview({
           athleteLevel={7}
           sport="cricket"
           whatsapp="https://wa.me/910000000000"
+          hasPro={!free}
         />
       )}
     </AthleteShell>

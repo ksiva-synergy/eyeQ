@@ -3,6 +3,7 @@ import { Skeleton } from "@eyeq/ui/web";
 import { asSignedInAthlete } from "@/server/athlete";
 import { env } from "@/server/env";
 import { listPrograms } from "@/server/services/content";
+import { getEntitlements } from "@/server/services/daily";
 import { getMe } from "@/server/services/me";
 import { Catalogue } from "./Catalogue";
 
@@ -25,11 +26,20 @@ export default function ProgramsPage() {
 }
 
 async function Load() {
-  const { programs, level, sport } = await asSignedInAthlete(
+  const { programs, level, sport, hasPro } = await asSignedInAthlete(
     "/app/programs",
     async (tx, session) => {
-      const [{ programs }, me] = await Promise.all([listPrograms(tx), getMe(tx, session)]);
-      return { programs, level: me.stats.level, sport: me.sport };
+      const [{ programs }, me, { entitlements }] = await Promise.all([
+        listPrograms(tx),
+        getMe(tx, session),
+        getEntitlements(tx),
+      ]);
+      return {
+        programs,
+        level: me.stats.level,
+        sport: me.sport,
+        hasPro: entitlements.some((e) => e.scope === "subscription"),
+      };
     },
   );
   return (
@@ -38,6 +48,7 @@ async function Load() {
       athleteLevel={level}
       sport={sport}
       whatsapp={env.supportWhatsappUrl() ?? null}
+      hasPro={hasPro}
     />
   );
 }

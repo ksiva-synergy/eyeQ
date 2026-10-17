@@ -86,16 +86,27 @@ for (const [width, height] of [
       await axe(page);
     });
 
-    test("locked detail says what opens it and that payments come later", async ({ page }) => {
+    test("locked detail sells the program once and links to Pro (phase 7)", async ({ page }) => {
       await page.goto("/dev/programs?view=detail&as=free");
-      await expect(page.getByText("₹1,299").filter({ visible: true })).toBeVisible();
-      await expect(page.getByText("Included in Pro").filter({ visible: true })).toBeVisible();
+      await expect(page.getByText("₹1,299").filter({ visible: true }).first()).toBeVisible();
       await expect(
-        page
-          .getByRole("button", { name: /Unlock program · payments open/ })
-          .filter({ visible: true }),
-      ).toBeDisabled();
+        page.getByRole("button", { name: "Unlock program" }).filter({ visible: true }),
+      ).toBeEnabled();
+      await expect(
+        page.getByRole("link", { name: "See Pro" }).filter({ visible: true }),
+      ).toHaveAttribute("href", "/app/upgrade?program=reaction-edge&from=program");
+      expect(await smallTargets(page, "main")).toEqual([]);
       await axe(page);
+    });
+
+    test("the catalogue offers Go Pro only without Pro", async ({ page }) => {
+      await page.goto("/dev/programs?as=free");
+      await expect(page.getByRole("link", { name: "Go Pro" })).toHaveAttribute(
+        "href",
+        "/app/upgrade?from=upgrade",
+      );
+      await page.goto("/dev/programs");
+      await expect(page.getByRole("link", { name: "Go Pro" })).toHaveCount(0);
     });
 
     test("nothing clips or overlaps at 200 % text", async ({ page }) => {

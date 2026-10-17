@@ -8,8 +8,9 @@ import type {
   RewardsResponse,
   UnlockableDrill,
 } from "@eyeq/api-contract";
-import { formatNumber, t, type MessageKey } from "@eyeq/i18n";
+import { formatNumber, formatRupees, t, type MessageKey } from "@eyeq/i18n";
 import { Button, Card, Chip, Icon, Sheet, Toast, cx } from "@eyeq/ui/web";
+import { BuyButton } from "@/components/purchase/BuyButton";
 import { v1 } from "@/lib/athlete-api";
 import { clientId } from "@/lib/client-id";
 
@@ -27,7 +28,14 @@ const ERRORS: Record<string, MessageKey> = {
  * (phase 10). Coins are never sold (D4). Every balance shown after a spend is the
  * server's answer, never a sum made here (rule 1); a retry reuses its idempotency key.
  */
-export function Rewards({ data }: { data: RewardsResponse }) {
+export function Rewards({
+  data,
+  ppv = {},
+}: {
+  data: RewardsResponse;
+  /** Drills also sold on their own: pay once with Razorpay instead of coins (phase 7). */
+  ppv?: Record<string, { productId: string; pricePaise: number }>;
+}) {
   const router = useRouter();
   const [coins, setCoins] = useState(data.coins);
   const [held, setHeld] = useState(data.freezesHeld);
@@ -170,6 +178,16 @@ export function Rewards({ data }: { data: RewardsResponse }) {
                 >
                   {t("rewards.drills.unlock", { n: d.coinPrice })}
                 </Button>
+                {ppv[d.id] && (
+                  <BuyButton
+                    productId={ppv[d.id]!.productId}
+                    drillId={d.id}
+                    surface="drill"
+                    variant="ghost"
+                    size="m"
+                    label={t("pay.locked.buyDrill", { price: formatRupees(ppv[d.id]!.pricePaise) })}
+                  />
+                )}
               </li>
             ))}
           </ul>
