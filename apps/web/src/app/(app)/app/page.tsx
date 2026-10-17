@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { asSignedInAthlete, configNumbers } from "@/server/athlete";
 import { getHome } from "@/server/services/daily";
 import { getMe } from "@/server/services/me";
+import { resetPaywallDue } from "@/server/services/paywall";
 import { unreadCount } from "@/server/services/notify";
 import { Today } from "./today/Today";
 import { TodaySkeleton } from "./today/TodaySkeleton";
@@ -21,12 +22,19 @@ export default function TodayPage() {
 }
 
 async function Load() {
-  const { me, home, cfg, unread } = await asSignedInAthlete("/app", async (tx, session) => ({
-    me: await getMe(tx, session),
-    home: await getHome(tx),
-    cfg: await configNumbers(tx, ["streak.multiplier_days", "streak.freeze_coin_price"]),
-    unread: await unreadCount(tx, session.userId),
-  }));
+  const { me, home, cfg, unread, resetDone } = await asSignedInAthlete(
+    "/app",
+    async (tx, session) => {
+      const home = await getHome(tx);
+      return {
+        me: await getMe(tx, session),
+        home,
+        cfg: await configNumbers(tx, ["streak.multiplier_days", "streak.freeze_coin_price"]),
+        unread: await unreadCount(tx, session.userId),
+        resetDone: await resetPaywallDue(tx, session.userId, home.localDate),
+      };
+    },
+  );
   // Onboarding (boards 1c to 1e) comes before Today.
   if (!me.onboardedAt) redirect("/onboarding/profile");
   return (
@@ -35,6 +43,7 @@ async function Load() {
       multiplierDays={cfg["streak.multiplier_days"]}
       freezePrice={cfg["streak.freeze_coin_price"]}
       unread={unread}
+      resetPaywall={resetDone}
     />
   );
 }

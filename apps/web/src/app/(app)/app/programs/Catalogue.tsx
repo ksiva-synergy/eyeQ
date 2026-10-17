@@ -21,11 +21,14 @@ export function Catalogue({
   athleteLevel,
   sport: mySport,
   whatsapp,
+  hasPro = false,
 }: {
   programs: ProgramCard[];
   athleteLevel: number;
   sport: string | null;
   whatsapp: string | null;
+  /** Without Pro, board 10a's "Go Pro" opens the paywall (phase 7). */
+  hasPro?: boolean;
 }) {
   const [sport, setSport] = useState<string | null>(null);
   const [group, setGroup] = useState<string | null>(null);
@@ -52,9 +55,16 @@ export function Catalogue({
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      <h1 className="font-display text-[2.25rem] leading-none font-bold uppercase">
-        {t("programs.title")}
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-[2.25rem] leading-none font-bold uppercase">
+          {t("programs.title")}
+        </h1>
+        {!hasPro && (
+          <Button variant="primary" size="m" href="/app/upgrade?from=upgrade">
+            {t("pay.goPro")}
+          </Button>
+        )}
+      </div>
 
       <div className="flex flex-col gap-2.5">
         <Filter label={t("programs.sport")}>

@@ -10,6 +10,7 @@ import {
   type MeResponse,
   type PatchMeRequest,
   type ProgramCard,
+  type PurchasesResponse,
 } from "@eyeq/api-contract";
 import { formatDate, formatNumber, t, type MessageKey } from "@eyeq/i18n";
 import {
@@ -27,6 +28,7 @@ import {
 } from "@eyeq/ui/web";
 import Link from "next/link";
 import { PushOptIn } from "@/components/notify/PushOptIn";
+import { Payments } from "@/components/purchase/Payments";
 import { NextLink } from "@/components/shell/NextLink";
 import { SignOutButton } from "@/components/shell/SignOutButton";
 import { GOALS, SPORTS, sportKey } from "@/app/onboarding/options";
@@ -41,6 +43,8 @@ type Props = {
   level: LevelProgress;
   badges: number;
   whatsapp: string | null;
+  /** Payments and the subscription (phase 7); absent in previews without them. */
+  purchases?: PurchasesResponse;
 };
 
 function initials(name: string): string {
@@ -61,6 +65,7 @@ export function Account({
   level,
   badges,
   whatsapp,
+  purchases,
 }: Props) {
   const router = useRouter();
   const [me, setMe] = useState(initial);
@@ -133,6 +138,7 @@ export function Account({
 
       <Group title={t("account.purchases")}>
         <Purchases entitlements={entitlements} programs={programs} timeZone={me.timezone} />
+        {purchases && <Payments data={purchases} timeZone={me.timezone} />}
       </Group>
 
       <Group title={t("account.notifications")}>
