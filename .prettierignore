@@ -9,3 +9,6 @@ coverage
 playwright-report
 test-results
 packages/db/src/generated
+apps/mobile/android
+apps/mobile/ios
+apps/mobile/.expo

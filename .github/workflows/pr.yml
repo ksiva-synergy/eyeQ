@@ -94,6 +94,37 @@ jobs:
       - name: Clone, install, copy .env.example, pnpm dev, request pages
         run: scripts/clean-clone-check.sh "$GITHUB_SHA"
 
+  # apps/mobile's typecheck, lint and unit tests run in `checks` through turbo; this job
+  # checks what only Expo can: versions for the SDK, expo-doctor, and that Metro bundles
+  # both platforms from the monorepo (plan phase 8).
+  mobile:
+    name: Mobile app (Expo SDK versions, expo-doctor, Android and iOS bundles)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      CI: "1"
+      EXPO_NO_TELEMETRY: "1"
+      APP_VARIANT: staging
+      EXPO_PUBLIC_API_URL: https://eyeq-nu.vercel.app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - name: Dependencies match Expo SDK 58
+        run: pnpm exec expo install --check
+      - name: expo-doctor
+        run: pnpm doctor
+      - name: Metro bundles Android and iOS
+        run: pnpm bundle:check
+
   supabase:
     name: Supabase stack (Postgres, Auth, Data API), sign-in end to end, anon-key lockout
     runs-on: ubuntu-24.04
