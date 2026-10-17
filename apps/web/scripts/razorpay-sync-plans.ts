@@ -7,7 +7,9 @@
  *   pnpm razorpay:sync-plans --apply   do it
  *
  * Needs RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET and the database (DIRECT_URL or DATABASE_URL;
- * not the transaction pooler). Each relink writes an audit_log row.
+ * not the transaction pooler). Each relink writes an audit_log row. For staging, run it
+ * from GitHub Actions › "Razorpay plan sync (staging)" (.github/workflows/razorpay-sync-plans.yml),
+ * which holds the secrets; locally, against the local database.
  */
 import pg from "pg";
 import { targetFor } from "@eyeq/db/target";

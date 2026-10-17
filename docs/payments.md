@@ -36,14 +36,13 @@ Redeploy after setting them. Without the keys the purchase routes answer 503 `un
 
 ### Razorpay plans
 
-Subscriptions need a Razorpay Plan per subscription product. From a machine with the test keys and the staging database URL in the environment (the session pooler or direct URL, not port 6543):
+Subscriptions need a Razorpay Plan per subscription product. They are made from GitHub Actions, so no laptop holds the database URL or the key secret (as with the demo refresh):
 
-```sh
-RAZORPAY_KEY_ID=rzp_test_… RAZORPAY_KEY_SECRET=… DIRECT_URL=… pnpm razorpay:sync-plans          # shows what it would do
-RAZORPAY_KEY_ID=rzp_test_… RAZORPAY_KEY_SECRET=… DIRECT_URL=… pnpm razorpay:sync-plans --apply  # creates and links
-```
+1. On the repository's **staging** environment (Settings, Environments, staging), add the secrets `RAZORPAY_KEY_ID` (`rzp_test_…`) and `RAZORPAY_KEY_SECRET`. `STAGING_DIRECT_URL` is already there for Migrate.
+2. Open Actions, then **Razorpay plan sync (staging)**, then **Run workflow** on `main`, with `apply` unticked. The log lists what it would create or link.
+3. Run it again with `apply` ticked.
 
-It creates one plan per active subscription product: monthly; monthly with interval 3 for quarterly; yearly. It writes each plan's id to `products.razorpay_plan_id` and records an `audit_log` row. Running it again creates nothing. A changed price makes a new plan. It refuses live keys.
+It creates one plan per active subscription product: monthly; monthly with interval 3 for quarterly; yearly. It writes each plan's id to `products.razorpay_plan_id` and records an `audit_log` row. Running it again creates nothing. A changed price makes a new plan. It refuses live keys and runs only from `main`, never alongside a migration.
 
 Until it has run, the paywall shows "Pro plans open soon" and only one-time purchases work.
 
