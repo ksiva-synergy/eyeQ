@@ -80,6 +80,37 @@ describe("GET /api/cron/dispatch refuses any call without the cron secret", () =
     });
     expect(res.status).toBe(500);
   });
+
+  describe("?fail=1 forces a failure only where allowed, and only with the secret", () => {
+    const forced = (auth: string | null, allowForcedFailure: boolean | undefined) => {
+      let ran = false;
+      const req = new Request("http://test/api/cron/dispatch?fail=1", {
+        headers: auth === null ? {} : { authorization: auth },
+      });
+      return handleCron(req, {
+        secret: "s3cret",
+        allowForcedFailure,
+        run: async () => {
+          ran = true;
+          return empty;
+        },
+      }).then((res) => ({ status: res.status, ran }));
+    };
+
+    it("allowed and authorised: 500 without running the dispatcher", async () => {
+      expect(await forced("Bearer s3cret", true)).toEqual({ status: 500, ran: false });
+    });
+
+    it("without the secret it is refused like any other call", async () => {
+      expect(await forced(null, true)).toEqual({ status: 401, ran: false });
+      expect(await forced("Bearer wrong", true)).toEqual({ status: 401, ran: false });
+    });
+
+    it("not allowed (production): the flag is ignored and the dispatcher runs", async () => {
+      expect(await forced("Bearer s3cret", false)).toEqual({ status: 200, ran: true });
+      expect(await forced("Bearer s3cret", undefined)).toEqual({ status: 200, ran: true });
+    });
+  });
 });
 
 /** A web push subscription a real browser could have made: a P-256 key and an auth secret. */
