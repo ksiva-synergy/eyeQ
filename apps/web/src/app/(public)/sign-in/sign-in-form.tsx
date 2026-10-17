@@ -77,7 +77,7 @@ function shown(target: Target): string {
 }
 
 /** Board 1b: phone or email, then the 6-digit code. Signing in is step 1 of onboarding. */
-export function SignInForm() {
+export function SignInForm({ google = false }: { google?: boolean }) {
   const router = useRouter();
   const params = useSearchParams();
   const [step, setStep] = useState<Step>({ kind: "id" });
@@ -275,14 +275,18 @@ export function SignInForm() {
           required
         />
       </form>
-      <div className="flex items-center gap-3" aria-hidden="true">
-        <span className="h-px flex-1 bg-border" />
-        <span className="type-label text-text-muted">{t("auth.or")}</span>
-        <span className="h-px flex-1 bg-border" />
-      </div>
-      <Button variant="ghost" href="/auth/google" fullWidth>
-        {t("auth.google")}
-      </Button>
+      {google && (
+        <>
+          <div className="flex items-center gap-3" aria-hidden="true">
+            <span className="h-px flex-1 bg-border" />
+            <span className="type-label text-text-muted">{t("auth.or")}</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <Button variant="ghost" href="/auth/google" fullWidth>
+            {t("auth.google")}
+          </Button>
+        </>
+      )}
       <p className="flex gap-2.5 rounded-m border border-border bg-surface-1 px-3.5 py-3 type-caption text-text-secondary">
         <Icon name="alert" size={18} className="shrink-0 text-text-muted" />
         {t("auth.minor")}

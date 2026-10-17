@@ -8,6 +8,8 @@ import { log } from "@/server/observability/log";
 export async function GET(req: NextRequest): Promise<Response> {
   const origin = env.appUrl() ?? req.nextUrl.origin;
   if (!env.supabase()) return NextResponse.redirect(new URL("/sign-in?error=unavailable", origin));
+  // Off until the Google OAuth client exists in this Supabase project (AUTH_GOOGLE_ENABLED).
+  if (!env.googleSignIn()) return NextResponse.redirect(new URL("/sign-in", origin));
   const { data, error } = await supabaseFor(await nextJar()).auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: `${origin}/auth/callback`, skipBrowserRedirect: true },
