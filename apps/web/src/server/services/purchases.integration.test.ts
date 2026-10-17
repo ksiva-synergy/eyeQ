@@ -306,7 +306,7 @@ describeDb("purchases", () => {
     );
     expect(o.amount).toBe(9900);
     const payment = rzp.pay(o.orderId, 9900);
-    await refreshRoute(
+    const refreshed = await refreshRoute(
       req(u, {
         kind: "order",
         orderId: o.orderId,
@@ -314,6 +314,12 @@ describeDb("purchases", () => {
         signature: signHex(KEY_SECRET, `${o.orderId}|${payment.id}`),
       }),
     );
+    expect(purchaseRefreshResponseSchema.parse(await refreshed.json())).toEqual({
+      status: "granted",
+      scope: "drill",
+      scopeId: drill,
+      next: "/app",
+    });
     expect(await access(u, "drill", drill)).toBe(true);
   });
 

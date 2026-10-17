@@ -270,9 +270,9 @@ export async function createRazorpaySubscription(
   };
 }
 
-function nextFor(scope: string, scopeId: string | null, slug: string | null): string {
+/** A program opens on its page; Pro and a single drill return to Today (the page that sold a drill reloads itself). */
+function nextFor(scope: string, slug: string | null): string {
   if (scope === "program" && slug) return `/app/programs/${slug}`;
-  if (scope === "drill" && scopeId) return `/app/session/${scopeId}`;
   return "/app";
 }
 
@@ -372,7 +372,7 @@ export async function refreshPurchase(
     status: "granted",
     scope: checkout.scope as "subscription" | "program" | "drill",
     scopeId: checkout.scope_id,
-    next: nextFor(checkout.scope, checkout.scope_id, program?.slug ?? null),
+    next: nextFor(checkout.scope, program?.slug ?? null),
   };
 }
 
