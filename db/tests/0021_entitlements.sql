@@ -13,7 +13,7 @@ begin
   return next is((select count(*) from entitlement_events where entitlement_id = s1.id), 2::bigint, 'granted + extended');
   perform end_entitlement(s1.id, 'refund', now(), null, null, true);
   return next is((select status from entitlements where id = s1.id), 'ended', 'ended on refund');
-  return next is((select change from entitlement_events where entitlement_id = s1.id order by at desc limit 1), 'revoked', 'the event says revoked');
+  return next is((select change from entitlement_events where entitlement_id = s1.id order by at desc, seq desc limit 1), 'revoked', 'the event says revoked');
   return next is(has_active_subscription(u), false, 'no subscription after the refund');
   s3 := grant_entitlement(u, 'subscription', null, 'play', now() - interval '40 days', now() - interval '1 hour', 'sub_old');
   return next is(entitlement_expiry(), 1, 'the sweep ends the expired one');

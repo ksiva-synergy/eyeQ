@@ -177,6 +177,8 @@ export const compete = {
   "admin.challenges.joined": "{n} joined",
   "admin.challenges.edit": "Edit",
 
+  "admin.athletes.showRetired": "Show retired demo athletes",
+
   // ---- shared entry points
   "today.coinsLink": "{n} coins, open rewards",
   "account.badgesLink": "Trophy case, {n} badges",
