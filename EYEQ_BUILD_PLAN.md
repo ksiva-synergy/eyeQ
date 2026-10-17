@@ -617,10 +617,12 @@ Every screen in this phase is built phone-width first to match its board, then a
 
 ### Phase 8: Mobile app
 
-- [ ] `apps/mobile` with Expo Router, a development build (not Expo Go), EAS profiles for development, staging and production, and OTA channels. Minimum OS: Android 9 (API 28) and iOS 16.
+Milestones, one pull request each: 8a scaffold and sign-in, 8b components and tab shell, 8c the daily loop, 8d the other boards, 8e offline queue, 8f states, Sentry, PostHog and the EAS Update pipeline, 8g acceptance. Arcade (`EYEQ_ARCADE_BUILD_PLAN.md`) is a separate track, not part of this phase.
+
+- [x] `apps/mobile` with Expo Router, a development build (not Expo Go), EAS profiles for development, staging and production, and OTA channels. Minimum OS: Android 9 (API 28) and iOS 16.4, SDK 58's floor (8a; DECISIONS).
 - [ ] Native components for the full component list; fonts; both themes; the five motion moments with Reanimated and haptics.
 - [ ] Google OAuth client configured in Supabase (staging and production) and Google sign-in verified on staging. Phase 2's acceptance assumed it and it was never done; until then web hides "Continue with Google" (`AUTH_GOOGLE_ENABLED` off). Needed before Phase 11, and before native Google sign-in below.
-- [ ] Supabase Auth in the app: phone OTP and native Google sign-in; session kept in secure storage; the access token sent as a bearer token to `/api/v1`.
+- [ ] Supabase Auth in the app: phone OTP and native Google sign-in; session kept in secure storage; the access token sent as a bearer token to `/api/v1`. Phone (and email) OTP, secure storage and the bearer token are done in 8a, through `/api/auth/otp` and `/api/auth/token` (DECISIONS); native Google waits for the item above.
 - [ ] All boards 1a to 14, with the tab bar (Home, Train, Compete, Progress, Profile), using `packages/api-contract`. The web app already has every one of these; port behaviour and copy from it so the two do not drift. The paywall is built without the payment-method row; purchase buttons are wired in phase 9.
 - [ ] Drill player: `react-native-youtube-iframe` and a Drive WebView behind the same provider interface.
 - [ ] Offline: a persisted queue of completion events (`client_event_id`, device `completed_at` with offset, score, watch percentage) replayed in order on reconnect. Offline, the summary shows a preview from `packages/game` marked as pending and replaces it with the server result on sync.
