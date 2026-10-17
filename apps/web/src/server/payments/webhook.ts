@@ -10,8 +10,11 @@ import { verifyWebhookSignature, type Razorpay } from "./razorpay";
  *      line and a Sentry event, and nothing is stored;
  *   2. store the event in payment_events, unique on (provider, x-razorpay-event-id), and
  *      answer 2xx only once it is stored (a failed insert is a 500, so Razorpay retries);
- *   3. process it in the same request. A failure there is recorded on the row and still
- *      answered 200: the event is safe, and the sweep retries it.
+ *   3. answer 200 as soon as that row is committed, and process after the response
+ *      (Next's after(), Vercel's waitUntil). Processing re-fetches from Razorpay's API, and
+ *      Razorpay counts a reply slower than 5 s as a failure (24 hours of failures disable
+ *      the webhook), so the reply never waits on it. A failure is recorded on the row; the
+ *      5-minute sweep retries anything left unprocessed.
  * A repeat delivery of a processed event is a 200 that changes nothing.
  */
 export interface WebhookDeps {
@@ -20,6 +23,8 @@ export interface WebhookDeps {
   razorpay: Razorpay | undefined;
   report: (e: unknown, ctx: Record<string, unknown>) => void;
   onGrant: (r: GrantResult) => Promise<void>;
+  /** Runs work after the response is sent: next/server's after() in the route. */
+  defer: (work: () => Promise<void>) => void;
   now?: () => Date;
 }
 
@@ -74,23 +79,22 @@ export async function handleRazorpayWebhook(req: Request, deps: WebhookDeps): Pr
 
   if (!deps.razorpay) {
     log("error", "razorpay.keys_missing", { eventId: stored.id });
-    return json({ ok: true, processed: false });
+    return json({ ok: true, stored: true });
   }
-  const out = await processEvent(
-    { db: deps.db, razorpay: deps.razorpay, now: deps.now },
-    stored.id,
-    "webhook",
-  );
-  if (out.status === "processed") {
-    for (const r of out.results) {
-      if (!r.granted) continue;
-      try {
-        await deps.onGrant(r);
-      } catch (e) {
-        log("warn", "razorpay.on_grant_failed", { eventId: stored.id, error: String(e) });
+  const razorpay = deps.razorpay;
+  deps.defer(async () => {
+    const out = await processEvent({ db: deps.db, razorpay, now: deps.now }, stored.id, "webhook");
+    if (out.status === "processed") {
+      for (const r of out.results) {
+        if (!r.granted) continue;
+        try {
+          await deps.onGrant(r);
+        } catch (e) {
+          log("warn", "razorpay.on_grant_failed", { eventId: stored.id, error: String(e) });
+        }
       }
     }
-  }
-  if (out.status === "failed") deps.report(new Error(out.error), { eventId: stored.id, type });
-  return json({ ok: true, processed: out.status === "processed" });
+    if (out.status === "failed") deps.report(new Error(out.error), { eventId: stored.id, type });
+  });
+  return json({ ok: true, stored: true });
 }

@@ -8,7 +8,7 @@ The rules this follows: the server decides what a payment grants (ground rule 1)
 
 1. **Checkout.** The browser names a product (and, for a pay-per-view drill, the drill). The server prices it from the `products` row, creates a Razorpay order or subscription, and records a `checkouts` row. Razorpay Checkout opens, limited to UPI, card and net banking.
 2. **Refresh.** When Checkout's handler fires, the browser posts its response to `POST /api/v1/purchases/refresh`. The server verifies the signature against the id it stored, fetches the payment from Razorpay, and if it is captured, grants. This is what makes a purchase open within seconds.
-3. **Webhook.** `POST /api/webhooks/razorpay` verifies `X-Razorpay-Signature` over the raw body, stores the event in `payment_events` (once per `x-razorpay-event-id`), and processes it in the same request. Whichever of the refresh and the webhook arrives first grants; the other changes nothing.
+3. **Webhook.** `POST /api/webhooks/razorpay` verifies `X-Razorpay-Signature` over the raw body, stores the event in `payment_events` (once per `x-razorpay-event-id`), answers 200 as soon as it is stored, and processes it after the response (Next's `after()`), since processing re-fetches from Razorpay and Razorpay counts a reply slower than 5 s as a failure. Whichever of the refresh and the webhook arrives first grants; the other changes nothing.
 4. **Subscriptions.** On every `subscription.*` event the processor fetches the subscription from Razorpay and sets the entitlement from that state, so events arriving out of order cannot move it backwards:
    - `active`: Pro runs to `current_end`.
    - `pending` (a charge failing while Razorpay retries): grace for `payments.subscription_grace_days` (3) past it.
