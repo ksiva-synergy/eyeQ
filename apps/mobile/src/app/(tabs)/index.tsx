@@ -42,7 +42,7 @@ export default function Me() {
           </View>
         ) : (
           <View testID="me-card" style={s.card}>
-            <Text style={s.name}>{me.data.displayName}</Text>
+            {me.data.displayName ? <Text style={s.name}>{me.data.displayName}</Text> : null}
             {me.data.phone ? <Text style={s.secondary}>{me.data.phone}</Text> : null}
             {me.data.email ? <Text style={s.secondary}>{me.data.email}</Text> : null}
             <View style={s.stats}>

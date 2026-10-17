@@ -29,8 +29,9 @@ function RootNavigator() {
   const { status } = useAuth();
   const colors = useColors();
   const scheme = useColorScheme();
-  if (status === "loading") return null;
-  SplashScreen.hide();
+  // The navigator is always mounted (the router resolves the start URL against it); the
+  // splash screen covers it until the stored session has been read.
+  if (status !== "loading") SplashScreen.hide();
   return (
     <>
       <StatusBar style={scheme === "light" ? "dark" : "light"} />
@@ -40,7 +41,7 @@ function RootNavigator() {
         <Stack.Protected guard={status === "signedIn"}>
           <Stack.Screen name="(tabs)" />
         </Stack.Protected>
-        <Stack.Protected guard={status === "signedOut"}>
+        <Stack.Protected guard={status !== "signedIn"}>
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
       </Stack>
