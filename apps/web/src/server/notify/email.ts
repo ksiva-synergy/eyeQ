@@ -6,7 +6,8 @@ export type Fetch = typeof fetch;
  * Email through Resend's HTTP API (POST /emails). The address travels in the row's data
  * (a receipt carries the checkout email, phase 7); nothing looks it up here. The row id is
  * the Idempotency-Key, so a retried row is not sent twice within Resend's 24 hours.
- * Wired now; first used for receipts in phase 7.
+ * Used for receipts (phase 7). Without RESEND_API_KEY and EMAIL_FROM a row is skipped
+ * with `email_not_configured`.
  */
 export function resendChannel(
   cfg: { key: string; from: string } | undefined,
@@ -16,7 +17,8 @@ export function resendChannel(
     async send(n: Claimed, text): Promise<SendResult> {
       const to = typeof n.data["email"] === "string" ? (n.data["email"] as string) : null;
       if (!to) return { outcome: "skipped", error: "no_address" };
-      if (!cfg) return { outcome: "retry", error: "email_not_configured" };
+      // Without Resend, a receipt is skipped and recorded, not retried (phase 7).
+      if (!cfg) return { outcome: "skipped", error: "email_not_configured" };
       let res: Response;
       try {
         res = await fetcher("https://api.resend.com/emails", {

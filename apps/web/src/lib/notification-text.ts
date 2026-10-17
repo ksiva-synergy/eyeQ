@@ -1,5 +1,5 @@
 import type { NotificationKind } from "@eyeq/api-contract";
-import { formatShortWeekdayIn, formatTimeIn, t } from "@eyeq/i18n";
+import { formatDate, formatRupees, formatShortWeekdayIn, formatTimeIn, t } from "@eyeq/i18n";
 
 export type NotificationText = { title: string; body: string; url: string };
 
@@ -54,11 +54,24 @@ export function notificationText(
         body: t("notify.overtaken.body"),
         url: "/app/compete",
       };
-    case "receipt":
+    case "receipt": {
+      // Queued with the grant (0023): what was bought, the amount in paise, the payment id.
+      const amount =
+        typeof data["amount_paise"] === "number" ? (data["amount_paise"] as number) : null;
+      const paid = str("paid_at");
       return {
         title: t("notify.receipt.title"),
-        body: t("notify.receipt.body"),
+        body:
+          str("product_title") && amount !== null
+            ? t("notify.receipt.detail", {
+                product: str("product_title"),
+                price: formatRupees(amount),
+                date: paid ? formatDate(paid, timeZone) : "",
+                payment: str("payment_id"),
+              })
+            : t("notify.receipt.body"),
         url: "/app/account",
       };
+    }
   }
 }

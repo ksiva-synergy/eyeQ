@@ -292,6 +292,24 @@ describeDb("the dispatcher", () => {
     });
   });
 
+  it("without Resend configured a receipt is skipped and recorded, not retried", async () => {
+    const u = await makeAthlete(admin, { name: "No Resend" });
+    const row = await queue(
+      u,
+      "receipt",
+      "unconfigured",
+      JSON.stringify({ email: "b@example.com" }),
+    );
+    await dispatch({
+      db: service,
+      channels: { push: webPushChannel(undefined), email: resendChannel(undefined) },
+    });
+    expect(await status(row)).toMatchObject({
+      status: "skipped",
+      last_error: "email_not_configured",
+    });
+  });
+
   it("web push is encrypted and VAPID-signed: the request the push service receives", () => {
     const keys = webpush.generateVAPIDKeys();
     const sub = fakeSubscription(`https://fcm.googleapis.com/fcm/send/${tag}`);

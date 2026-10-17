@@ -67,6 +67,10 @@ export const pay = {
   "pay.error.script": "Checkout could not load. Check your connection and try again.",
   "pay.error.generic": "Something went wrong. Try again.",
 
+  // ---- the receipt email (Resend, from the grant)
+  "notify.receipt.detail":
+    "Thanks for your purchase.\n\n{product}\n{price}, including GST · {date}\nPayment reference: {payment}\n\nIt is open in the app now, on every device you sign in on. Your GST tax invoice comes separately from Razorpay. Training content, not medical advice or an eye exam.",
+
   // ---- the day-4 paywall (after the 3-Day Reset)
   "pay.reset.title": "Your Reset is done",
   "pay.reset.body":
@@ -102,6 +106,19 @@ export const pay = {
   "account.pay.receiptEmail": "Receipts go to {email}",
   "account.pay.invoice": "Tax invoices come from Razorpay by email.",
   "account.pay.mobileNote": "Purchases made in the app are managed in your app store.",
+
+  // ---- admin: payments to review
+  "admin.flags.title": "Payments to review",
+  "admin.flags.none": "Nothing to review.",
+  "admin.flags.partial_refund": "Partial refund · access unchanged",
+  "admin.flags.dispute_opened": "Dispute opened · access unchanged",
+  "admin.flags.dispute_won": "Dispute won",
+  "admin.flags.dispute_lost": "Dispute lost · access ended",
+  "admin.flags.dispute_closed": "Dispute closed",
+  "admin.flags.unmatched_payment": "Payment for no checkout · nothing granted",
+  "admin.flags.amount_mismatch": "Payment for the wrong amount · nothing granted",
+  "admin.flags.resolve": "Mark reviewed",
+  "admin.flags.resolved": "Reviewed",
 
   // ---- admin: the public page's content (board 15, D15)
   "admin.landing.title": "Public page",
