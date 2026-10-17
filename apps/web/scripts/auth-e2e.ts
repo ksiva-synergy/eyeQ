@@ -8,7 +8,7 @@
  * Local also: OTP_HOOK_TEST_PHONE (a number that is NOT a test number, so Supabase calls
  * the Send SMS hook). On staging, OTP_RATE_TEST_PHONE must be a Supabase test number too.
  */
-import { apiErrorSchema, meResponseSchema } from "@eyeq/api-contract";
+import { apiErrorSchema, meResponseSchema, tokenSessionSchema } from "@eyeq/api-contract";
 
 const staging = process.argv.includes("--staging");
 const need = (k: string) => {
@@ -152,6 +152,66 @@ async function main() {
     headers: { authorization: `Bearer ${session.access_token}` },
   });
   check(meBearer.status === 200, "GET /api/v1/me with a bearer token");
+
+  // 4b. The mobile app's own routes (DECISIONS.md, phase 8): code through /api/auth/otp,
+  //     session as JSON from /api/auth/token, bearer to /api/v1, refresh, sign-out.
+  await sleep(1100); // Supabase sends one code a second per phone (max_frequency)
+  const mOtp = await app("/api/auth/otp", {
+    method: "POST",
+    body: JSON.stringify({ phone: TEST_PHONE.replace(/^\+91/, "") }),
+  });
+  check(
+    mOtp.status === 200,
+    "mobile: POST /api/auth/otp with a 10-digit number",
+    await mOtp.clone().text(),
+  );
+  const mTok = await app("/api/auth/token", {
+    method: "POST",
+    body: JSON.stringify({ phone: TEST_PHONE, token: TEST_CODE }),
+  });
+  const mSession = tokenSessionSchema.safeParse(await mTok.clone().json());
+  check(mTok.status === 200 && mSession.success, "mobile: POST /api/auth/token answers a session");
+  check(!cookiesOf(mTok).includes("auth-token"), "mobile: no session cookies are set");
+  if (mSession.success) {
+    const s = mSession.data;
+    const mMe = await app("/api/v1/me", { headers: { authorization: `Bearer ${s.accessToken}` } });
+    const mMeBody = meResponseSchema.safeParse(await mMe.json());
+    check(
+      mMe.status === 200 && mMeBody.success && mMeBody.data.phone === TEST_PHONE,
+      "mobile: GET /api/v1/me with the token's bearer is the test number's profile",
+    );
+    const refreshed = await app("/api/auth/token/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken: s.refreshToken }),
+    });
+    const r = tokenSessionSchema.safeParse(await refreshed.json());
+    check(refreshed.status === 200 && r.success, "mobile: a refresh answers a new session");
+    if (r.success) {
+      const after = await app("/api/v1/me", {
+        headers: { authorization: `Bearer ${r.data.accessToken}` },
+      });
+      check(after.status === 200, "mobile: the refreshed access token works");
+      const out = await app("/api/auth/token/sign-out", {
+        method: "POST",
+        headers: { authorization: `Bearer ${r.data.accessToken}` },
+        body: "{}",
+      });
+      check(out.status === 200, "mobile: POST /api/auth/token/sign-out");
+      const again = await app("/api/auth/token/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refreshToken: r.data.refreshToken }),
+      });
+      check(again.status === 401, "mobile: a signed-out refresh token is refused", again.status);
+    }
+  }
+  const badTok = await app("/api/auth/token", {
+    method: "POST",
+    body: JSON.stringify({
+      phone: TEST_PHONE,
+      token: TEST_CODE === "000000" ? "111111" : "000000",
+    }),
+  });
+  check(badTok.status === 400, "mobile: a wrong code is refused");
 
   // 5. The Send SMS hook: Supabase Auth calls the app, which sends (console) and enforces
   //    the same limit for clients that skip the app and call Supabase directly.

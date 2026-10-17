@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@eyeq/db";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { ApiError } from "../api/errors";
 import { log, maskEmail, maskPhone } from "../observability/log";
 
@@ -69,12 +69,16 @@ export async function requestOtp(
   }
 }
 
-/** Verifies the code; @supabase/ssr writes the session cookies through the client's jar. */
+/**
+ * Verifies the code. On web, @supabase/ssr writes the session cookies through the client's
+ * jar; the mobile route (POST /api/auth/token) passes a client without one and returns the
+ * session itself.
+ */
 export async function verifyOtp(
   target: OtpTarget,
   token: string,
   deps: OtpDeps,
-): Promise<{ userId: string }> {
+): Promise<{ userId: string; session: Session | null }> {
   const { data, error } = await deps.supabase.auth.verifyOtp(
     "phone" in target
       ? { phone: target.phone, token, type: "sms" }
@@ -84,7 +88,7 @@ export async function verifyOtp(
     throw new ApiError(400, "otp_invalid", "That code is not right, or it has expired.");
   }
   await ensureProfile(deps.db, data.user.id, null);
-  return { userId: data.user.id };
+  return { userId: data.user.id, session: data.session };
 }
 
 /** First sign-in: the profile and user_stats rows (migration 0014). */

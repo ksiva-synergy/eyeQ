@@ -1,6 +1,6 @@
 import "server-only";
 import { createServerClient, parseCookieHeader, type CookieOptions } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "../env";
 import { qaGrantFrom, qaSession, qaTokenFrom } from "./qa";
 import { e164, type Session, type SessionVerifier } from "./session";
@@ -29,6 +29,18 @@ export function supabaseFor(jar: CookieJar): SupabaseClient {
       getAll: () => jar.getAll(),
       setAll: (cookies) => jar.setAll(cookies),
     },
+  });
+}
+
+/**
+ * A client that keeps no session and writes no cookies: the mobile token routes, where the
+ * session goes back to the app as JSON (DECISIONS.md, phase 8: mobile sign-in).
+ */
+export function supabaseStateless(): SupabaseClient {
+  const cfg = env.supabase();
+  if (!cfg) throw new AuthNotConfigured();
+  return createClient(cfg.url, cfg.key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }
 

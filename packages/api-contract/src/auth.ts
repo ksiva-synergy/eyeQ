@@ -36,3 +36,21 @@ export const otpVerifySchema = z.union([
   z.strictObject({ email: emailSchema, token: otpCode }),
 ]);
 export type OtpVerify = z.infer<typeof otpVerifySchema>;
+
+/**
+ * POST /api/auth/token: the mobile app's verify. Same body as /api/auth/verify; the
+ * session comes back as JSON instead of cookies, and the app sends `accessToken` as
+ * `Authorization: Bearer …` to /api/v1 (DECISIONS.md, phase 8: mobile sign-in).
+ */
+export const tokenSessionSchema = z.object({
+  userId: z.uuid(),
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  /** Unix seconds when the access token expires. */
+  expiresAt: z.number().int(),
+});
+export type TokenSession = z.infer<typeof tokenSessionSchema>;
+
+/** POST /api/auth/token/refresh */
+export const tokenRefreshRequestSchema = z.strictObject({ refreshToken: z.string().min(1) });
+export type TokenRefreshRequest = z.infer<typeof tokenRefreshRequestSchema>;
