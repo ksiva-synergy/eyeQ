@@ -11,6 +11,8 @@ export const maxDuration = 60;
 export function GET(req: Request) {
   return handleCron(req, {
     secret: env.cronSecret(),
+    // `?fail=1` checks the failure path (500, logs, Sentry) on staging; never in production.
+    allowForcedFailure: env.str("APP_ENV") !== "production",
     run: () => {
       const vapid = env.vapid();
       return dispatch({
