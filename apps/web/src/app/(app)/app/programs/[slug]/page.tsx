@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { inSequence } from "@eyeq/db";
 import { notFound } from "next/navigation";
 import type { ProgramCard } from "@eyeq/api-contract";
 import { Skeleton } from "@eyeq/ui/web";
@@ -30,10 +31,10 @@ async function Load({ params }: { params: Promise<{ slug: string }> }) {
   if (!/^[a-z0-9-]{1,80}$/.test(slug)) notFound();
   const data = await asSignedInAthlete(`/app/programs/${slug}`, async (tx, session) => {
     try {
-      const [program, me, { programs }] = await Promise.all([
-        getProgram(tx, slug),
-        getMe(tx, session),
-        listPrograms(tx),
+      const [program, me, { programs }] = await inSequence([
+        () => getProgram(tx, slug),
+        () => getMe(tx, session),
+        () => listPrograms(tx),
       ]);
       const current: ProgramCard | undefined = programs.find(
         (p) => p.enrollment?.isActive && !p.enrollment.completedAt && p.id !== program.id,

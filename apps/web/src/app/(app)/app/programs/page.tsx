@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { inSequence } from "@eyeq/db";
 import { Skeleton } from "@eyeq/ui/web";
 import { asSignedInAthlete } from "@/server/athlete";
 import { env } from "@/server/env";
@@ -29,10 +30,10 @@ async function Load() {
   const { programs, level, sport, hasPro } = await asSignedInAthlete(
     "/app/programs",
     async (tx, session) => {
-      const [{ programs }, me, { entitlements }] = await Promise.all([
-        listPrograms(tx),
-        getMe(tx, session),
-        getEntitlements(tx),
+      const [{ programs }, me, { entitlements }] = await inSequence([
+        () => listPrograms(tx),
+        () => getMe(tx, session),
+        () => getEntitlements(tx),
       ]);
       return {
         programs,

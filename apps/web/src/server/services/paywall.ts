@@ -1,4 +1,5 @@
 import type { Tx } from "@eyeq/db";
+import { inSequence } from "@eyeq/db";
 import type { PurchaseProduct } from "@eyeq/api-contract";
 import { configNumbers } from "../athlete";
 import { listPurchaseProducts } from "./purchases";
@@ -23,11 +24,11 @@ export async function getPaywall(
   userId: string,
   programSlug: string | null,
 ): Promise<PaywallData> {
-  const [{ products, subscription }, cfg, profile, programsInPro] = await Promise.all([
-    listPurchaseProducts(tx),
-    configNumbers(tx, ["streak.subscriber_freeze_per_week"] as const),
-    tx.profiles.findUnique({ where: { id: userId }, select: { billing_email: true } }),
-    tx.programs.count({ where: { in_subscription: true, status: "published" } }),
+  const [{ products, subscription }, cfg, profile, programsInPro] = await inSequence([
+    () => listPurchaseProducts(tx),
+    () => configNumbers(tx, ["streak.subscriber_freeze_per_week"] as const),
+    () => tx.profiles.findUnique({ where: { id: userId }, select: { billing_email: true } }),
+    () => tx.programs.count({ where: { in_subscription: true, status: "published" } }),
   ]);
   const subs = products.filter((p) => p.kind === "subscription" && p.available);
   const byDays = (d: number) => subs.find((p) => p.durationDays === d);

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { inSequence } from "@eyeq/db";
 import { redirect } from "next/navigation";
 import type { SessionDrill } from "@eyeq/api-contract";
 import { asSignedInAthlete, configNumbers } from "@/server/athlete";
@@ -29,9 +30,9 @@ async function Load({ params }: { params: Promise<{ id: string }> }) {
   const data = await asSignedInAthlete(
     `/app/session/${id}`,
     async (tx): Promise<PlayData | null> => {
-      const [home, cfg] = await Promise.all([
-        getHome(tx),
-        configNumbers(tx, ["streak.late_sync_hours"]),
+      const [home, cfg] = await inSequence([
+        () => getHome(tx),
+        () => configNumbers(tx, ["streak.late_sync_hours"]),
       ]);
       const common = {
         streakEndsAt: home.streak.endsAt,

@@ -7,6 +7,7 @@ export default defineConfig({
     environment: "node",
     fileParallelism: false,
     env: { LOG_SILENT: "1" },
+    setupFiles: ["./test/no-parallel-queries.ts"],
   },
   resolve: {
     alias: {

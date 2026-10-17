@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { inSequence } from "@eyeq/db";
 import { Skeleton } from "@eyeq/ui/web";
 import { asSignedInAthlete } from "@/server/athlete";
 import { env } from "@/server/env";
@@ -28,13 +29,13 @@ export default function AccountPage() {
 
 async function Load() {
   const data = await asSignedInAthlete("/app/account", async (tx, session) => {
-    const [me, { entitlements }, { programs }, progress, badges, purchases] = await Promise.all([
-      getMe(tx, session),
-      getEntitlements(tx),
-      listPrograms(tx),
-      getProgress(tx),
-      tx.user_badges.count({ where: { user_id: session.userId } }),
-      listPurchases(tx, session),
+    const [me, { entitlements }, { programs }, progress, badges, purchases] = await inSequence([
+      () => getMe(tx, session),
+      () => getEntitlements(tx),
+      () => listPrograms(tx),
+      () => getProgress(tx),
+      () => tx.user_badges.count({ where: { user_id: session.userId } }),
+      () => listPurchases(tx, session),
     ]);
     return {
       me,
