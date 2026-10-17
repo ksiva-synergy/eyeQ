@@ -1,11 +1,18 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs/config";
+import { robotsHeaders } from "./src/server/robots";
 
 const nextConfig: NextConfig = {
   // Monorepo: trace files from the repo root so workspace packages are copied.
   outputFileTracingRoot: path.join(import.meta.dirname, "../../"),
   cacheComponents: true,
+  // Outside production every response is noindex (src/server/robots.ts). APP_ENV is read
+  // at build, so turbo.json passes it to the build task.
+  async headers() {
+    const headers = robotsHeaders(process.env["APP_ENV"]);
+    return headers.length ? [{ source: "/:path*", headers }] : [];
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {

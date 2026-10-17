@@ -9,6 +9,7 @@ import {
   type Razorpay,
   type RzpOrder,
   type RzpPayment,
+  type RzpRefund,
   type RzpSubscription,
 } from "../src/server/payments/razorpay";
 
@@ -25,6 +26,7 @@ export class FakeRazorpay implements Razorpay {
   orders = new Map<string, RzpOrder>();
   subscriptions = new Map<string, RzpSubscription>();
   payments = new Map<string, RzpPayment>();
+  refunds = new Map<string, RzpRefund[]>();
   failFetch = false;
   calls: string[] = [];
 
@@ -74,6 +76,23 @@ export class FakeRazorpay implements Razorpay {
     const p = this.payments.get(id);
     if (!p) throw new RazorpayError(400, "BAD_REQUEST_ERROR", "no such payment");
     return { ...p };
+  }
+  async fetchPaymentRefunds(id: string): Promise<{ items: RzpRefund[] }> {
+    this.calls.push(`fetchPaymentRefunds:${id}`);
+    if (this.failFetch) throw new RazorpayError(503, undefined, "Razorpay unavailable");
+    return { items: (this.refunds.get(id) ?? []).map((r) => ({ ...r })) };
+  }
+  /** A refund of a payment, as Razorpay would list it. */
+  refund(paymentId: string, amount: number, status: RzpRefund["status"] = "processed"): RzpRefund {
+    const r: RzpRefund = {
+      id: rid("rfnd"),
+      entity: "refund",
+      payment_id: paymentId,
+      amount,
+      status,
+    };
+    this.refunds.set(paymentId, [...(this.refunds.get(paymentId) ?? []), r]);
+    return r;
   }
   async fetchSubscription(id: string): Promise<RzpSubscription> {
     this.calls.push(`fetchSubscription:${id}`);

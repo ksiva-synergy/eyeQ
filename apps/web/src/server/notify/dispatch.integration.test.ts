@@ -292,7 +292,7 @@ describeDb("the dispatcher", () => {
     });
   });
 
-  it("without Resend configured a receipt is skipped and recorded, not retried", async () => {
+  it("staging and local: without Resend a receipt is skipped and recorded, not retried", async () => {
     const u = await makeAthlete(admin, { name: "No Resend" });
     const row = await queue(
       u,
@@ -308,6 +308,49 @@ describeDb("the dispatcher", () => {
       status: "skipped",
       last_error: "email_not_configured",
     });
+  });
+
+  it("in production without Resend a receipt stays queued, past five attempts, and is reported", async () => {
+    const u = await makeAthlete(admin, { name: "Prod no Resend" });
+    const row = await queue(
+      u,
+      "receipt",
+      "prod-unconfigured",
+      JSON.stringify({ email: "c@example.com" }),
+    );
+    const reports: unknown[] = [];
+    const email = resendChannel(undefined, fetch, {
+      production: true,
+      report: (e) => reports.push(e),
+    });
+    for (let i = 0; i < 7; i++) {
+      await admin.query(
+        "update notifications set send_after = now() - interval '1 second' where id = $1",
+        [row],
+      );
+      await dispatch({ db: service, channels: { push: webPushChannel(undefined), email } });
+    }
+    const s = await status(row);
+    expect(s).toMatchObject({ status: "queued", last_error: "email_not_configured", attempts: 7 });
+    expect(reports).toHaveLength(1);
+    expect((reports[0] as Error).name).toBe("EmailNotConfigured");
+
+    // Once the key is set, the next run sends it.
+    await admin.query(
+      "update notifications set send_after = now() - interval '1 second' where id = $1",
+      [row],
+    );
+    const ok = (async () => new Response("{}", { status: 200 })) as unknown as typeof fetch;
+    await dispatch({
+      db: service,
+      channels: {
+        push: webPushChannel(undefined),
+        email: resendChannel({ key: "re_test", from: "EyeQ <no-reply@example.com>" }, ok, {
+          production: true,
+        }),
+      },
+    });
+    expect(await status(row)).toMatchObject({ status: "sent" });
   });
 
   it("web push is encrypted and VAPID-signed: the request the push service receives", () => {

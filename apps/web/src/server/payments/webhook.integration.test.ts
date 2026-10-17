@@ -3,7 +3,8 @@
  * fixture deliveries and a fake Razorpay API: a bad signature is refused, logged, reported
  * and not stored; a captured payment unlocks; a replay changes nothing; one pay-per-view
  * purchase opens only that drill; a renewal extends; two subscription events delivered out
- * of order end in the right state; a full refund locks at once; an event left unprocessed
+ * of order end in the right state; a full refund locks at once and a failed one gives
+ * access back; an event left unprocessed
  * is finished by the sweep; two deliveries of the same payment racing grant once.
  */
 import { createDb, type PrismaClient } from "@eyeq/db";
@@ -305,7 +306,7 @@ describeDb("POST /api/webhooks/razorpay", () => {
     payment.amount_refunded = 10000;
     payment.refund_status = "partial";
     rzp.payments.set(payment.id, payment);
-    const partial = { id: rid("rfnd"), payment_id: payment.id, amount: 10000, status: "processed" };
+    const partial = rzp.refund(payment.id, 10000);
     await send(delivery("refund.processed", { refund: partial, payment }));
     expect(await access(user, "program", program)).toBe(true);
     expect(
@@ -337,9 +338,54 @@ describeDb("POST /api/webhooks/razorpay", () => {
     payment.refund_status = "full";
     payment.status = "refunded";
     rzp.payments.set(payment.id, payment);
-    const rest = { id: rid("rfnd"), payment_id: payment.id, amount: 89900, status: "processed" };
+    const rest = rzp.refund(payment.id, 89900);
     await send(delivery("refund.processed", { refund: rest, payment }));
     expect(await access(user, "program", program)).toBe(false);
+  });
+
+  it("a full refund locks on refund.created; refund.failed gives access back, with an event", async () => {
+    const user = await makeAthlete(admin, { name: "Refund failed" });
+    const order = rid("order");
+    await checkout(user, products.program, "order", "program", program, order, 99900);
+    const payment = rzp.pay(order, 99900);
+    await send(delivery("payment.captured", { payment }));
+    const ent = (
+      await one<{ e: string }>(
+        "select entitlement_id as e from payment_grants where payment_id = $1",
+        [payment.id],
+      )
+    ).e;
+    const events = async () =>
+      await one<{ n: number; last: string }>(
+        `select count(*)::int as n,
+             (select change || ':' || coalesce(reason, '') from entitlement_events where entitlement_id = $1 order by seq desc limit 1) as last
+           from entitlement_events where entitlement_id = $1`,
+        [ent],
+      );
+
+    // refund.created: Razorpay is still processing the refund (pending); access ends now.
+    const refund = rzp.refund(payment.id, 99900, "pending");
+    await send(delivery("refund.created", { refund, payment }));
+    expect(await access(user, "program", program)).toBe(false);
+    expect(await events()).toEqual({ n: 2, last: "revoked:refund" });
+
+    // refund.failed: the money did not go back, so the program opens again.
+    rzp.refunds.get(payment.id)![0]!.status = "failed";
+    const failed = delivery("refund.failed", { refund: { ...refund, status: "failed" }, payment });
+    await send(failed);
+    expect(await access(user, "program", program)).toBe(true);
+    expect(await events()).toEqual({ n: 3, last: "reactivated:refund_failed" });
+    await send(failed); // a replay
+    await send(delivery("refund.failed", { refund: { ...refund, status: "failed" }, payment }));
+    expect(await events()).toEqual({ n: 3, last: "reactivated:refund_failed" });
+    expect(
+      (
+        await one<{ n: number }>(
+          "select count(*)::int as n from payment_flags where external_id = $1",
+          [refund.id],
+        )
+      ).n,
+    ).toBe(0);
   });
 
   it("an event whose processing failed is stored, answered 200, and finished by the sweep", async () => {

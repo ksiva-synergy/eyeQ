@@ -73,8 +73,11 @@ export async function dispatch(opts: DispatchOptions): Promise<DispatchResult> {
               data: { disabled_at: new Date() },
             });
           const error = res.outcome === "sent" ? null : res.error;
+          // A held row (production email without Resend) stays queued, retried hourly, until
+          // the setting exists; it never runs out of attempts.
+          const maxAttempts = res.outcome === "retry" && res.hold ? 2_147_483_647 : 5;
           const [done] = await db.$queryRaw<{ ok: boolean }[]>`
-            select finish_notification(${n.id}::uuid, ${res.outcome}, ${error}) as ok`;
+            select finish_notification(${n.id}::uuid, ${res.outcome}, ${error}, now(), ${maxAttempts}::integer) as ok`;
           if (!done?.ok) {
             r.lost++;
             log("warn", "dispatch.lease_lost", { notificationId: n.id });

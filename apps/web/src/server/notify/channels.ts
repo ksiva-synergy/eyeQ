@@ -17,7 +17,8 @@ export type Claimed = {
 export type Outcome =
   | { outcome: "sent" }
   | { outcome: "skipped"; error: string }
-  | { outcome: "retry"; error: string }
+  /** `hold`: keep retrying past the attempt limit (a missing setting, not a bad row). */
+  | { outcome: "retry"; error: string; hold?: boolean }
   | { outcome: "failed"; error: string };
 
 export type SendResult = Outcome & {

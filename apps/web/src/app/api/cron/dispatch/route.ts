@@ -3,6 +3,7 @@ import { env } from "@/server/env";
 import { handleCron } from "@/server/notify/cron";
 import { dispatch } from "@/server/notify/dispatch";
 import { resendChannel } from "@/server/notify/email";
+import { report } from "@/server/observability/sentry";
 import { vapidSender, webPushChannel } from "@/server/notify/web-push";
 
 /** Vercel Cron, every 5 minutes (vercel.json): drains the notification outbox. */
@@ -19,7 +20,10 @@ export function GET(req: Request) {
         db: serviceDb(),
         channels: {
           push: webPushChannel(vapid ? vapidSender(vapid) : undefined),
-          email: resendChannel(env.resend()),
+          email: resendChannel(env.resend(), fetch, {
+            production: env.appEnv() === "production",
+            report,
+          }),
         },
       });
     },

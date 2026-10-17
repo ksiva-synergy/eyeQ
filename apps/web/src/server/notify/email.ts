@@ -6,19 +6,38 @@ export type Fetch = typeof fetch;
  * Email through Resend's HTTP API (POST /emails). The address travels in the row's data
  * (a receipt carries the checkout email, phase 7); nothing looks it up here. The row id is
  * the Idempotency-Key, so a retried row is not sent twice within Resend's 24 hours.
- * Used for receipts (phase 7). Without RESEND_API_KEY and EMAIL_FROM a row is skipped
- * with `email_not_configured`.
+ * Used for receipts (phase 7). Without RESEND_API_KEY and EMAIL_FROM: in production the
+ * row stays queued and Sentry hears about it; elsewhere it is skipped (`email_not_configured`).
  */
+export class EmailNotConfigured extends Error {
+  constructor() {
+    super("Receipts are queued but RESEND_API_KEY or EMAIL_FROM is not set in production");
+    this.name = "EmailNotConfigured";
+  }
+}
+
 export function resendChannel(
   cfg: { key: string; from: string } | undefined,
   fetcher: Fetch = fetch,
+  opts: { production?: boolean; report?: (e: unknown, ctx: Record<string, unknown>) => void } = {},
 ): Channel {
+  let reported = false;
   return {
     async send(n: Claimed, text): Promise<SendResult> {
       const to = typeof n.data["email"] === "string" ? (n.data["email"] as string) : null;
       if (!to) return { outcome: "skipped", error: "no_address" };
-      // Without Resend, a receipt is skipped and recorded, not retried (phase 7).
-      if (!cfg) return { outcome: "skipped", error: "email_not_configured" };
+      if (!cfg) {
+        // Production: a receipt is owed, so it stays queued until the key is set, and the
+        // missing setting is reported (once per run). Staging and local: skipped and recorded.
+        if (opts.production) {
+          if (!reported) {
+            reported = true;
+            opts.report?.(new EmailNotConfigured(), { notificationId: n.id, kind: n.kind });
+          }
+          return { outcome: "retry", error: "email_not_configured", hold: true };
+        }
+        return { outcome: "skipped", error: "email_not_configured" };
+      }
       let res: Response;
       try {
         res = await fetcher("https://api.resend.com/emails", {

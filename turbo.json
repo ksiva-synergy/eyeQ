@@ -5,7 +5,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["SENTRY_ORG", "SENTRY_PROJECT"],
+      "env": ["SENTRY_ORG", "SENTRY_PROJECT", "APP_ENV"],
       "passThroughEnv": ["SENTRY_AUTH_TOKEN"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
