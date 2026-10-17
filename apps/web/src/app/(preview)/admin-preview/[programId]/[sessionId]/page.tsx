@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { asAthlete } from "@eyeq/db";
+import { asAthlete, inSequence } from "@eyeq/db";
 import type { DrillMedia, SessionDrill } from "@eyeq/api-contract";
 import { Player, type PlayData } from "@/app/(play)/app/session/[id]/Player";
 import { PlayerSkeleton } from "@/app/(play)/app/session/[id]/PlayerSkeleton";
@@ -35,10 +35,10 @@ async function Load({ params }: { params: Promise<{ programId: string; sessionId
   if (!UUID.test(programId) || !UUID.test(sessionId)) notFound();
   const { session } = await requireAdmin(`/admin-preview/${programId}/${sessionId}`);
   const found = await asAthlete(serviceDb(), session.userId, async (tx) => {
-    const [program, { tags }, cfg] = await Promise.all([
-      getProgram(tx, programId).catch(() => null),
-      listMeasurementTags(tx),
-      configNumbers(tx, ["xp.drill", "coin.drill_unlock_price", "video.done_threshold"]),
+    const [program, { tags }, cfg] = await inSequence([
+      () => getProgram(tx, programId).catch(() => null),
+      () => listMeasurementTags(tx),
+      () => configNumbers(tx, ["xp.drill", "coin.drill_unlock_price", "video.done_threshold"]),
     ]);
     return { program, tags, cfg };
   });

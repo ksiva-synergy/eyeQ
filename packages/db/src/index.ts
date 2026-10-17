@@ -32,3 +32,17 @@ export function asAthlete<T>(db: PrismaClient, userId: string, fn: (tx: Tx) => P
     return fn(tx);
   });
 }
+
+/**
+ * Promise.all for queries on one transaction, run one after another. A transaction holds
+ * one connection, and pg queues a query sent while another is running: it warns now
+ * ("Calling client.query() when the client is already executing a query") and pg@9 makes
+ * it an error. Use this, never Promise.all, for work on a `tx`.
+ */
+export async function inSequence<const T extends readonly (() => unknown)[]>(
+  steps: T,
+): Promise<{ -readonly [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const out: unknown[] = [];
+  for (const step of steps) out.push(await step());
+  return out as { -readonly [K in keyof T]: Awaited<ReturnType<T[K]>> };
+}

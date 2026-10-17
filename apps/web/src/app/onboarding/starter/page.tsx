@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { inSequence } from "@eyeq/db";
 import type { ProgramCard, ProgramDetail } from "@eyeq/api-contract";
 import { t } from "@eyeq/i18n";
 import { Card, Chip, Icon } from "@eyeq/ui/web";
@@ -22,10 +23,11 @@ export default function OnboardingStarter() {
 
 async function Load() {
   const data = await asSignedInAthlete("/onboarding/starter", async (tx, session) => {
-    const [me, { programs }, cfg] = await Promise.all([
-      getMe(tx, session),
-      listPrograms(tx),
-      configNumbers(tx, ["xp.session_bonus", "streak.multiplier_days", "streak.multiplier_step"]),
+    const [me, { programs }, cfg] = await inSequence([
+      () => getMe(tx, session),
+      () => listPrograms(tx),
+      () =>
+        configNumbers(tx, ["xp.session_bonus", "streak.multiplier_days", "streak.multiplier_step"]),
     ]);
     const pick = pickStarter(programs, me.sport, me.goal);
     const detail = pick.starter ? await getProgram(tx, pick.starter.slug) : null;

@@ -174,9 +174,9 @@ describeDb("the dispatcher", () => {
   });
 
   it("two runs started together send each notification once", async () => {
-    const users = await Promise.all(
-      Array.from({ length: 6 }, (_, i) => makeAthlete(admin, { name: `Race ${i}` })),
-    );
+    // One after another: `admin` is one pg client (parallel queries on it are deprecated).
+    const users: string[] = [];
+    for (let i = 0; i < 6; i++) users.push(await makeAthlete(admin, { name: `Race ${i}` }));
     const mine = new Set<string>();
     for (const [i, u] of users.entries()) {
       await admin.query(

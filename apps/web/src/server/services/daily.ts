@@ -1,4 +1,5 @@
 import type { Tx } from "@eyeq/db";
+import { inSequence } from "@eyeq/db";
 import {
   completionResultSchema,
   drillDetailSchema,
@@ -142,12 +143,17 @@ export async function getEntitlements(tx: Tx): Promise<EntitlementsResponse> {
   const rows = v ?? [];
   const ids = (scope: string) =>
     rows.filter((r) => r.scope === scope && r.scope_id).map((r) => r.scope_id!);
-  const [programs, drills] = await Promise.all([
-    tx.programs.findMany({
-      where: { id: { in: ids("program") } },
-      select: { id: true, title: true },
-    }),
-    tx.drills.findMany({ where: { id: { in: ids("drill") } }, select: { id: true, title: true } }),
+  const [programs, drills] = await inSequence([
+    () =>
+      tx.programs.findMany({
+        where: { id: { in: ids("program") } },
+        select: { id: true, title: true },
+      }),
+    () =>
+      tx.drills.findMany({
+        where: { id: { in: ids("drill") } },
+        select: { id: true, title: true },
+      }),
   ]);
   const title = new Map([...programs, ...drills].map((p) => [p.id, p.title]));
   return shaped(

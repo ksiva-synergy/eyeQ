@@ -1,4 +1,5 @@
 import type { Tx } from "@eyeq/db";
+import { inSequence } from "@eyeq/db";
 import {
   landingCoachSchema,
   programLandingSchema,
@@ -76,8 +77,8 @@ export async function setCoach(
 export async function getLanding(tx: Tx, slug: string): Promise<LandingData | null> {
   const p = await tx.programs.findFirst({ where: { slug, status: "published" } });
   if (!p) return null;
-  const [modules, product, pro, coach, perDay] = await Promise.all([
-    tx.$queryRaw<
+  const [modules, product, pro, coach, perDay] = await inSequence([
+    () => tx.$queryRaw<
       {
         order: number;
         title: string;
@@ -97,19 +98,21 @@ export async function getLanding(tx: Tx, slug: string): Promise<LandingData | nu
       left join drills d on d.id = sd.drill_id and d.status = 'published'
       where m.program_id = ${p.id}::uuid
       group by m.id order by m."order"`,
-    p.product_id
-      ? tx.products.findFirst({ where: { id: p.product_id, active: true, kind: "program" } })
-      : null,
-    tx.products.findFirst({
-      where: {
-        active: true,
-        kind: "subscription",
-        grants: { path: ["duration_days"], equals: 30 },
-      },
-      orderBy: { price_paise: "asc" },
-    }),
-    getCoach(tx),
-    tx.$queryRaw<{ m: number | null }[]>`
+    () =>
+      p.product_id
+        ? tx.products.findFirst({ where: { id: p.product_id, active: true, kind: "program" } })
+        : null,
+    () =>
+      tx.products.findFirst({
+        where: {
+          active: true,
+          kind: "subscription",
+          grants: { path: ["duration_days"], equals: 30 },
+        },
+        orderBy: { price_paise: "asc" },
+      }),
+    () => getCoach(tx),
+    () => tx.$queryRaw<{ m: number | null }[]>`
       select round(avg(est_minutes))::int as m from sessions where program_id = ${p.id}::uuid`,
   ]);
   const measurements = await tx.$queryRaw<{ slug: string; name: string; group: string }[]>`
