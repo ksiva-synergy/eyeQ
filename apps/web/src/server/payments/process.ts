@@ -25,6 +25,9 @@ export interface GrantResult {
   entitlement_id?: string | null;
   reason?: string;
   change?: string | null;
+  /** Subscription sync: the entitlement as it now stands. */
+  status?: string | null;
+  ends_at?: string | null;
 }
 
 export interface ProcessDeps {

@@ -35,6 +35,6 @@ export const config = {
   matcher: [
     // Pages and /api/v1; not static files, the service worker, health checks, the auth
     // routes, the SMS hook or the cron dispatcher.
-    "/((?!_next/static|_next/image|favicon.ico|sw.js|api/health|api/auth|api/cron|auth/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|api/health|api/auth|api/cron|api/webhooks|auth/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

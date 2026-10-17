@@ -2,6 +2,7 @@ import "server-only";
 import { serviceDb } from "../db";
 import { env } from "../env";
 import { capture } from "../observability/posthog";
+import type { PaymentsDeps } from "../services/purchases";
 import type { GrantResult } from "./process";
 import { razorpayClient, type Razorpay } from "./razorpay";
 
@@ -26,4 +27,7 @@ export async function purchaseCompleted(r: GrantResult): Promise<void> {
   });
 }
 
-export const paymentDb = serviceDb;
+/** Wiring for the purchase routes. */
+export function paymentsDeps(): PaymentsDeps {
+  return { razorpay: razorpay(), keys: env.razorpay(), service: serviceDb() };
+}
